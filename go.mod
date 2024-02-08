@@ -1,4 +1,4 @@
-module github.com/momarques/kb
+module github.com/momarques/kibe
 
 go 1.21.5
 

@@ -5,17 +5,18 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kb/kubecontext"
-	"github.com/momarques/kb/logging"
+	kubecontext "github.com/momarques/kibe/kube/context"
+	"github.com/momarques/kibe/logging"
+	listmodel "github.com/momarques/kibe/model/list"
 )
 
 func main() {
-	m, err := kubecontext.NewContextModel()
+	initialModel, err := listmodel.New(kubecontext.NewContextBindings())
 	if err != nil {
 		fmt.Printf("failed to create model: %s", err)
 		os.Exit(1)
 	}
-	program := tea.NewProgram(m)
+	program := tea.NewProgram(initialModel)
 
 	if len(os.Getenv("DEBUG")) > 0 {
 		f, err := tea.LogToFile(logging.LogFile, "debug")
