@@ -7,7 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kibe/bindings"
+	"github.com/momarques/kibe/internal/bindings"
 	"gopkg.in/yaml.v2"
 	"k8s.io/client-go/util/homedir"
 )

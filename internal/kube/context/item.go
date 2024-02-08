@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/momarques/kibe/logging"
+	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 	"k8s.io/client-go/tools/clientcmd/api"
 )

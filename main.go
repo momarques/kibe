@@ -5,9 +5,9 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	kubecontext "github.com/momarques/kibe/kube/context"
-	"github.com/momarques/kibe/logging"
-	listmodel "github.com/momarques/kibe/model/list"
+	kubecontext "github.com/momarques/kibe/internal/kube/context"
+	"github.com/momarques/kibe/internal/logging"
+	listmodel "github.com/momarques/kibe/internal/model/list"
 )
 
 func main() {
