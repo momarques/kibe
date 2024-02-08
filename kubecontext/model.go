@@ -10,11 +10,15 @@ type contextModel struct {
 	keys *contextBindings
 }
 
-func NewContextModel() contextModel {
+func NewContextModel() (contextModel, error) {
 	cb := newContextBindings()
+	allContexts, err := fetchAllContexts()
+	if err != nil {
+		return contextModel{}, err
+	}
 
 	contextList := list.New(
-		fetchAllContexts(),
+		allContexts,
 		newContextDelegate(cb), 0, 0)
 
 	contextList.Title = "Choose a context"
@@ -23,7 +27,7 @@ func NewContextModel() contextModel {
 	return contextModel{
 		list: contextList,
 		keys: cb,
-	}
+	}, nil
 }
 
 func (cm contextModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
