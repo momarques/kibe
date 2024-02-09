@@ -24,7 +24,7 @@ func (ci contextItem) Description() string {
 	return user + namespace
 }
 
-func newContextList(config api.Config) []list.Item {
+func newContextList(config *api.Config) []list.Item {
 	contextList := []list.Item{}
 
 	for _, v := range config.Contexts {

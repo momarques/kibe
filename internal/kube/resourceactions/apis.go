@@ -1,4 +1,4 @@
-package kubeapis
+package resourceactions
 
 import (
 	"encoding/json"

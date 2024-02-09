@@ -1,10 +1,15 @@
 package contextactions
 
 import (
+	"context"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/bindings"
+	"github.com/momarques/kibe/internal/kube"
+	"github.com/momarques/kibe/internal/logging"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 func New() *contextActions {
@@ -35,10 +40,10 @@ func (ca *contextActions) FullHelpFunc() func() [][]key.Binding {
 
 func (ca *contextActions) UpdateFunc() func(msg tea.Msg, m *list.Model) tea.Cmd {
 	return func(msg tea.Msg, m *list.Model) tea.Cmd {
-		var title string
+		var selectedContext string
 
 		if i, ok := m.SelectedItem().(contextItem); ok {
-			title = i.Title()
+			selectedContext = i.FilterValue()
 		} else {
 			return nil
 		}
@@ -47,8 +52,12 @@ func (ca *contextActions) UpdateFunc() func(msg tea.Msg, m *list.Model) tea.Cmd 
 		case tea.KeyMsg:
 			switch {
 			case key.Matches(msg, ca.choose):
-
-				return m.NewStatusMessage(statusMessageStyle("You chose " + title))
+				client := kube.NewKubeClient(selectedContext)
+				ns, err := client.CoreV1().Namespaces().List(context.Background(), v1.ListOptions{})
+				if err != nil {
+					logging.Log.Error(err)
+				}
+				return m.NewStatusMessage(statusMessageStyle("Namespace " + ns.Items[0].Name))
 			}
 		}
 		return nil

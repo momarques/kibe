@@ -1,9 +1,10 @@
 package kube
 
 import (
-	"os"
 	"path/filepath"
 
+	"github.com/momarques/kibe/internal/logging"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/client-go/util/homedir"
@@ -16,18 +17,32 @@ func RetrieveKubeConfigFilePath() string {
 	return ""
 }
 
-func FetchKubeConfig() api.Config {
-	fileContent, err := os.ReadFile(RetrieveKubeConfigFilePath())
+func FetchKubeConfig() *api.Config {
+	config, err := clientcmd.LoadFromFile(RetrieveKubeConfigFilePath())
 	if err != nil {
-		panic(err)
-	}
-	configBytes, err := clientcmd.NewClientConfigFromBytes(fileContent)
-	if err != nil {
-		panic(err)
-	}
-	config, err := configBytes.RawConfig()
-	if err != nil {
-		panic(err)
+		logging.Log.Error(err)
 	}
 	return config
+}
+
+func NewKubeClient(contextName string) *kubernetes.Clientset {
+	var overrides *clientcmd.ConfigOverrides
+
+	if contextName != "" {
+		overrides = &clientcmd.ConfigOverrides{CurrentContext: contextName}
+	}
+
+	clientConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: RetrieveKubeConfigFilePath()},
+		overrides,
+	).ClientConfig()
+	if err != nil {
+		logging.Log.Error(err)
+	}
+
+	client, err := kubernetes.NewForConfig(clientConfig)
+	if err != nil {
+		logging.Log.Error(err)
+	}
+	return client
 }

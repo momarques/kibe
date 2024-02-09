@@ -6,7 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube/contextactions"
-	kubeapis "github.com/momarques/kibe/internal/kube/resources"
+	"github.com/momarques/kibe/internal/kube/resourceactions"
 	"github.com/momarques/kibe/internal/logging"
 	listmodel "github.com/momarques/kibe/internal/model/list"
 	"github.com/spf13/cobra"
@@ -54,7 +54,7 @@ Just put what you need to test inside the Run field and test with:
 
 	make test-command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		kubeapis.AAAA()
+		resourceactions.AAAA()
 	},
 }
 
