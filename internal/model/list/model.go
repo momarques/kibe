@@ -5,34 +5,34 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-type ContextModel struct {
+type ListModel struct {
 	list list.Model
-	keys ListDelegateBindings
+	keys ListActions
 }
 
-func New(listBindings ListDelegateBindings) (ContextModel, error) {
-	allContexts, err := listBindings.FetchListItems()
+func New(listActions ListActions) (ListModel, error) {
+	items, err := listActions.FetchListItems()
 	if err != nil {
-		return ContextModel{}, err
+		return ListModel{}, err
 	}
 
-	contextList := list.New(
-		allContexts,
-		listBindings.NewDelegate(), 0, 0)
+	l := list.New(
+		items,
+		newListOptions(listActions), 0, 0)
 
-	contextList.Title = "Choose a context to connect"
-	contextList.Styles.Title = titleStyle
-	contextList.Styles.HelpStyle = helpStyle
-	contextList.Styles.FilterPrompt = filterPromptStyle
-	contextList.Styles.FilterCursor = filterCursorStyle
+	l.Title = listActions.Title()
+	l.Styles.Title = titleStyle
+	l.Styles.HelpStyle = helpStyle
+	l.Styles.FilterPrompt = filterPromptStyle
+	l.Styles.FilterCursor = filterCursorStyle
 
-	return ContextModel{
-		list: contextList,
-		keys: listBindings,
+	return ListModel{
+		list: l,
+		keys: listActions,
 	}, nil
 }
 
-func (cm ContextModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (cm ListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -50,10 +50,10 @@ func (cm ContextModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return cm, cmd
 }
 
-func (cm ContextModel) Init() tea.Cmd {
+func (cm ListModel) Init() tea.Cmd {
 	return tea.EnterAltScreen
 }
 
-func (cm ContextModel) View() string {
+func (cm ListModel) View() string {
 	return appStyle.Render(cm.list.View())
 }
