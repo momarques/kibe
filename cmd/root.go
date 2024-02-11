@@ -6,7 +6,6 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube/contextactions"
-	"github.com/momarques/kibe/internal/kube/resourceactions"
 	"github.com/momarques/kibe/internal/logging"
 	listmodel "github.com/momarques/kibe/internal/model/list"
 	"github.com/spf13/cobra"
@@ -21,7 +20,13 @@ It's a tool focused for developers who doesn't necessarily need to understand th
 Also it's a tool made to look beautiful on modern terminals.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		initialModel, err := listmodel.New(contextactions.New())
+		contexts, err := contextactions.FetchItems()
+		if err != nil {
+			fmt.Printf("failed to create model: %s", err)
+			os.Exit(1)
+		}
+
+		initialModel, err := listmodel.New("Choose a context to connect: ", contexts)
 		if err != nil {
 			fmt.Printf("failed to create model: %s", err)
 			os.Exit(1)
@@ -54,7 +59,7 @@ Just put what you need to test inside the Run field and test with:
 
 	make test-command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		resourceactions.AAAA()
+		// resourceactions.AAAA()
 	},
 }
 

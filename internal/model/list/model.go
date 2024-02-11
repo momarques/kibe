@@ -1,59 +1,66 @@
 package listmodel
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/momarques/kibe/internal/bindings"
 )
 
-type ListModel struct {
-	list list.Model
-	keys ListActions
+type model struct {
+	list    list.Model
+	actions actions
 }
 
-func New(listActions ListActions) (ListModel, error) {
-	items, err := listActions.FetchListItems()
-	if err != nil {
-		return ListModel{}, err
+type actions struct {
+	selectedContext  string
+	selectedResource string
+	choose           key.Binding
+}
+
+func New(titleMsg string, items []list.Item) (model, error) {
+	a := actions{
+		choose: bindings.New("enter", "choose"),
 	}
 
 	l := list.New(
 		items,
-		newListOptions(listActions), 0, 0)
+		a.newDelegate(), 0, 0)
 
-	l.Title = listActions.Title()
+	l.Title = titleMsg
 	l.Styles.Title = titleStyle
 	l.Styles.HelpStyle = helpStyle
 	l.Styles.FilterPrompt = filterPromptStyle
 	l.Styles.FilterCursor = filterCursorStyle
 
-	return ListModel{
-		list: l,
-		keys: listActions,
+	return model{
+		list:    l,
+		actions: a,
 	}, nil
 }
 
-func (cm ListModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		h, v := appStyle.GetFrameSize()
-		cm.list.SetSize(msg.Width-h, msg.Height-v)
+		m.list.SetSize(msg.Width-h, msg.Height-v)
 
 	case tea.KeyMsg:
-		if cm.list.FilterState() == list.Filtering {
+		if m.list.FilterState() == list.Filtering {
 			break
 		}
+
 	}
-	newListModel, cmd := cm.list.Update(msg)
-	cm.list = newListModel
-	return cm, cmd
+
+	newListModel, cmd := m.list.Update(msg)
+	m.list = newListModel
+	return m, cmd
 }
 
-func (cm ListModel) Init() tea.Cmd {
+func (m model) Init() tea.Cmd {
 	return tea.EnterAltScreen
 }
 
-func (cm ListModel) View() string {
-	return appStyle.Render(cm.list.View())
+func (m model) View() string {
+	return appStyle.Render(m.list.View())
 }

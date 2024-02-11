@@ -4,6 +4,7 @@ import (
 	"path/filepath"
 
 	"github.com/momarques/kibe/internal/logging"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
@@ -29,7 +30,9 @@ func NewKubeClient(contextName string) *kubernetes.Clientset {
 	var overrides *clientcmd.ConfigOverrides
 
 	if contextName != "" {
-		overrides = &clientcmd.ConfigOverrides{CurrentContext: contextName}
+		overrides = &clientcmd.ConfigOverrides{
+			CurrentContext: contextName,
+		}
 	}
 
 	clientConfig, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
@@ -45,4 +48,15 @@ func NewKubeClient(contextName string) *kubernetes.Clientset {
 		logging.Log.Error(err)
 	}
 	return client
+}
+
+func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {
+	for _, v := range apiList {
+		for _, r := range v.APIResources {
+			if r.Kind == kind {
+				return v.GroupVersion
+			}
+		}
+	}
+	return ""
 }
