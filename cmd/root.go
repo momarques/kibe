@@ -8,6 +8,7 @@ import (
 	kubecontext "github.com/momarques/kibe/internal/kube/context"
 	"github.com/momarques/kibe/internal/logging"
 	listmodel "github.com/momarques/kibe/internal/model/list"
+	tablemodel "github.com/momarques/kibe/internal/model/table"
 	"github.com/spf13/cobra"
 )
 
@@ -59,7 +60,7 @@ Just put what you need to test inside the Run field and test with:
 
 	make test-command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		// resourceactions.AAAA()
+		tablemodel.Table()
 	},
 }
 

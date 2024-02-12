@@ -1,16 +1,14 @@
 package resourceactions
 
+import "github.com/momarques/kibe/internal/kube/pod"
+
 var SupportedResources = []Resource{
-	&Pod{kind: "Pod"},
+	pod.New(),
 	&Service{kind: "Service"},
 	&Ingress{kind: "Ingress"},
 }
 
 type Resource interface{ Kind() string }
-
-type Pod struct{ kind string }
-
-func (p *Pod) Kind() string { return p.kind }
 
 type Service struct{ kind string }
 

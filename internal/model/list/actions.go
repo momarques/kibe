@@ -5,7 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/kube/contextactions"
+	kubecontext "github.com/momarques/kibe/internal/kube/context"
 	"github.com/momarques/kibe/internal/kube/resourceactions"
 	"github.com/momarques/kibe/internal/logging"
 	modelstyles "github.com/momarques/kibe/internal/model/styles"
@@ -37,7 +37,7 @@ func (a actions) updateFunc(msg tea.Msg, m *list.Model) tea.Cmd {
 		switch {
 		case key.Matches(msg, a.choose):
 			switch s := m.SelectedItem().(type) {
-			case contextactions.ContextItem:
+			case kubecontext.ContextItem:
 				a.selectedContext = s.FilterValue()
 
 				client = kube.NewKubeClient(a.selectedContext)
