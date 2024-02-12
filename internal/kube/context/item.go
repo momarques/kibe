@@ -1,4 +1,4 @@
-package contextactions
+package kubecontext
 
 import (
 	"fmt"

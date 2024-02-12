@@ -5,7 +5,7 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kibe/internal/kube/contextactions"
+	kubecontext "github.com/momarques/kibe/internal/kube/context"
 	"github.com/momarques/kibe/internal/logging"
 	listmodel "github.com/momarques/kibe/internal/model/list"
 	"github.com/spf13/cobra"
@@ -20,7 +20,7 @@ It's a tool focused for developers who doesn't necessarily need to understand th
 Also it's a tool made to look beautiful on modern terminals.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		contexts, err := contextactions.FetchItems()
+		contexts, err := kubecontext.FetchItems()
 		if err != nil {
 			fmt.Printf("failed to create model: %s", err)
 			os.Exit(1)
