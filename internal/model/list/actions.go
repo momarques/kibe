@@ -43,7 +43,7 @@ func (a actions) updateFunc(msg tea.Msg, m *list.Model) tea.Cmd {
 				if err != nil {
 					logging.Log.Error(err)
 				}
-				items, err := kube.FetchListItems(apiList)
+				availableResources, err := kube.ListAvailableResources(apiList)
 				if err != nil {
 					logging.Log.Error(err)
 				}
@@ -51,7 +51,21 @@ func (a actions) updateFunc(msg tea.Msg, m *list.Model) tea.Cmd {
 				return tea.Batch(
 					m.NewStatusMessage(modelstyles.StatusMessageStyle(
 						a.selectedContext+" selected")),
-					m.SetItems(items))
+					m.SetItems(availableResources))
+
+			case kube.NamespaceItem:
+				a.selectedNamespace = s.FilterValue()
+
+				client = kube.NewKubeClient(a.selectedContext)
+				namespaces, err := kube.NamespacesAsList(a.selectedContext, client)
+				if err != nil {
+					logging.Log.Error(err)
+				}
+
+				return tea.Batch(
+					m.NewStatusMessage(modelstyles.StatusMessageStyle(
+						a.selectedNamespace+" selected")),
+					m.SetItems(namespaces))
 
 			case kube.ResourceItem:
 				a.selectedResource = s.FilterValue()

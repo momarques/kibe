@@ -3,6 +3,7 @@ package kube
 import (
 	"context"
 
+	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
@@ -51,4 +52,27 @@ func namespaceFieldWidth(fieldName string, namespaces []corev1.Namespace) int {
 		}
 		return width
 	}, 0)
+}
+
+type NamespaceItem struct{ corev1.Namespace }
+
+func (ni NamespaceItem) Title() string       { return "Namespace: " + ni.Name }
+func (ni NamespaceItem) FilterValue() string { return ni.Name }
+func (ni NamespaceItem) Description() string { return "" }
+
+func newNamespaceList(client *kubernetes.Clientset) []list.Item {
+	namespaces := ListNamespaces(client)
+
+	namespaceList := []list.Item{}
+
+	for _, ns := range namespaces {
+		namespaceList = append(namespaceList, NamespaceItem{
+			Namespace: ns,
+		})
+	}
+	return namespaceList
+}
+
+func NamespacesAsList(context string, client *kubernetes.Clientset) ([]list.Item, error) {
+	return newNamespaceList(client), nil
 }

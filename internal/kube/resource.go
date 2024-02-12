@@ -36,4 +36,6 @@ func newResourceList(apiList []*v1.APIResourceList) []list.Item {
 	return resourceList
 }
 
-func FetchListItems(a []*v1.APIResourceList) ([]list.Item, error) { return newResourceList(a), nil }
+func ListAvailableResources(a []*v1.APIResourceList) ([]list.Item, error) {
+	return newResourceList(a), nil
+}

@@ -28,10 +28,10 @@ func ListServices(namespace string, client *kubernetes.Clientset) []corev1.Servi
 func ListServiceColumns(services []corev1.Service) (serviceAttributes []table.Column) {
 	return append(serviceAttributes,
 		table.Column{Title: "Name", Width: serviceFieldWidth("Name", services)},
-		table.Column{Title: "Type", Width: serviceFieldWidth("Name", services)},
-		table.Column{Title: "ClusterIP", Width: serviceFieldWidth("Name", services)},
-		table.Column{Title: "ExternalIP", Width: 100},
-		table.Column{Title: "Ports", Width: 100},
+		table.Column{Title: "Type", Width: serviceFieldWidth("Type", services)},
+		table.Column{Title: "ClusterIP", Width: serviceFieldWidth("ClusterIP", services)},
+		table.Column{Title: "ExternalIP", Width: serviceFieldWidth("ExternalIP", services)},
+		table.Column{Title: "Ports", Width: serviceFieldWidth("Ports", services)},
 		table.Column{Title: "Age", Width: 20},
 	)
 }
@@ -69,6 +69,16 @@ func serviceFieldWidth(fieldName string, services []corev1.Service) int {
 			fieldValue = string(svc.Spec.Type)
 		case "ClusterIP":
 			fieldValue = svc.Spec.ClusterIP
+		case "ExternalIP":
+			fieldValue = strings.Join(
+				svc.Spec.ExternalIPs, ", ")
+
+			// workaround so the column can have sufficient space to print column name, in case the value is empty
+			if len(fieldValue) < 1 {
+				fieldValue = "ExternalIP"
+			}
+		case "Ports":
+			fieldValue = servicePortsAsString(svc.Spec.Ports)
 		}
 
 		if len(fieldValue) > width {
@@ -82,8 +92,12 @@ func servicePortsAsString(services []corev1.ServicePort) string {
 	var ports []string
 
 	for _, port := range services {
-		ports = append(ports,
-			fmt.Sprintf("%s::%s::%s", port.Name, string(port.Port), string(port.NodePort)))
+		portAsString := fmt.Sprintf("%s::%d", port.Name, port.Port)
+		if port.NodePort != 0 {
+			portAsString = fmt.Sprintf("%s::%d", portAsString, port.NodePort)
+		}
+
+		ports = append(ports, portAsString)
 	}
 	return strings.Join(ports, ", ")
 }
