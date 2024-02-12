@@ -1,4 +1,4 @@
-package pod
+package kube
 
 import (
 	"context"
@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/table"
-	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
@@ -16,15 +15,26 @@ import (
 
 type Pod struct{ kind string }
 
-func New() *Pod             { return &Pod{kind: "Pod"} }
+func NewPodResource() *Pod  { return &Pod{kind: "Pod"} }
 func (p *Pod) Kind() string { return p.kind }
 
-func FetchResources(namespace string, client *kubernetes.Clientset) []corev1.Pod {
+func ListPods(namespace string, client *kubernetes.Clientset) []corev1.Pod {
 	pods, err := client.CoreV1().Pods(namespace).List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)
 	}
 	return pods.Items
+}
+
+func ListPodColumns(pods []corev1.Pod) (podAttributes []table.Column) {
+	return append(podAttributes,
+		table.Column{Title: "Name", Width: podFieldWidth("Name", pods)},
+		table.Column{Title: "Ready", Width: 10},
+		table.Column{Title: "Status", Width: 20},
+		table.Column{Title: "Restarts", Width: 10},
+		table.Column{Title: "Node", Width: podFieldWidth("Node", pods)},
+		table.Column{Title: "Age", Width: 20},
+	)
 }
 
 func RetrievePodListAsTableRows(pods []corev1.Pod) (podRows []table.Row) {
@@ -39,23 +49,12 @@ func RetrievePodListAsTableRows(pods []corev1.Pod) (podRows []table.Row) {
 				checkRestartedContainers(
 					pod.Status.ContainerStatuses),
 				pod.Spec.NodeName,
-				kube.DeltaTime(
+				DeltaTime(
 					pod.GetCreationTimestamp().Time),
 			},
 		)
 	}
 	return podRows
-}
-
-func FetchColumns(pods []corev1.Pod) (podAttributes []table.Column) {
-	return append(podAttributes,
-		table.Column{Title: "Name", Width: podFieldWidth("Name", pods)},
-		table.Column{Title: "Ready", Width: 10},
-		table.Column{Title: "Status", Width: 20},
-		table.Column{Title: "Restarts", Width: 10},
-		table.Column{Title: "Node", Width: podFieldWidth("Node", pods)},
-		table.Column{Title: "Age", Width: 20},
-	)
 }
 
 func podFieldWidth(fieldName string, pods []corev1.Pod) int {

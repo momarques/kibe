@@ -5,8 +5,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
-	kubecontext "github.com/momarques/kibe/internal/kube/context"
-	"github.com/momarques/kibe/internal/kube/resource"
 	"github.com/momarques/kibe/internal/logging"
 	modelstyles "github.com/momarques/kibe/internal/model/styles"
 	"k8s.io/client-go/kubernetes"
@@ -37,7 +35,7 @@ func (a actions) updateFunc(msg tea.Msg, m *list.Model) tea.Cmd {
 		switch {
 		case key.Matches(msg, a.choose):
 			switch s := m.SelectedItem().(type) {
-			case kubecontext.ContextItem:
+			case kube.ContextItem:
 				a.selectedContext = s.FilterValue()
 
 				client = kube.NewKubeClient(a.selectedContext)
@@ -45,7 +43,7 @@ func (a actions) updateFunc(msg tea.Msg, m *list.Model) tea.Cmd {
 				if err != nil {
 					logging.Log.Error(err)
 				}
-				items, err := resource.FetchListItems(apiList)
+				items, err := kube.FetchListItems(apiList)
 				if err != nil {
 					logging.Log.Error(err)
 				}
@@ -55,7 +53,7 @@ func (a actions) updateFunc(msg tea.Msg, m *list.Model) tea.Cmd {
 						a.selectedContext+" selected")),
 					m.SetItems(items))
 
-			case resource.ResourceItem:
+			case kube.ResourceItem:
 				a.selectedResource = s.FilterValue()
 
 				return m.NewStatusMessage(modelstyles.StatusMessageStyle(

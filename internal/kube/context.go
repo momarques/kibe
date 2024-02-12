@@ -1,10 +1,9 @@
-package kubecontext
+package kube
 
 import (
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/momarques/kibe/internal/kube"
 	modelstyles "github.com/momarques/kibe/internal/model/styles"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
@@ -34,4 +33,4 @@ func newContextList(config *api.Config) []list.Item {
 	return contextList
 }
 
-func FetchItems() ([]list.Item, error) { return newContextList(kube.FetchKubeConfig()), nil }
+func ListContexts() ([]list.Item, error) { return newContextList(FetchKubeConfig()), nil }

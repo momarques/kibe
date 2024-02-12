@@ -1,13 +1,20 @@
-package resource
+package kube
 
 import (
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/momarques/kibe/internal/kube"
 	modelstyles "github.com/momarques/kibe/internal/model/styles"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+var SupportedResources = []Resource{
+	NewPodResource(),
+	NewNamespaceResource(),
+	NewServiceResource(),
+}
+
+type Resource interface{ Kind() string }
 
 type ResourceItem struct{ apiVersion, kind string }
 
@@ -23,7 +30,7 @@ func newResourceList(apiList []*v1.APIResourceList) []list.Item {
 	for _, v := range SupportedResources {
 		resourceList = append(resourceList, ResourceItem{
 			kind:       v.Kind(),
-			apiVersion: kube.LookupAPIVersion(v.Kind(), apiList),
+			apiVersion: LookupAPIVersion(v.Kind(), apiList),
 		})
 	}
 	return resourceList
