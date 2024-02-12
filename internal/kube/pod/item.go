@@ -10,7 +10,6 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
-	"github.com/thoas/go-funk"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -36,7 +35,8 @@ func RetrievePodListAsTableRows(pods []corev1.Pod) (podList []table.Row) {
 				pod.Name,
 				checkReadyContainers(
 					pod.Status.ContainerStatuses),
-				pod.Status.Reason,
+				string(
+					pod.Status.Phase),
 				checkRestartedContainers(
 					pod.Status.ContainerStatuses),
 				pod.Spec.NodeName,
@@ -49,24 +49,27 @@ func RetrievePodListAsTableRows(pods []corev1.Pod) (podList []table.Row) {
 }
 
 func FetchColumns(pods []corev1.Pod) (podAttributes []table.Column) {
-	// readyContainersFieldName := pods[0].Status.ContainerStatuses[0].Ready
-	logging.Log.Error(podFieldWidth("pods[0].Spec.NodeName", pods))
 	return append(podAttributes,
 		table.Column{Title: "Name", Width: podFieldWidth("Name", pods)},
 		table.Column{Title: "Ready", Width: 10},
 		table.Column{Title: "Status", Width: 20},
 		table.Column{Title: "Restarts", Width: 10},
-		table.Column{Title: "Node", Width: podFieldWidth("pods.Spec.NodeName", pods)},
+		table.Column{Title: "Node", Width: podFieldWidth("Node", pods)},
 		table.Column{Title: "Age", Width: 20},
 	)
 }
 
 func podFieldWidth(fieldName string, pods []corev1.Pod) int {
+	var fieldValue string
 	return lo.Reduce(pods, func(width int, pod corev1.Pod, _ int) int {
-		fieldValue, ok := funk.Get(pod, fieldName).(string)
-		if !ok {
-			return width
+
+		switch fieldName {
+		case "Name":
+			fieldValue = pod.Name
+		case "Node":
+			fieldValue = pod.Spec.NodeName
 		}
+
 		if len(fieldValue) > width {
 			return len(fieldValue)
 		}
