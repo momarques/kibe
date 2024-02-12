@@ -1,4 +1,4 @@
-package resourceactions
+package resource
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 
 type ResourceItem struct{ apiVersion, kind string }
 
-func (ri ResourceItem) Title() string       { return "Kind: " + ri.kind }
+func (ri ResourceItem) Title() string       { return ri.kind }
 func (ri ResourceItem) FilterValue() string { return ri.kind }
 func (ri ResourceItem) Description() string {
 	return modelstyles.UserStyle.Render(fmt.Sprintf("API Version: %s", ri.apiVersion))

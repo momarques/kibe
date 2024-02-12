@@ -13,9 +13,10 @@ type model struct {
 }
 
 type actions struct {
-	selectedContext  string
-	selectedResource string
-	choose           key.Binding
+	selectedContext   string
+	selectedNamespace string
+	selectedResource  string
+	choose            key.Binding
 }
 
 func New(titleMsg string, items []list.Item) (model, error) {

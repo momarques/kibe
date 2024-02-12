@@ -4,10 +4,9 @@ import (
 	"context"
 	"fmt"
 	"strconv"
-	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/table"
+	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
@@ -28,9 +27,9 @@ func FetchResources(namespace string, client *kubernetes.Clientset) []corev1.Pod
 	return pods.Items
 }
 
-func RetrievePodListAsTableRows(pods []corev1.Pod) (podList []table.Row) {
+func RetrievePodListAsTableRows(pods []corev1.Pod) (podRows []table.Row) {
 	for _, pod := range pods {
-		podList = append(podList,
+		podRows = append(podRows,
 			table.Row{
 				pod.Name,
 				checkReadyContainers(
@@ -40,12 +39,12 @@ func RetrievePodListAsTableRows(pods []corev1.Pod) (podList []table.Row) {
 				checkRestartedContainers(
 					pod.Status.ContainerStatuses),
 				pod.Spec.NodeName,
-				DeltaTime(
+				kube.DeltaTime(
 					pod.GetCreationTimestamp().Time),
 			},
 		)
 	}
-	return podList
+	return podRows
 }
 
 func FetchColumns(pods []corev1.Pod) (podAttributes []table.Column) {
@@ -75,14 +74,6 @@ func podFieldWidth(fieldName string, pods []corev1.Pod) int {
 		}
 		return width
 	}, 0)
-}
-
-func DeltaTime(t time.Time) string {
-	elapsedTime := time.Since(t)
-	elapsedTimeString := elapsedTime.String()
-
-	elapsed, _, _ := strings.Cut(elapsedTimeString, ".")
-	return elapsed + "s"
 }
 
 func checkReadyContainers(containers []corev1.ContainerStatus) string {

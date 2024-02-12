@@ -2,6 +2,8 @@ package kube
 
 import (
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/momarques/kibe/internal/logging"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -59,4 +61,12 @@ func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {
 		}
 	}
 	return ""
+}
+
+func DeltaTime(t time.Time) string {
+	elapsedTime := time.Since(t)
+	elapsedTimeString := elapsedTime.String()
+
+	elapsed, _, _ := strings.Cut(elapsedTimeString, ".")
+	return elapsed + "s"
 }

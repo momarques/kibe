@@ -1,4 +1,4 @@
-package pod
+package kube
 
 import (
 	"testing"

@@ -1,9 +1,13 @@
-package resourceactions
+package resource
 
-import "github.com/momarques/kibe/internal/kube/pod"
+import (
+	"github.com/momarques/kibe/internal/kube/namespace"
+	"github.com/momarques/kibe/internal/kube/pod"
+)
 
 var SupportedResources = []Resource{
 	pod.New(),
+	namespace.New(),
 	&Service{kind: "Service"},
 	&Ingress{kind: "Ingress"},
 }

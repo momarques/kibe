@@ -14,7 +14,7 @@ var baseStyle = lipgloss.NewStyle().
 func Table() {
 	c := kube.NewKubeClient("kind-kibe")
 
-	m, err := New("Pod", "kube-system", c)
+	m, err := New("Namespace", "kube-system", c)
 	if err != nil {
 		logging.Log.Error(err)
 	}
