@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -49,21 +50,19 @@ func RetrievePodListAsTableRows(pods []corev1.Pod) (podList []table.Row) {
 
 func FetchColumns(pods []corev1.Pod) (podAttributes []table.Column) {
 	// readyContainersFieldName := pods[0].Status.ContainerStatuses[0].Ready
-
+	logging.Log.Error(podFieldWidth("pods[0].Spec.NodeName", pods))
 	return append(podAttributes,
 		table.Column{Title: "Name", Width: podFieldWidth("Name", pods)},
 		table.Column{Title: "Ready", Width: 10},
 		table.Column{Title: "Status", Width: 20},
 		table.Column{Title: "Restarts", Width: 10},
-		table.Column{Title: "Node", Width: podFieldWidth("pods[0].Spec.NodeName", pods)},
-		table.Column{Title: "Age", Width: podFieldWidth("Age", pods)},
+		table.Column{Title: "Node", Width: podFieldWidth("pods.Spec.NodeName", pods)},
+		table.Column{Title: "Age", Width: 20},
 	)
 }
 
 func podFieldWidth(fieldName string, pods []corev1.Pod) int {
 	return lo.Reduce(pods, func(width int, pod corev1.Pod, _ int) int {
-		logging.Log.Info(fieldName, " ", pods[0].Spec.NodeName)
-
 		fieldValue, ok := funk.Get(pod, fieldName).(string)
 		if !ok {
 			return width
@@ -76,7 +75,11 @@ func podFieldWidth(fieldName string, pods []corev1.Pod) int {
 }
 
 func DeltaTime(t time.Time) string {
-	return time.Since(t).String()
+	elapsedTime := time.Since(t)
+	elapsedTimeString := elapsedTime.String()
+
+	elapsed, _, _ := strings.Cut(elapsedTimeString, ".")
+	return elapsed + "s"
 }
 
 func checkReadyContainers(containers []corev1.ContainerStatus) string {

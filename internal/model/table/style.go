@@ -12,7 +12,7 @@ var baseStyle = lipgloss.NewStyle().
 	BorderForeground(lipgloss.Color("240"))
 
 func Table() {
-	c := kube.NewKubeClient("kind-pocpoc")
+	c := kube.NewKubeClient("kind-kibe")
 
 	m, err := New("Pod", "kube-system", c)
 	if err != nil {
