@@ -65,15 +65,15 @@ func NewClientReady(context string) *ClientReady {
 	}
 }
 
-func (c *ClientReady) SetNamespace(namespace string) *ClientReady {
+func (c *ClientReady) WithNamespace(namespace string) *ClientReady {
 	if namespace == "" {
 		namespace = "default"
 	}
-	c.NS = NamespaceSelected(namespace)
+	c.Namespace = &NamespaceSelected{NS: namespace}
 	return c
 }
 
-func (c *ClientReady) SetResource(r Resource) *ClientReady {
+func (c *ClientReady) WithResource(r Resource) *ClientReady {
 	c.ResourceSelected = &ResourceSelected{r}
 	return c
 }

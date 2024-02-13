@@ -6,7 +6,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/logging"
-	coremodel "github.com/momarques/kibe/internal/model/core"
+	core "github.com/momarques/kibe/internal/ui"
 	"github.com/spf13/cobra"
 )
 
@@ -19,7 +19,7 @@ It's a tool focused for developers who doesn't necessarily need to understand th
 Also it's a tool made to look beautiful on modern terminals.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		program := tea.NewProgram(coremodel.New())
+		program := tea.NewProgram(core.NewUI())
 
 		if len(os.Getenv("DEBUG")) > 0 {
 			f, err := tea.LogToFile(logging.LogFile, "debug")

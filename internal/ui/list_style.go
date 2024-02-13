@@ -1,4 +1,4 @@
-package listmodel
+package ui
 
 import "github.com/charmbracelet/lipgloss"
 

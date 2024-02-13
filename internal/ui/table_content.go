@@ -1,4 +1,4 @@
-package tablemodel
+package ui
 
 import (
 	"github.com/charmbracelet/bubbles/table"
@@ -6,7 +6,7 @@ import (
 )
 
 func FetchTable(c *kube.ClientReady) ([]table.Column, []table.Row) {
-	switch c.ResourceSelected.Resource.(type) {
+	switch c.ResourceSelected.R.(type) {
 	case *kube.Pod:
 		pods := kube.ListPods(c)
 		podColumns := kube.ListPodColumns(pods)

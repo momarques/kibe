@@ -20,7 +20,7 @@ func (p *Pod) Kind() string { return p.kind }
 func ListPods(c *ClientReady) []corev1.Pod {
 	pods, err := c.Client.
 		CoreV1().
-		Pods(string(c.NS)).
+		Pods(c.Namespace.NS).
 		List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)

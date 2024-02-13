@@ -1,4 +1,4 @@
-package tablemodel
+package ui
 
 import (
 	"github.com/charmbracelet/lipgloss"

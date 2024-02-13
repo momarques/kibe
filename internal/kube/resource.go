@@ -4,8 +4,9 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/list"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/logging"
-	modelstyles "github.com/momarques/kibe/internal/model/styles"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -17,21 +18,30 @@ var SupportedResources = []Resource{
 
 type Resource interface{ Kind() string }
 
-type ResourceSelected struct{ Resource }
+type SelectResource struct{ Resources []list.Item }
 
-type SelectResource struct{ apiVersion, kind string }
+func NewSelectResource(c *ClientReady) func() tea.Msg {
+	return func() tea.Msg {
+		return SelectResource{
+			Resources: ListAvailableResources(c)}
+	}
+}
 
-func (ri SelectResource) Title() string       { return ri.kind }
-func (ri SelectResource) FilterValue() string { return ri.kind }
-func (ri SelectResource) Description() string {
-	return modelstyles.UserStyle.Render(fmt.Sprintf("API Version: %s", ri.apiVersion))
+type ResourceSelected struct{ R Resource }
+
+type ResourceItem struct{ apiVersion, kind string }
+
+func (r ResourceItem) Title() string       { return r.kind }
+func (r ResourceItem) FilterValue() string { return r.kind }
+func (r ResourceItem) Description() string {
+	return uistyles.UserStyle.Render(fmt.Sprintf("API Version: %s", r.apiVersion))
 }
 
 func newResourceList(apiList []*v1.APIResourceList) []list.Item {
 	resourceList := []list.Item{}
 
 	for _, v := range SupportedResources {
-		resourceList = append(resourceList, SelectResource{
+		resourceList = append(resourceList, ResourceItem{
 			kind:       v.Kind(),
 			apiVersion: LookupAPIVersion(v.Kind(), apiList),
 		})
@@ -39,13 +49,12 @@ func newResourceList(apiList []*v1.APIResourceList) []list.Item {
 	return resourceList
 }
 
-func ListAvailableResources(c *ClientReady) ([]list.Item, error) {
+func ListAvailableResources(c *ClientReady) []list.Item {
 	apiList, err := c.Client.ServerPreferredResources()
 	if err != nil {
-
 		logging.Log.Error(err)
 	}
-	return newResourceList(apiList), nil
+	return newResourceList(apiList)
 }
 
 func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {

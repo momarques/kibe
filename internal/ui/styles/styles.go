@@ -1,4 +1,4 @@
-package modelstyles
+package uistyles
 
 import "github.com/charmbracelet/lipgloss"
 

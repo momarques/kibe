@@ -5,6 +5,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
@@ -56,13 +57,21 @@ func namespaceFieldWidth(fieldName string, namespaces []corev1.Namespace) int {
 	}, 0)
 }
 
-type NamespaceSelected string
+type SelectNamespace struct{ Namespaces []list.Item }
+type NamespaceSelected struct{ NS string }
 
-type SelectNamespace struct{ corev1.Namespace }
+func NewSelectNamespace(c *ClientReady) func() tea.Msg {
+	return func() tea.Msg {
+		return SelectNamespace{
+			Namespaces: newNamespaceList(c)}
+	}
+}
 
-func (ni SelectNamespace) Title() string       { return "Namespace: " + ni.Name }
-func (ni SelectNamespace) FilterValue() string { return ni.Name }
-func (ni SelectNamespace) Description() string { return "" }
+type NamespaceItem struct{ name string }
+
+func (ni NamespaceItem) Title() string       { return "Namespace: " + ni.name }
+func (ni NamespaceItem) FilterValue() string { return ni.name }
+func (ni NamespaceItem) Description() string { return "" }
 
 func newNamespaceList(c *ClientReady) []list.Item {
 	namespaces := ListNamespaces(c)
@@ -70,8 +79,8 @@ func newNamespaceList(c *ClientReady) []list.Item {
 	namespaceList := []list.Item{}
 
 	for _, ns := range namespaces {
-		namespaceList = append(namespaceList, SelectNamespace{
-			Namespace: ns,
+		namespaceList = append(namespaceList, NamespaceItem{
+			name: ns.Name,
 		})
 	}
 	return namespaceList

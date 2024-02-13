@@ -20,7 +20,7 @@ func (s *Service) Kind() string    { return s.kind }
 func ListServices(c *ClientReady) []corev1.Service {
 	services, err := c.Client.
 		CoreV1().
-		Services(string(c.NS)).
+		Services(c.Namespace.NS).
 		List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)

@@ -4,25 +4,36 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/list"
-	modelstyles "github.com/momarques/kibe/internal/model/styles"
+	tea "github.com/charmbracelet/bubbletea"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
-type ContextSelected struct {
-	C  string
-	NS NamespaceSelected
+type SelectContext struct{ Contexts []list.Item }
+
+func NewSelectContext() func() tea.Msg {
+	return func() tea.Msg {
+		return SelectContext{
+			Contexts: ListContexts(),
+		}
+	}
 }
 
-type SelectContext struct{ api.Context }
+type ContextSelected struct {
+	C         string
+	Namespace *NamespaceSelected
+}
 
-func (s SelectContext) Title() string       { return "Cluster: " + s.Cluster }
-func (s SelectContext) FilterValue() string { return s.Cluster }
-func (s SelectContext) Description() string {
+type ContextItem struct{ api.Context }
+
+func (c ContextItem) Title() string       { return "Cluster: " + c.Cluster }
+func (c ContextItem) FilterValue() string { return c.Cluster }
+func (c ContextItem) Description() string {
 	var namespace = ""
 
-	user := modelstyles.UserStyle.Render(fmt.Sprintf("User: %s ", s.AuthInfo))
-	if s.Namespace != "" {
-		namespace = modelstyles.NamespaceStyle.Render(fmt.Sprintf("Namespace: %s", s.Namespace))
+	user := uistyles.UserStyle.Render(fmt.Sprintf("User: %s ", c.AuthInfo))
+	if c.Namespace != "" {
+		namespace = uistyles.NamespaceStyle.Render(fmt.Sprintf("Namespace: %s", c.Namespace))
 	}
 	return user + namespace
 }
@@ -31,11 +42,11 @@ func newContextList(config *api.Config) []list.Item {
 	contextList := []list.Item{}
 
 	for _, v := range config.Contexts {
-		contextList = append(contextList, SelectContext{
+		contextList = append(contextList, ContextItem{
 			Context: *v,
 		})
 	}
 	return contextList
 }
 
-func ListContexts() ([]list.Item, error) { return newContextList(FetchKubeConfig()), nil }
+func ListContexts() []list.Item { return newContextList(FetchKubeConfig()) }
