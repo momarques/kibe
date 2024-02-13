@@ -9,7 +9,6 @@ import (
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 type Namespace struct{ kind string }
@@ -17,8 +16,11 @@ type Namespace struct{ kind string }
 func NewNamespaceResource() *Namespace { return &Namespace{kind: "Namespace"} }
 func (n *Namespace) Kind() string      { return n.kind }
 
-func ListNamespaces(client *kubernetes.Clientset) []corev1.Namespace {
-	namespaces, err := client.CoreV1().Namespaces().List(context.Background(), v1.ListOptions{})
+func ListNamespaces(c *ClientReady) []corev1.Namespace {
+	namespaces, err := c.Client.
+		CoreV1().
+		Namespaces().
+		List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)
 	}
@@ -54,25 +56,27 @@ func namespaceFieldWidth(fieldName string, namespaces []corev1.Namespace) int {
 	}, 0)
 }
 
-type NamespaceItem struct{ corev1.Namespace }
+type NamespaceSelected string
 
-func (ni NamespaceItem) Title() string       { return "Namespace: " + ni.Name }
-func (ni NamespaceItem) FilterValue() string { return ni.Name }
-func (ni NamespaceItem) Description() string { return "" }
+type SelectNamespace struct{ corev1.Namespace }
 
-func newNamespaceList(client *kubernetes.Clientset) []list.Item {
-	namespaces := ListNamespaces(client)
+func (ni SelectNamespace) Title() string       { return "Namespace: " + ni.Name }
+func (ni SelectNamespace) FilterValue() string { return ni.Name }
+func (ni SelectNamespace) Description() string { return "" }
+
+func newNamespaceList(c *ClientReady) []list.Item {
+	namespaces := ListNamespaces(c)
 
 	namespaceList := []list.Item{}
 
 	for _, ns := range namespaces {
-		namespaceList = append(namespaceList, NamespaceItem{
+		namespaceList = append(namespaceList, SelectNamespace{
 			Namespace: ns,
 		})
 	}
 	return namespaceList
 }
 
-func NamespacesAsList(context string, client *kubernetes.Clientset) ([]list.Item, error) {
-	return newNamespaceList(client), nil
+func NamespacesAsList(c *ClientReady) ([]list.Item, error) {
+	return newNamespaceList(c), nil
 }

@@ -8,16 +8,21 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
-type ContextItem struct{ api.Context }
+type ContextSelected struct {
+	C  string
+	NS NamespaceSelected
+}
 
-func (ci ContextItem) Title() string       { return "Cluster: " + ci.Cluster }
-func (ci ContextItem) FilterValue() string { return ci.Cluster }
-func (ci ContextItem) Description() string {
+type SelectContext struct{ api.Context }
+
+func (s SelectContext) Title() string       { return "Cluster: " + s.Cluster }
+func (s SelectContext) FilterValue() string { return s.Cluster }
+func (s SelectContext) Description() string {
 	var namespace = ""
 
-	user := modelstyles.UserStyle.Render(fmt.Sprintf("User: %s ", ci.AuthInfo))
-	if ci.Namespace != "" {
-		namespace = modelstyles.NamespaceStyle.Render(fmt.Sprintf("Namespace: %s", ci.Namespace))
+	user := modelstyles.UserStyle.Render(fmt.Sprintf("User: %s ", s.AuthInfo))
+	if s.Namespace != "" {
+		namespace = modelstyles.NamespaceStyle.Render(fmt.Sprintf("Namespace: %s", s.Namespace))
 	}
 	return user + namespace
 }
@@ -26,7 +31,7 @@ func newContextList(config *api.Config) []list.Item {
 	contextList := []list.Item{}
 
 	for _, v := range config.Contexts {
-		contextList = append(contextList, ContextItem{
+		contextList = append(contextList, SelectContext{
 			Context: *v,
 		})
 	}

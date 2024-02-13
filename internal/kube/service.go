@@ -10,7 +10,6 @@ import (
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 type Service struct{ kind string }
@@ -18,8 +17,11 @@ type Service struct{ kind string }
 func NewServiceResource() *Service { return &Service{kind: "Service"} }
 func (s *Service) Kind() string    { return s.kind }
 
-func ListServices(namespace string, client *kubernetes.Clientset) []corev1.Service {
-	services, err := client.CoreV1().Services(namespace).List(context.Background(), v1.ListOptions{})
+func ListServices(c *ClientReady) []corev1.Service {
+	services, err := c.Client.
+		CoreV1().
+		Services(string(c.NS)).
+		List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)
 	}

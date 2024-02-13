@@ -2,11 +2,8 @@ package kube
 
 import (
 	"path/filepath"
-	"strings"
-	"time"
 
 	"github.com/momarques/kibe/internal/logging"
-	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
@@ -28,12 +25,12 @@ func FetchKubeConfig() *api.Config {
 	return config
 }
 
-func NewKubeClient(contextName string) *kubernetes.Clientset {
+func NewKubeClient(context string) *kubernetes.Clientset {
 	var overrides *clientcmd.ConfigOverrides
 
-	if contextName != "" {
+	if context != "" {
 		overrides = &clientcmd.ConfigOverrides{
-			CurrentContext: contextName,
+			CurrentContext: context,
 		}
 	}
 
@@ -52,21 +49,31 @@ func NewKubeClient(contextName string) *kubernetes.Clientset {
 	return client
 }
 
-func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {
-	for _, v := range apiList {
-		for _, r := range v.APIResources {
-			if r.Kind == kind {
-				return v.GroupVersion
-			}
-		}
-	}
-	return ""
+type ClientReady struct {
+	Client *kubernetes.Clientset
+
+	*ContextSelected
+	*ResourceSelected
 }
 
-func DeltaTime(t time.Time) string {
-	elapsedTime := time.Since(t)
-	elapsedTimeString := elapsedTime.String()
+func NewClientReady(context string) *ClientReady {
+	return &ClientReady{
+		Client: NewKubeClient(context),
+		ContextSelected: &ContextSelected{
+			C: context,
+		},
+	}
+}
 
-	elapsed, _, _ := strings.Cut(elapsedTimeString, ".")
-	return elapsed + "s"
+func (c *ClientReady) SetNamespace(namespace string) *ClientReady {
+	if namespace == "" {
+		namespace = "default"
+	}
+	c.NS = NamespaceSelected(namespace)
+	return c
+}
+
+func (c *ClientReady) SetResource(r Resource) *ClientReady {
+	c.ResourceSelected = &ResourceSelected{r}
+	return c
 }

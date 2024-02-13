@@ -5,10 +5,8 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/logging"
-	listmodel "github.com/momarques/kibe/internal/model/list"
-	tablemodel "github.com/momarques/kibe/internal/model/table"
+	coremodel "github.com/momarques/kibe/internal/model/core"
 	"github.com/spf13/cobra"
 )
 
@@ -21,18 +19,7 @@ It's a tool focused for developers who doesn't necessarily need to understand th
 Also it's a tool made to look beautiful on modern terminals.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		contexts, err := kube.ListContexts()
-		if err != nil {
-			fmt.Printf("failed to create model: %s", err)
-			os.Exit(1)
-		}
-
-		initialModel, err := listmodel.New("Choose a context to connect", contexts)
-		if err != nil {
-			fmt.Printf("failed to create model: %s", err)
-			os.Exit(1)
-		}
-		program := tea.NewProgram(initialModel)
+		program := tea.NewProgram(coremodel.New())
 
 		if len(os.Getenv("DEBUG")) > 0 {
 			f, err := tea.LogToFile(logging.LogFile, "debug")
@@ -60,7 +47,7 @@ Just put what you need to test inside the Run field and test with:
 
 	make test-command`,
 	Run: func(cmd *cobra.Command, args []string) {
-		tablemodel.Table()
+		// tablemodel.Table()
 	},
 }
 

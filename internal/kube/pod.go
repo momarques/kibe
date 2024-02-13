@@ -10,7 +10,6 @@ import (
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 )
 
 type Pod struct{ kind string }
@@ -18,8 +17,11 @@ type Pod struct{ kind string }
 func NewPodResource() *Pod  { return &Pod{kind: "Pod"} }
 func (p *Pod) Kind() string { return p.kind }
 
-func ListPods(namespace string, client *kubernetes.Clientset) []corev1.Pod {
-	pods, err := client.CoreV1().Pods(namespace).List(context.Background(), v1.ListOptions{})
+func ListPods(c *ClientReady) []corev1.Pod {
+	pods, err := c.Client.
+		CoreV1().
+		Pods(string(c.NS)).
+		List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)
 	}

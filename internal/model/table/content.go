@@ -3,23 +3,22 @@ package tablemodel
 import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/kube"
-	"k8s.io/client-go/kubernetes"
 )
 
-func FetchTable(resourceKind, resourceNamespace string, client *kubernetes.Clientset) ([]table.Column, []table.Row) {
-	switch resourceKind {
-	case "Pod":
-		pods := kube.ListPods(resourceNamespace, client)
+func FetchTable(c *kube.ClientReady) ([]table.Column, []table.Row) {
+	switch c.ResourceSelected.Resource.(type) {
+	case *kube.Pod:
+		pods := kube.ListPods(c)
 		podColumns := kube.ListPodColumns(pods)
 
 		return podColumns, kube.RetrievePodListAsTableRows(pods)
-	case "Namespace":
-		ns := kube.ListNamespaces(client)
+	case *kube.Namespace:
+		ns := kube.ListNamespaces(c)
 		nsColumns := kube.ListNamespaceColumns(ns)
 
 		return nsColumns, kube.RetrieveNamespaceListAsTableRows(ns)
-	case "Service":
-		svc := kube.ListServices(resourceNamespace, client)
+	case *kube.Service:
+		svc := kube.ListServices(c)
 		svcColumns := kube.ListServiceColumns(svc)
 
 		return svcColumns, kube.RetrieveServiceListAsTableRows(svc)

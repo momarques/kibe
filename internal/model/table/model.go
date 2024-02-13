@@ -4,15 +4,15 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"k8s.io/client-go/kubernetes"
+	"github.com/momarques/kibe/internal/kube"
 )
 
-type model struct {
-	table table.Model
+type Model struct {
+	Table table.Model
 }
 
-func New(resourceKind, namespace string, client *kubernetes.Clientset) (model, error) {
-	columns, rows := FetchTable(resourceKind, namespace, client)
+func New(client *kube.ClientReady) (Model, error) {
+	columns, rows := FetchTable(client)
 
 	t := table.New(
 		table.WithColumns(columns),
@@ -33,36 +33,36 @@ func New(resourceKind, namespace string, client *kubernetes.Clientset) (model, e
 		Bold(false)
 	t.SetStyles(s)
 
-	return model{
-		table: t,
+	return Model{
+		Table: t,
 	}, nil
 }
 
-func (m model) Init() tea.Cmd { return nil }
+func (m Model) Init() tea.Cmd { return nil }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "esc":
-			if m.table.Focused() {
-				m.table.Blur()
+			if m.Table.Focused() {
+				m.Table.Blur()
 			} else {
-				m.table.Focus()
+				m.Table.Focus()
 			}
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case "enter":
 			return m, tea.Batch(
-				tea.Printf("Let's go to %s!", m.table.SelectedRow()[1]),
+				tea.Printf("Let's go to %s!", m.Table.SelectedRow()[1]),
 			)
 		}
 	}
-	m.table, cmd = m.table.Update(msg)
+	m.Table, cmd = m.Table.Update(msg)
 	return m, cmd
 }
 
-func (m model) View() string {
-	return baseStyle.Render(m.table.View()) + "\n"
+func (m Model) View() string {
+	return baseStyle.Render(m.Table.View()) + "\n"
 }
