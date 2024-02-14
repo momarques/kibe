@@ -5,6 +5,42 @@ import (
 	"github.com/momarques/kibe/internal/kube"
 )
 
+type contentState int
+
+const (
+	loaded contentState = iota
+	notLoaded
+)
+
+type content struct {
+	contentState
+
+	client *kube.ClientReady
+}
+
+func newTableContent(c *kube.ClientReady) *content {
+	return &content{
+		contentState: notLoaded,
+		client:       c,
+	}
+}
+
+func (c *content) fetch(m *table.Model) *table.Model {
+	columns, rows := FetchTable(c.client)
+	m.SetColumns(columns)
+	m.SetRows(rows)
+	c.contentState = loaded
+	return m
+}
+
+func (c *content) setTableTitle() {
+
+}
+
+func (c *content) setTableResourceLegend() {
+
+}
+
 func FetchTable(c *kube.ClientReady) ([]table.Column, []table.Row) {
 	switch c.ResourceSelected.R.(type) {
 	case *kube.Pod:

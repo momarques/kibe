@@ -26,8 +26,7 @@ type selector struct {
 	namespace string
 	resource  string
 
-	itemTitle string
-	choose    key.Binding
+	choose key.Binding
 }
 
 func newListSelector() *selector {
@@ -60,12 +59,31 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 	case kube.SelectContext:
 		m.Title = "Choose the context to connect"
 		return m.SetItems(msg.Contexts)
+
+	case kube.ContextSelected:
+		m.ResetFilter()
+
+		s.client = kube.NewClientReady(msg.C)
+		return nil
+
 	case kube.SelectNamespace:
 		m.Title = "Choose the namespace"
 		return m.SetItems(msg.Namespaces)
+
+	case kube.NamespaceSelected:
+		m.ResetFilter()
+		s.client = s.client.WithNamespace(msg.NS)
+		return nil
+
 	case kube.SelectResource:
 		m.Title = "Choose the resource"
 		return m.SetItems(msg.Resources)
+
+	case kube.ResourceSelected:
+		m.ResetFilter()
+
+		s.client = s.client.WithResource(msg.R)
+		return nil
 
 	case tea.KeyMsg:
 		switch {
@@ -97,23 +115,6 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 					s.resourceSelected(s.resource))
 			}
 		}
-
-	case kube.ContextSelected:
-		m.ResetFilter()
-
-		s.client = kube.NewClientReady(msg.C)
-		return nil
-
-	case kube.NamespaceSelected:
-		m.ResetFilter()
-		s.client = s.client.WithNamespace(msg.NS)
-		return nil
-
-	case kube.ResourceSelected:
-		m.ResetFilter()
-
-		s.client = s.client.WithResource(msg.R)
-		return nil
 
 	default:
 

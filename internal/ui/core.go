@@ -5,7 +5,6 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 )
 
 type coreState int
@@ -18,19 +17,24 @@ const (
 type CoreUI struct {
 	state coreState
 
-	listSelector *selector
-	client       *kube.ClientReady
+	client *kube.ClientReady
 
-	listUI  list.Model
-	tableUI table.Model
+	listSelector *selector
+	listUI       list.Model
+
+	tableContent *content
+	tableUI      table.Model
 }
 
 func NewUI() CoreUI {
 	selector := newListSelector()
+	content := newTableContent(nil)
+
 	return CoreUI{
 		state:        showList,
 		listSelector: selector,
 		listUI:       newListUI(selector),
+		tableContent: content,
 		tableUI:      newTableUI(),
 	}
 }
@@ -57,6 +61,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case *kube.ClientReady:
 			m.state = showTable
+			m.client = msg
 			return m, nil
 		}
 
@@ -65,38 +70,42 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case showTable:
 
-		switch msg := msg.(type) {
-		case tea.KeyMsg:
-			if m.listUI.FilterState() == list.Filtering {
-				break
+		switch m.tableContent.contentState {
+		case loaded:
+			switch msg := msg.(type) {
+			case tea.KeyMsg:
+				if m.listUI.FilterState() == list.Filtering {
+					break
+				}
+
+				switch msg.String() {
+				case "esc":
+					if m.tableUI.Focused() {
+						m.tableUI.Blur()
+					} else {
+						m.tableUI.Focus()
+					}
+				case "q", "ctrl+c":
+					return m, tea.Quit
+				case "enter":
+					return m, tea.Batch(
+						tea.Printf("Let's go to %s!", m.tableUI.SelectedRow()[1]),
+					)
+				}
 			}
 
-			switch msg.String() {
-			case "esc":
-				if m.tableUI.Focused() {
-					m.tableUI.Blur()
-				} else {
-					m.tableUI.Focus()
-				}
-			case "q", "ctrl+c":
-				return m, tea.Quit
-			case "enter":
-				return m, tea.Batch(
-					tea.Printf("Let's go to %s!", m.tableUI.SelectedRow()[1]),
-				)
-			}
+		case notLoaded:
+			m.tableContent.client = m.client
+			m.tableUI = *m.tableContent.fetch(&m.tableUI)
 		}
 
 		m.tableUI, cmd = m.tableUI.Update(msg)
 		return m, cmd
 	}
-
 	return nil, nil
 }
 
 func (m CoreUI) View() string {
-	logging.Log.Info("estado atual -> ", m.state)
-
 	switch m.state {
 	case showList:
 		return m.listUI.View()
