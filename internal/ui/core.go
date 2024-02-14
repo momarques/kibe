@@ -7,6 +7,8 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
@@ -26,7 +28,8 @@ const (
 )
 
 type CoreUI struct {
-	state coreState
+	state  coreState
+	height int
 
 	client *kube.ClientReady
 
@@ -37,24 +40,35 @@ type CoreUI struct {
 	tableUI      table.Model
 
 	spinner spinner.Model
+
+	statusbarUI *statusbar.Model
 }
 
 func NewUI() CoreUI {
-	s := spinner.New(
+	sp := spinner.New(
 		spinner.WithStyle(uistyles.OKStatusMessage),
 	)
-	s.Spinner = spinner.Dot
-	selector := newListSelector(s)
+	sp.Spinner = spinner.Dot
+
+	status := newStatusBarUI()
+	status.SetContent("Resource", "", "", "")
+
+	selector := newListSelector(sp, &status)
 	content := newTableContent(nil)
 
 	list := newListUI(selector)
 	return CoreUI{
-		state:        showList,
+		state: showList,
+
 		listSelector: selector,
 		listUI:       list,
+
 		tableContent: content,
 		tableUI:      newTableUI(),
-		spinner:      s,
+
+		spinner: sp,
+
+		statusbarUI: &status,
 	}
 }
 
@@ -74,6 +88,9 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			h, v := appStyle.GetFrameSize()
 			m.listUI.SetSize(msg.Width-h, msg.Height-v)
 
+			m.height = msg.Height
+			m.statusbarUI.SetSize(msg.Width)
+
 		case tea.KeyMsg:
 			if m.listUI.FilterState() == list.Filtering {
 				break
@@ -87,6 +104,19 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.state = showTable
 			m.client = msg
 			return m, nil
+
+		case UpdateStatusBar:
+			var statusbarUI statusbar.Model
+
+			m.statusbarUI.SetContent("Resource",
+				m.listSelector.resource,
+				fmt.Sprintf("Context: %s", m.listSelector.context),
+				fmt.Sprintf("Namespace: %s", m.listSelector.namespace))
+
+			statusbarUI, cmd = m.statusbarUI.Update(msg)
+			m.statusbarUI = &statusbarUI
+
+			cmds = append(cmds, cmd)
 		}
 
 		m.listUI, cmd = m.listUI.Update(msg)
@@ -133,13 +163,27 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m CoreUI) View() string {
 	switch m.state {
+
 	case showList:
 		if m.listSelector.spinnerState == showSpinner {
-			return fmt.Sprintf("%s%s", m.spinner.View(), m.listUI.View())
+			return lipgloss.JoinVertical(
+				lipgloss.Top,
+				fmt.Sprintf("%s%s",
+					m.spinner.View(),
+					m.listUI.View()),
+				m.statusbarUI.View())
 		}
-		return m.listUI.View()
+		return lipgloss.JoinVertical(
+			lipgloss.Top, m.listUI.View(),
+			m.statusbarUI.View())
+
 	case showTable:
-		return baseStyle.Render(m.tableUI.View()) + "\n"
+		return lipgloss.JoinVertical(
+			0.2,
+			m.tableUI.View(),
+			m.statusbarUI.View())
 	}
-	return m.View()
+	return lipgloss.JoinVertical(
+		lipgloss.Top, m.View(),
+		m.statusbarUI.View())
 }

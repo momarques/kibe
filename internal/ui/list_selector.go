@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
@@ -31,18 +32,20 @@ type selector struct {
 	chooseKey key.Binding
 	// previousKey key.Binding
 
-	spinner spinner.Model
+	spinner   spinner.Model
+	statusbar *statusbar.Model
 
 	// previousSelection string
 }
 
-func newListSelector(s spinner.Model) *selector {
+func newListSelector(spinner spinner.Model, status *statusbar.Model) *selector {
 	return &selector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,
 		chooseKey:    bindings.New("enter", "choose"),
 		// previousKey:  bindings.New(",", "previous"),
-		spinner: s,
+		spinner:   spinner,
+		statusbar: status,
 	}
 }
 
@@ -76,7 +79,7 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		m.ResetFilter()
 
 		s.client = kube.NewClientReady(msg.C)
-		return nil
+		return s.updateStatusBar()
 
 	case kube.SelectNamespace:
 		m.Title = "Choose a namespace"
@@ -90,7 +93,7 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		m.ResetFilter()
 		s.client = s.client.WithNamespace(msg.NS)
 
-		return nil
+		return s.updateStatusBar()
 
 	case kube.SelectResource:
 		m.Title = "Choose a resource type"
@@ -104,7 +107,7 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		m.ResetFilter()
 
 		s.client = s.client.WithResource(msg.R)
-		return nil
+		return s.updateStatusBar()
 
 	case tea.KeyMsg:
 		switch {
