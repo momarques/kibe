@@ -1,15 +1,20 @@
 package ui
 
 import (
+	"time"
+
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/kube"
 )
+
+var loadInterval = 2 * time.Second
 
 type contentState int
 
 const (
 	loaded contentState = iota
 	notLoaded
+	reload
 )
 
 type content struct {
