@@ -33,14 +33,6 @@ func (c *content) fetch(m *table.Model) *table.Model {
 	return m
 }
 
-func (c *content) setTableTitle(m *table.Model) {
-
-}
-
-func (c *content) setTableResourceLegend() {
-
-}
-
 func FetchTable(c *kube.ClientReady) ([]table.Column, []table.Row) {
 	switch c.ResourceSelected.R.(type) {
 	case *kube.Pod:
