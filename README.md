@@ -6,7 +6,7 @@
 
 What is `kibe`? 
 
-For brazilians it's a delicious arab snack sold in street bars and bakeries, eatten on birthdays, parties, events or just on a busy day without much time to lunch. 
+For brazilians, it's a delicious arab snack sold in street bars and bakeries, eatten on birthdays, parties, events or just on a busy day without much time to lunch.  
 
 <img src="assets/kibe_real.jpeg" alt="drawing" width="300"/>
 
