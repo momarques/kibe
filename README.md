@@ -30,7 +30,11 @@ The interface has different kind of views, which can be a list, a table, etc. To
 
 As a Platform Engineer, I like to have a toolbelt with a lot of tools to get things done. Kibe is one of these tools, which I can bring with me to whatever context I'm working on (companies, freelance jobs, study, personal projects, etc.).
 
-I'm a intesive user of k9s and I really love its concept. It's my main tool to interact with Kubernetes today. There is only one thing that bothers me: it looks like `top`, which reminds me of sysadmin age (sorry millenials). I wanted to make a tool that has the simplicity of k9s and can look beautiful and elegant on modern terminals.  
+I'm a intesive user of k9s and I really love its concept. It's my main tool to interact with Kubernetes today. There is only one thing that bothers me: it looks like `top`, which reminds me of sysadmin age (sorry millenials). 
+
+<img src="assets/sysadmin.jpeg" alt="drawing" width="200" height="200"/>
+
+I wanted to make a tool that has the simplicity of k9s and can look beautiful and elegant on modern terminals.  
 
 Also, as a personal project, I wanted to try a [TUI](https://en.wikipedia.org/wiki/Text-based_user_interface) framework called [Bubble Tea](https://github.com/charmbracelet/bubbletea), from [Charm](https://charm.sh/). This lib is intended to facilitate the creation of terminal interfaces, offering different models and mechanisms for Go apps.  
 
