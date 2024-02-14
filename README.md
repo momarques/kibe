@@ -16,9 +16,7 @@ If you are both, the command is as delicious as a kibe with ketchup!
 
 Just call for a `kibe` and put some ketchup!
 
-```bash
-$ kibe
-```
+<img src="assets/kibe_command.png" alt="drawing" width="300"/>
 
 The interface has different kind of views, which can be a list, a table, etc. To interact with these views, jsut follow the help located below. It shows every key binding you need to know to execute operations.
 
