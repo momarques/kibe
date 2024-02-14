@@ -16,11 +16,3 @@ func newListUI(s *selector) list.Model {
 
 	return l
 }
-
-func (s *selector) setListTitle(m *list.Model, titleMsg string) *list.Model {
-	// return func() tea.Msg {
-
-	// }
-	m.Title = titleMsg
-	return m
-}

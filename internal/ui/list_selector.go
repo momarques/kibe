@@ -26,7 +26,8 @@ type selector struct {
 	namespace string
 	resource  string
 
-	choose key.Binding
+	itemTitle string
+	choose    key.Binding
 }
 
 func newListSelector() *selector {
@@ -57,13 +58,13 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 	switch msg := msg.(type) {
 
 	case kube.SelectContext:
-		m = s.setListTitle(m, "Choose the context to connect")
+		m.Title = "Choose the context to connect"
 		return m.SetItems(msg.Contexts)
 	case kube.SelectNamespace:
-		m = s.setListTitle(m, "Choose the namespace")
+		m.Title = "Choose the namespace"
 		return m.SetItems(msg.Namespaces)
 	case kube.SelectResource:
-		m = s.setListTitle(m, "Choose the resource")
+		m.Title = "Choose the resource"
 		return m.SetItems(msg.Resources)
 
 	case tea.KeyMsg:
@@ -121,7 +122,6 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		}
 
 		switch s.clientState {
-
 		case ready:
 			return s.clientReady()
 

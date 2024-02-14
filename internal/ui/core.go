@@ -40,12 +40,10 @@ func (m CoreUI) Init() tea.Cmd {
 }
 
 func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	logging.Log.Info("core model")
 	var cmd tea.Cmd
 
 	switch m.state {
 	case showList:
-		m.listUI.Title = ""
 
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
@@ -58,7 +56,6 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case *kube.ClientReady:
-			logging.Log.Info("passou ->>")
 			m.state = showTable
 			return m, nil
 		}
