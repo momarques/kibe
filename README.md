@@ -4,13 +4,17 @@
 
 # Kibe
 
-What is `kibe`?  
+What is `kibe`? 
 
-For brazilians it's a delicious arab snack sold in street bars and bakeries, eatten on birthdays, parties, events or just on a busy day without much time to lunch.  
+For brazilians it's a delicious arab snack sold in street bars and bakeries, eatten on birthdays, parties, events or just on a busy day without much time to lunch. 
+
+<img src="assets/kibe_real.jpeg" alt="drawing" width="300"/>
 
 For developers, SREs, Platform Engineers or whatever role in which you are responsible for Kubernetes or just need to interact with resources created on it, `kibe` it's a simple interactive terminal-based command with an elegant interface that helps you to navigate across resources and execute operations on different clusters without the effort of writing commands each time.
 
-If you are both, the command is as delicious as a kibe with ketchup!  
+<img src="assets/kibe_usage.gif" alt="drawing" width="600"/>
+
+If you are both, the command is as delicious as a kibe with lemon or ketchup!  
 
 ## Usage
 
@@ -19,6 +23,8 @@ Just call for a `kibe` and put some ketchup!
 <img src="assets/kibe_command.png" alt="drawing" width="300"/>
 
 The interface has different kind of views, which can be a list, a table, etc. To interact with these views, just follow the help located below. It shows every key binding you need to know to execute operations.
+
+
 
 ## Why?
 
