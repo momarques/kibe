@@ -28,17 +28,21 @@ type selector struct {
 	namespace string
 	resource  string
 
-	choose key.Binding
+	chooseKey key.Binding
+	// previousKey key.Binding
 
 	spinner spinner.Model
+
+	// previousSelection string
 }
 
 func newListSelector(s spinner.Model) *selector {
 	return &selector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,
-		choose:       bindings.New("enter", "choose"),
-		spinner:      s,
+		chooseKey:    bindings.New("enter", "choose"),
+		// previousKey:  bindings.New(",", "previous"),
+		spinner: s,
 	}
 }
 
@@ -51,10 +55,10 @@ func newItemDelegate(s *selector) list.DefaultDelegate {
 	d.Styles.SelectedDesc = activeSelectionStyle
 
 	d.ShortHelpFunc = func() []key.Binding {
-		return []key.Binding{s.choose}
+		return []key.Binding{s.chooseKey} //, s.previousKey}
 	}
 	d.FullHelpFunc = func() [][]key.Binding {
-		return [][]key.Binding{{s.choose}}
+		return [][]key.Binding{{s.chooseKey}} //, s.previousKey}}
 	}
 	return d
 }
@@ -63,13 +67,10 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 	switch msg := msg.(type) {
 
 	case kube.SelectContext:
-		m.Title = "Choose the context to connect"
+		m.Title = "Choose a context to connect"
 		s.spinnerState = hideSpinner
 
-		return tea.Batch(
-			m.SetItems(msg.Contexts),
-			// s.spinner.Tick,
-		)
+		return m.SetItems(msg.Contexts)
 
 	case kube.ContextSelected:
 		m.ResetFilter()
@@ -78,19 +79,24 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		return nil
 
 	case kube.SelectNamespace:
-		m.Title = "Choose the namespace"
+		m.Title = "Choose a namespace"
 		s.spinnerState = hideSpinner
+
+		// s.setPreviousSelection("context")
 
 		return m.SetItems(msg.Namespaces)
 
 	case kube.NamespaceSelected:
 		m.ResetFilter()
 		s.client = s.client.WithNamespace(msg.NS)
+
 		return nil
 
 	case kube.SelectResource:
-		m.Title = "Choose the resource"
+		m.Title = "Choose a resource type"
 		s.spinnerState = hideSpinner
+
+		// s.setPreviousSelection("namespace")
 
 		return m.SetItems(msg.Resources)
 
@@ -102,7 +108,10 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, s.choose):
+		// case key.Matches(msg, s.previousKey):
+		// 	return s.showPreviousSelection()
+
+		case key.Matches(msg, s.chooseKey):
 			switch i := m.SelectedItem().(type) {
 
 			case kube.ContextItem:
@@ -195,3 +204,21 @@ func (s *selector) clientReady() func() tea.Msg {
 		return s.client
 	}
 }
+
+// func (s *selector) showPreviousSelection() func() tea.Msg {
+// 	return func() tea.Msg {
+// 		switch s.previousSelection {
+// 		case "context":
+// 			s.context = ""
+// 		case "namespace":
+// 			s.namespace = ""
+// 		case "resource":
+// 			s.resource = ""
+// 		}
+// 		return nil
+// 	}
+// }
+
+// func (s *selector) setPreviousSelection(previousSelection string) {
+// 	s.previousSelection = previousSelection
+// }

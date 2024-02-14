@@ -6,8 +6,6 @@ import (
 )
 
 func newTableUI() table.Model {
-	// columns, rows := FetchTable(client)
-
 	t := table.New(
 		table.WithFocused(true),
 		table.WithHeight(7),

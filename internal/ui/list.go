@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/momarques/kibe/internal/bindings"
 )
 
 func newListUI(s *selector) list.Model {
@@ -13,6 +14,8 @@ func newListUI(s *selector) list.Model {
 	l.Styles.HelpStyle = helpStyle
 	l.Styles.FilterPrompt = filterPromptStyle
 	l.Styles.FilterCursor = filterCursorStyle
+	l.InfiniteScrolling = false
+	l.KeyMap.Quit = bindings.New("q", "quit")
 
 	return l
 }
