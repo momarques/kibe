@@ -1,10 +1,14 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
 type coreState int
@@ -12,6 +16,13 @@ type coreState int
 const (
 	showList coreState = iota
 	showTable
+)
+
+type spinnerState int
+
+const (
+	showSpinner spinnerState = iota
+	hideSpinner
 )
 
 type CoreUI struct {
@@ -24,18 +35,26 @@ type CoreUI struct {
 
 	tableContent *content
 	tableUI      table.Model
+
+	spinner spinner.Model
 }
 
 func NewUI() CoreUI {
-	selector := newListSelector()
+	s := spinner.New(
+		spinner.WithStyle(uistyles.OKStatusMessage),
+	)
+	s.Spinner = spinner.Dot
+	selector := newListSelector(s)
 	content := newTableContent(nil)
 
+	list := newListUI(selector)
 	return CoreUI{
 		state:        showList,
 		listSelector: selector,
-		listUI:       newListUI(selector),
+		listUI:       list,
 		tableContent: content,
 		tableUI:      newTableUI(),
+		spinner:      s,
 	}
 }
 
@@ -44,6 +63,7 @@ func (m CoreUI) Init() tea.Cmd {
 }
 
 func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmds []tea.Cmd
 	var cmd tea.Cmd
 
 	switch m.state {
@@ -59,6 +79,10 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				break
 			}
 
+		case spinner.TickMsg:
+			m.spinner, cmd = m.spinner.Update(msg)
+			return m, cmd
+
 		case *kube.ClientReady:
 			m.state = showTable
 			m.client = msg
@@ -66,7 +90,9 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		m.listUI, cmd = m.listUI.Update(msg)
-		return m, cmd
+		cmds = append(cmds, cmd)
+
+		return m, tea.Batch(cmds...)
 
 	case showTable:
 
@@ -108,6 +134,9 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m CoreUI) View() string {
 	switch m.state {
 	case showList:
+		if m.listSelector.spinnerState == showSpinner {
+			return fmt.Sprintf("%s%s", m.spinner.View(), m.listUI.View())
+		}
 		return m.listUI.View()
 	case showTable:
 		return baseStyle.Render(m.tableUI.View()) + "\n"

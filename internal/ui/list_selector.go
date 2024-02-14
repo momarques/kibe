@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
@@ -19,6 +20,7 @@ const (
 
 type selector struct {
 	clientState
+	spinnerState
 
 	client *kube.ClientReady
 
@@ -27,12 +29,16 @@ type selector struct {
 	resource  string
 
 	choose key.Binding
+
+	spinner spinner.Model
 }
 
-func newListSelector() *selector {
+func newListSelector(s spinner.Model) *selector {
 	return &selector{
-		clientState: notReady,
-		choose:      bindings.New("enter", "choose"),
+		clientState:  notReady,
+		spinnerState: hideSpinner,
+		choose:       bindings.New("enter", "choose"),
+		spinner:      s,
 	}
 }
 
@@ -58,7 +64,12 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	case kube.SelectContext:
 		m.Title = "Choose the context to connect"
-		return m.SetItems(msg.Contexts)
+		s.spinnerState = hideSpinner
+
+		return tea.Batch(
+			m.SetItems(msg.Contexts),
+			// s.spinner.Tick,
+		)
 
 	case kube.ContextSelected:
 		m.ResetFilter()
@@ -68,6 +79,8 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	case kube.SelectNamespace:
 		m.Title = "Choose the namespace"
+		s.spinnerState = hideSpinner
+
 		return m.SetItems(msg.Namespaces)
 
 	case kube.NamespaceSelected:
@@ -77,6 +90,8 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	case kube.SelectResource:
 		m.Title = "Choose the resource"
+		s.spinnerState = hideSpinner
+
 		return m.SetItems(msg.Resources)
 
 	case kube.ResourceSelected:
@@ -92,27 +107,33 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 			case kube.ContextItem:
 				s.context = i.FilterValue()
+				s.spinnerState = showSpinner
 
 				return tea.Batch(
 					m.NewStatusMessage(uistyles.StatusMessageStyle(
-						s.context+" selected")),
-					s.contextSelected(s.context))
+						"Context", s.context, "set")),
+					s.contextSelected(s.context),
+					s.spinner.Tick)
 
 			case kube.NamespaceItem:
 				s.namespace = i.FilterValue()
+				s.spinnerState = showSpinner
 
 				return tea.Batch(
 					m.NewStatusMessage(uistyles.StatusMessageStyle(
-						s.namespace+" selected")),
-					s.namespaceSelected(s.namespace))
+						"Namespace", s.namespace, "selected")),
+					s.namespaceSelected(s.namespace),
+					s.spinner.Tick)
 
 			case kube.ResourceItem:
 				s.resource = i.FilterValue()
+				s.spinnerState = showSpinner
 
 				return tea.Batch(
 					m.NewStatusMessage(uistyles.StatusMessageStyle(
-						s.resource+" selected")),
-					s.resourceSelected(s.resource))
+						"Showing", s.resource+"s")),
+					s.resourceSelected(s.resource),
+					s.spinner.Tick)
 			}
 		}
 
@@ -140,7 +161,7 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 			}
 		}
 	}
-	return nil
+	return s.spinner.Tick
 }
 
 func (s *selector) contextSelected(context string) func() tea.Msg {

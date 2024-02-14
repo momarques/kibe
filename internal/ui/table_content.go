@@ -33,7 +33,7 @@ func (c *content) fetch(m *table.Model) *table.Model {
 	return m
 }
 
-func (c *content) setTableTitle() {
+func (c *content) setTableTitle(m *table.Model) {
 
 }
 

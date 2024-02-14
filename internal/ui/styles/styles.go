@@ -3,9 +3,10 @@ package uistyles
 import "github.com/charmbracelet/lipgloss"
 
 var (
-	StatusMessageStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.AdaptiveColor{Light: "#04B575", Dark: "#04B575"}).
-				Render
+	OKStatusMessage = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Light: "#a2e3ad", Dark: "#a2e3ad"})
+
+	StatusMessageStyle = OKStatusMessage.Render
 
 	UserStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#e9b7da")).
