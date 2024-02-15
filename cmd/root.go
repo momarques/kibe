@@ -12,14 +12,22 @@ import (
 
 var RootCmd = &cobra.Command{
 	Use:   "kibe",
-	Short: "Kubernetes Interacvtive, Beautiful and Easy CLI for managing Kubernetes resources.",
+	Short: "Kubernetes Interaction with Beauty and Elegancy.",
 	Long: `
 Kibe aims to be a easy tool for interacting with Kubernetes objects without showing a lot of hard to understand information. 
 It's a tool focused for developers who doesn't necessarily need to understand the internals of Kubernetes resources.
 Also it's a tool made to look beautiful on modern terminals.
 `,
+}
+
+var runCmd = &cobra.Command{
+	Use:     "run",
+	Aliases: []string{"r", "ru"},
+	Short:   "Initialize kibe main UI.",
 	Run: func(cmd *cobra.Command, args []string) {
-		program := tea.NewProgram(core.NewUI())
+		program := tea.NewProgram(
+			core.NewUI(),
+			tea.WithAltScreen())
 
 		if len(os.Getenv("DEBUG")) > 0 {
 			f, err := tea.LogToFile(logging.LogFile, "debug")
@@ -39,18 +47,13 @@ Also it's a tool made to look beautiful on modern terminals.
 
 var testCmd = &cobra.Command{
 	Use:   "test",
-	Short: "Used for calling internal functions to test CLI behavior",
-	Long: `
-If you need to add a new command or a new process to an existing command, 
-the 'test' command may be useful to execute the new flow isolated.
-Just put what you need to test inside the Run field and test with:
-
-	make test-command`,
+	Short: "Used for testing layouts without needing to execute the whole program",
 	Run: func(cmd *cobra.Command, args []string) {
-		// tablemodel.Table()
+
 	},
 }
 
 func init() {
+	RootCmd.AddCommand(runCmd)
 	RootCmd.AddCommand(testCmd)
 }
