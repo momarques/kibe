@@ -5,7 +5,6 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
@@ -48,6 +47,7 @@ func NewUI() CoreUI {
 	content := newTableContent(nil)
 
 	list := newListUI(selector)
+
 	return CoreUI{
 		state: showList,
 
@@ -64,10 +64,15 @@ func NewUI() CoreUI {
 }
 
 func (m CoreUI) Init() tea.Cmd {
-	return tea.EnterAltScreen
+	return nil
 }
 
 func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg.(type) {
+	case tea.QuitMsg:
+		return m, tea.Quit
+	}
+
 	switch m.state {
 	case showList:
 		return m.updateListUI(msg)
@@ -86,7 +91,5 @@ func (m CoreUI) View() string {
 	case showTable:
 		return m.viewTableUI()
 	}
-	return lipgloss.JoinVertical(
-		lipgloss.Top, m.View(),
-		m.statusbarUI.View())
+	return m.View()
 }

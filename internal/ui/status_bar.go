@@ -7,10 +7,10 @@ import (
 )
 
 func newStatusBarUI() statusbar.Model {
-	return statusbar.New(
+	s := statusbar.New(
 		statusbar.ColorConfig{
 			Foreground: lipgloss.AdaptiveColor{Dark: "#ffffff", Light: "#ffffff"},
-			Background: lipgloss.AdaptiveColor{Light: "#F25D94", Dark: "#F25D94"},
+			Background: lipgloss.AdaptiveColor{Light: "#d65f50", Dark: "#d65f50"},
 		},
 		statusbar.ColorConfig{
 			Foreground: lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"},
@@ -18,13 +18,14 @@ func newStatusBarUI() statusbar.Model {
 		},
 		statusbar.ColorConfig{
 			Foreground: lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"},
-			Background: lipgloss.AdaptiveColor{Light: "#A550DF", Dark: "#A550DF"},
+			Background: lipgloss.AdaptiveColor{Light: "#77352b", Dark: "#77352b"},
 		},
 		statusbar.ColorConfig{
 			Foreground: lipgloss.AdaptiveColor{Light: "#ffffff", Dark: "#ffffff"},
-			Background: lipgloss.AdaptiveColor{Light: "#6124DF", Dark: "#6124DF"},
+			Background: lipgloss.AdaptiveColor{Light: "#9b5a46", Dark: "#9b5a46"},
 		},
 	)
+	return s
 }
 
 type UpdateStatusBar struct{ resource, context, namespace string }

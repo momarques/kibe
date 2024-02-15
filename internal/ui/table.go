@@ -6,24 +6,30 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
 func newTableUI() table.Model {
 	t := table.New(
 		table.WithFocused(true),
-		table.WithHeight(20),
+		table.WithHeight(50),
 	)
 
 	s := table.DefaultStyles()
 	s.Header = s.Header.
-		BorderStyle(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("240")).
+		BorderStyle(lipgloss.DoubleBorder()).
+		BorderForeground(lipgloss.Color("24")).
 		BorderBottom(true).
+		BorderTop(true).
 		Bold(true)
+
+	// s.Cell = s.Cell.MarginRight(5)
+
 	s.Selected = s.Selected.
 		Foreground(lipgloss.Color("229")).
-		Background(lipgloss.Color("57")).
+		Background(lipgloss.Color("24")).
 		Bold(false)
+
 	t.SetStyles(s)
 
 	return t
@@ -36,7 +42,7 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case loaded:
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
-			h, v := appStyle.GetFrameSize()
+			h, v := uistyles.AppStyle.GetFrameSize()
 			m.tableUI.SetHeight(h)
 			m.tableUI.SetWidth(v)
 
@@ -73,8 +79,11 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CoreUI) viewTableUI() string {
-	return lipgloss.JoinVertical(
-		lipgloss.Top,
-		m.tableUI.View(),
-		m.statusbarUI.View())
+	return lipgloss.JoinVertical(lipgloss.Bottom,
+		lipgloss.Place(1, 1, lipgloss.Center, lipgloss.Center, m.tableUI.View()),
+		lipgloss.Place(
+			1, 1,
+			lipgloss.Center, lipgloss.Bottom,
+			m.statusbarUI.View()),
+	)
 }

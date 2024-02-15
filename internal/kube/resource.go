@@ -6,7 +6,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/logging"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -34,7 +33,7 @@ type ResourceItem struct{ apiVersion, kind string }
 func (r ResourceItem) Title() string       { return r.kind }
 func (r ResourceItem) FilterValue() string { return r.kind }
 func (r ResourceItem) Description() string {
-	return uistyles.UserStyle.Render(fmt.Sprintf("API Version: %s", r.apiVersion))
+	return fmt.Sprintf("API Version: %s", r.apiVersion)
 }
 
 func newResourceList(apiList []*v1.APIResourceList) []list.Item {

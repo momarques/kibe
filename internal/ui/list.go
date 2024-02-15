@@ -10,6 +10,7 @@ import (
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
 func newListUI(s *selector) list.Model {
@@ -17,10 +18,10 @@ func newListUI(s *selector) list.Model {
 		[]list.Item{},
 		newItemDelegate(s), 0, 0)
 
-	l.Styles.Title = titleStyle
-	l.Styles.HelpStyle = helpStyle
-	l.Styles.FilterPrompt = filterPromptStyle
-	l.Styles.FilterCursor = filterCursorStyle
+	l.Styles.Title = uistyles.ViewTitleStyle
+	l.Styles.HelpStyle = uistyles.HelpStyle
+	l.Styles.FilterPrompt = uistyles.ListFilterPromptStyle
+	l.Styles.FilterCursor = uistyles.ListFilterCursorStyle
 	l.InfiniteScrolling = false
 	l.KeyMap.Quit = bindings.New("q", "quit")
 
@@ -33,7 +34,7 @@ func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		h, v := appStyle.GetFrameSize()
+		h, v := uistyles.AppStyle.GetFrameSize()
 		m.listUI.SetSize(msg.Width-h, msg.Height-v)
 
 		m.height = msg.Height
