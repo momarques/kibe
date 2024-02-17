@@ -12,6 +12,15 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+const (
+	nameColumnWidthPercentage     = 34
+	readyColumnWidthPercentage    = 4
+	statusColumnWidthPercentage   = 10
+	restartsColumnWidthPercentage = 6
+	nodeColumnWidthPercentage     = 30
+	ageColumnWidthPercentage      = 8
+)
+
 type Pod struct{ kind string }
 
 func NewPodResource() *Pod  { return &Pod{kind: "Pod"} }
@@ -28,14 +37,21 @@ func ListPods(c *ClientReady) []corev1.Pod {
 	return pods.Items
 }
 
-func ListPodColumns(pods []corev1.Pod) (podAttributes []table.Column) {
+func ListPodColumns(pods []corev1.Pod, width int) (podAttributes []table.Column) {
+
 	return append(podAttributes,
-		table.Column{Title: "Name", Width: 55},
-		table.Column{Title: "Ready", Width: 10},
-		table.Column{Title: "Status", Width: 20},
-		table.Column{Title: "Restarts", Width: 10},
-		table.Column{Title: "Node", Width: 45},
-		table.Column{Title: "Age", Width: 20},
+		table.Column{Title: "Name", Width: computeWidthPercentage(
+			width, nameColumnWidthPercentage)},
+		table.Column{Title: "Ready", Width: computeWidthPercentage(
+			width, readyColumnWidthPercentage)},
+		table.Column{Title: "Status", Width: computeWidthPercentage(
+			width, statusColumnWidthPercentage)},
+		table.Column{Title: "Restarts", Width: computeWidthPercentage(
+			width, restartsColumnWidthPercentage)},
+		table.Column{Title: "Node", Width: computeWidthPercentage(
+			width, nodeColumnWidthPercentage)},
+		table.Column{Title: "Age", Width: computeWidthPercentage(
+			width, ageColumnWidthPercentage)},
 	)
 }
 
@@ -57,24 +73,6 @@ func RetrievePodListAsTableRows(pods []corev1.Pod) (podRows []table.Row) {
 		)
 	}
 	return podRows
-}
-
-func podFieldWidth(fieldName string, pods []corev1.Pod) int {
-	var fieldValue string
-	return lo.Reduce(pods, func(width int, pod corev1.Pod, _ int) int {
-
-		switch fieldName {
-		case "Name":
-			fieldValue = pod.Name
-		case "Node":
-			fieldValue = pod.Spec.NodeName
-		}
-
-		if len(fieldValue) > width {
-			return len(fieldValue)
-		}
-		return width
-	}, 0)
 }
 
 func checkReadyContainers(containers []corev1.ContainerStatus) string {

@@ -1,12 +1,12 @@
 package ui
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/logging"
 )
 
 func newTableUI() table.Model {
@@ -37,6 +37,8 @@ func newTableUI() table.Model {
 
 	t.SetStyles(s)
 
+	logging.Log.Infof("window size at the start of the program -> %d x %d", windowWidth, windowHeight)
+
 	return t
 }
 
@@ -48,8 +50,9 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
 
-			m.tableUI.SetHeight(msg.Height - m.tableUI.Height())
-			m.tableUI.SetWidth(msg.Width - m.tableUI.Width())
+			// m.tableUI.SetHeight(msg.Height - m.tableUI.Height())
+			// m.tableUI.SetWidth(msg.Width - m.tableUI.Width())
+			logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
 
 			m.tableUI, cmd = m.tableUI.Update(msg)
 			return m, cmd
@@ -93,32 +96,19 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m CoreUI) viewTableUI() string {
 	tableStyle := lipgloss.NewStyle()
-	tableView := lipgloss.Place(5, 5,
-		lipgloss.Center,
-		lipgloss.Center,
-		tableStyle.
-			MarginLeft(2).
-			Border(lipgloss.DoubleBorder(), true, true, true, true).
-			BorderForeground(lipgloss.Color("#ffb8bc")).
-			Render(m.tableUI.View()))
+	tableView := tableStyle.
+		MarginLeft(2).
+		Border(lipgloss.DoubleBorder(), true, true, true, true).
+		BorderForeground(lipgloss.Color("#ffb8bc")).
+		Render(m.tableUI.View())
+	// statusbarView := lipgloss.Place(1, 1,
+	// 	lipgloss.Center,
+	// 	lipgloss.Bottom,
+	// 	)
 
-	fullTableSize := lipgloss.Width(tableView)
-
-	statusbarView := lipgloss.Place(1, 1,
-		lipgloss.Center,
-		lipgloss.Bottom,
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		m.headerUI.viewHeaderUI(0),
+		tableView,
 		m.statusbarUI.View())
-
-	return fmt.Sprintf("%s\n%s", lipgloss.JoinVertical(
-		lipgloss.Top,
-		m.headerUI.viewHeaderUI(fullTableSize),
-		tableView), statusbarView)
-
-	// return lipgloss.JoinVertical(lipgloss.Left,
-	// 	m.tableUI.View(), m.statusbarUI.View())
-	// lipgloss.Place(1, 1, lipgloss.Center, lipgloss.Center, m.tableUI.View()),
-	// lipgloss.Place(
-	// 	1, 1,
-	// 	lipgloss.Center, lipgloss.Bottom,
-	// 	m.statusbarUI.View()))
 }

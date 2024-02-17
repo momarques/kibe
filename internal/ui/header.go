@@ -39,7 +39,7 @@ func (t headerModel) viewHeaderUI(size int) string {
 	// 	Copy().
 	// 	MarginBottom(0).
 	// 	MarginTop(0).
-	// 	Width(size).
+	// 	Width(windowWidth).
 	// 	Border(lipgloss.DoubleBorder(), true, false, false, false).
 	// 	BorderTopForeground(lipgloss.Color("#d65f50")).
 	// 	Background(lipgloss.NoColor{})
@@ -52,6 +52,7 @@ func (t headerModel) viewHeaderUI(size int) string {
 
 	return lipgloss.JoinVertical(lipgloss.Top,
 		textStyle.Render(t.text),
+		// lineStyle.Render(t.line),
 		itemCountStyle.Render(t.itemCount),
 	)
 }

@@ -12,3 +12,7 @@ func DeltaTime(t time.Time) string {
 	elapsed, _, _ := strings.Cut(elapsedTimeString, ".")
 	return elapsed + "s"
 }
+
+func computeWidthPercentage(width, percentage int) int {
+	return width * percentage / 100
+}

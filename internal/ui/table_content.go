@@ -43,7 +43,7 @@ func FetchTableView(c *kube.ClientReady) ([]table.Column, []table.Row, string) {
 	switch c.ResourceSelected.R.(type) {
 	case *kube.Pod:
 		pods := kube.ListPods(c)
-		podColumns := kube.ListPodColumns(pods)
+		podColumns := kube.ListPodColumns(pods, windowWidth)
 
 		return podColumns, kube.RetrievePodListAsTableRows(pods), "Pod interaction"
 	case *kube.Namespace:
