@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
@@ -54,7 +55,6 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 
 		case tea.KeyMsg:
-
 			switch msg.String() {
 			case "esc":
 				if m.tableUI.Focused() {
@@ -101,14 +101,18 @@ func (m CoreUI) viewTableUI() string {
 			Border(lipgloss.DoubleBorder(), true, true, true, true).
 			BorderForeground(lipgloss.Color("#ffb8bc")).
 			Render(m.tableUI.View()))
+
 	fullTableSize := lipgloss.Width(tableView)
 
-	return lipgloss.JoinVertical(
+	statusbarView := lipgloss.Place(1, 1,
+		lipgloss.Center,
+		lipgloss.Bottom,
+		m.statusbarUI.View())
+
+	return fmt.Sprintf("%s\n%s", lipgloss.JoinVertical(
 		lipgloss.Top,
 		m.headerUI.viewHeaderUI(fullTableSize),
-		tableView,
-		m.statusbarUI.View(),
-	)
+		tableView), statusbarView)
 
 	// return lipgloss.JoinVertical(lipgloss.Left,
 	// 	m.tableUI.View(), m.statusbarUI.View())

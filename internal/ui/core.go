@@ -64,7 +64,7 @@ func NewUI() CoreUI {
 }
 
 func (m CoreUI) Init() tea.Cmd {
-	return nil
+	return tea.SetWindowTitle("Kibe UI")
 }
 
 func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
