@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
 )
 
@@ -30,31 +31,31 @@ func newTableContent(c *kube.ClientReady) *content {
 	}
 }
 
-func (c *content) fetch(m *table.Model) *table.Model {
-	columns, rows := FetchTable(c.client)
+func (c *content) fetch(m table.Model) (table.Model, tea.Cmd) {
+	columns, rows, title := FetchTableView(c.client)
 	m.SetColumns(columns)
 	m.SetRows(rows)
 	c.contentState = loaded
-	return m
+	return m, c.updateHeader(title)
 }
 
-func FetchTable(c *kube.ClientReady) ([]table.Column, []table.Row) {
+func FetchTableView(c *kube.ClientReady) ([]table.Column, []table.Row, string) {
 	switch c.ResourceSelected.R.(type) {
 	case *kube.Pod:
 		pods := kube.ListPods(c)
 		podColumns := kube.ListPodColumns(pods)
 
-		return podColumns, kube.RetrievePodListAsTableRows(pods)
+		return podColumns, kube.RetrievePodListAsTableRows(pods), "Pod interaction"
 	case *kube.Namespace:
 		ns := kube.ListNamespaces(c)
 		nsColumns := kube.ListNamespaceColumns(ns)
 
-		return nsColumns, kube.RetrieveNamespaceListAsTableRows(ns)
+		return nsColumns, kube.RetrieveNamespaceListAsTableRows(ns), "Namespace interaction"
 	case *kube.Service:
 		svc := kube.ListServices(c)
 		svcColumns := kube.ListServiceColumns(svc)
 
-		return svcColumns, kube.RetrieveServiceListAsTableRows(svc)
+		return svcColumns, kube.RetrieveServiceListAsTableRows(svc), "Service interaction"
 	}
-	return nil, nil
+	return nil, nil, ""
 }

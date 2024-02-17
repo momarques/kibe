@@ -63,7 +63,7 @@ func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			fmt.Sprintf("Namespace: %s", m.listSelector.namespace))
 
 		statusbarUI, cmd = m.statusbarUI.Update(msg)
-		m.statusbarUI = &statusbarUI
+		m.statusbarUI = statusbarUI
 
 		cmds = append(cmds, cmd)
 	}

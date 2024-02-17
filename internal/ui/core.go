@@ -29,9 +29,9 @@ type CoreUI struct {
 	tableContent *content
 	tableUI      table.Model
 
-	spinner spinner.Model
-
-	statusbarUI *statusbar.Model
+	headerUI    headerModel
+	spinner     spinner.Model
+	statusbarUI statusbar.Model
 }
 
 func NewUI() CoreUI {
@@ -43,7 +43,7 @@ func NewUI() CoreUI {
 	status := newStatusBarUI()
 	status.SetContent("Resource", "", "", "")
 
-	selector := newListSelector(sp, &status)
+	selector := newListSelector(sp, status)
 	content := newTableContent(nil)
 
 	list := newListUI(selector)
@@ -59,7 +59,7 @@ func NewUI() CoreUI {
 
 		spinner: sp,
 
-		statusbarUI: &status,
+		statusbarUI: status,
 	}
 }
 

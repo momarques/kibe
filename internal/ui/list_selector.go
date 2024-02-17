@@ -32,10 +32,10 @@ type selector struct {
 	chooseKey key.Binding
 
 	spinner   spinner.Model
-	statusbar *statusbar.Model
+	statusbar statusbar.Model
 }
 
-func newListSelector(spinner spinner.Model, status *statusbar.Model) *selector {
+func newListSelector(spinner spinner.Model, status statusbar.Model) *selector {
 	return &selector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,

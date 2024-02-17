@@ -30,11 +30,11 @@ func ListPods(c *ClientReady) []corev1.Pod {
 
 func ListPodColumns(pods []corev1.Pod) (podAttributes []table.Column) {
 	return append(podAttributes,
-		table.Column{Title: "Name", Width: podFieldWidth("Name", pods)},
+		table.Column{Title: "Name", Width: 55},
 		table.Column{Title: "Ready", Width: 10},
 		table.Column{Title: "Status", Width: 20},
 		table.Column{Title: "Restarts", Width: 10},
-		table.Column{Title: "Node", Width: podFieldWidth("Node", pods)},
+		table.Column{Title: "Node", Width: 45},
 		table.Column{Title: "Age", Width: 20},
 	)
 }
