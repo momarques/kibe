@@ -71,6 +71,7 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case headerUpdated:
 			m.headerUI.text = msg.text
+			m.headerUI.itemCount = msg.itemCount
 
 		default:
 			return m, tea.Tick(loadInterval, func(t time.Time) tea.Msg {
@@ -106,6 +107,7 @@ func (m CoreUI) viewTableUI() string {
 		lipgloss.Top,
 		m.headerUI.viewHeaderUI(fullTableSize),
 		tableView,
+		m.statusbarUI.View(),
 	)
 
 	// return lipgloss.JoinVertical(lipgloss.Left,

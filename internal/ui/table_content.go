@@ -36,7 +36,7 @@ func (c *content) fetch(m table.Model) (table.Model, tea.Cmd) {
 	m.SetColumns(columns)
 	m.SetRows(rows)
 	c.contentState = loaded
-	return m, c.updateHeader(title)
+	return m, c.updateHeader(title, len(rows))
 }
 
 func FetchTableView(c *kube.ClientReady) ([]table.Column, []table.Row, string) {
