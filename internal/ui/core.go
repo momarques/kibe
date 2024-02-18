@@ -16,6 +16,7 @@ type coreState int
 const (
 	showList coreState = iota
 	showTable
+	showTab
 )
 
 type CoreUI struct {
@@ -29,6 +30,8 @@ type CoreUI struct {
 
 	tableContent *content
 	tableUI      table.Model
+
+	tabUI tabModel
 
 	headerUI    headerModel
 	spinner     spinner.Model
@@ -58,6 +61,8 @@ func NewUI() CoreUI {
 		tableContent: content,
 		tableUI:      newTableUI(),
 
+		tabUI: newTabUI(),
+
 		spinner: sp,
 
 		statusbarUI: status,
@@ -79,6 +84,8 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateListUI(msg)
 	case showTable:
 		return m.updateTableUI(msg)
+	case showTab:
+		return m.updateTabUI(msg)
 	}
 	return nil, nil
 }
@@ -94,6 +101,13 @@ func (m CoreUI) View() string {
 			lipgloss.Left,
 			m.headerUI.viewHeaderUI(0),
 			m.viewTableUI(),
+			m.statusbarUI.View())
+	case showTab:
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			m.headerUI.viewHeaderUI(0),
+			m.viewTableUI(),
+			m.viewTabUI(),
 			m.statusbarUI.View())
 	}
 	return m.View()

@@ -9,7 +9,7 @@ import (
 	"github.com/momarques/kibe/internal/logging"
 )
 
-const tableViewProportionPercentage int = 5
+const tableViewProportionPercentage int = 30
 
 func newTableUI() table.Model {
 	t := table.New(
@@ -70,9 +70,10 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q", "ctrl+c":
 				return m, tea.Quit
 			case "enter":
-				return m, tea.Batch(
-					tea.Printf("Let's go to %s!", m.tableUI.SelectedRow()[1]),
-				)
+				m.tabUI.Tabs, m.tabUI.TabContent = FetchDescribeContent()
+
+				m.state = showTab
+				return m, nil
 			}
 		case headerUpdated:
 			m.headerUI.text = msg.text

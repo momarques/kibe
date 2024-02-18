@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
+	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
 var loadInterval = 2 * time.Second
@@ -35,6 +36,9 @@ func (c *content) fetch(m table.Model) (table.Model, tea.Cmd) {
 	columns, rows, title := FetchTableView(c.client)
 	m.SetColumns(columns)
 	m.SetRows(rows)
+	m.SetHeight(
+		windowutil.ComputePercentage(
+			windowHeight, tableViewProportionPercentage))
 	c.contentState = loaded
 	return m, c.updateHeader(title, len(rows))
 }
