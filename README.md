@@ -41,28 +41,39 @@ Finally, why not a GUI? Well, it's just a personal taste. I like to make things 
 
 ## Roadmap
 
-Kibe is still in development, and should be released when I achieve a MVP. This means that Kibe needs the following capabilities:
-
-- Manage simple resources:
-  - Pod
-  - Deployment
-  - Service
-  - Ingress
-  - Job
-  - Cronjob
-  - ServiceAccount
-  - Secret
-  - ConfigMap
-  - Node
-  - Namespace
-- Displays 4 different views, based on the action:
-  - The Kubernetes resources listed above as Tables with basic information about each item
-  - Client configuration with context, namespace and resource type selection as List
-  - Object inspection (just like a `kubectl describe $resource_type`) with categories as Tabs (a Tab for overview metadata, a Tab for secrets and configmas, a Tab for connection data, etc.)
-  - Logs visualization
-
 You can follow the project progress [here](https://github.com/users/momarques/projects/1).
 
-## UI elements
+Kibe is still in development, and should be released when I achieve a MVP. This means that Kibe needs the following features:
+
+### Capabilities
+
+Handle basic Kubernetes resources:
+
+- Pod
+- Deployment
+- Service
+- Ingress
+- Job
+- Cronjob
+- ServiceAccount
+- Secret
+- ConfigMap
+- Node
+- Namespace
+
+Execute some resource actions:
+
+- List
+- Describe
+- Delete
+- Edit
+- Copy YAML
+
+Visualize Logs:
+
+- Tail
+- Past logs
+
+### UI
 
 <img src="assets/kibe_ui.svg">
