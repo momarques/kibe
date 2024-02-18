@@ -17,7 +17,7 @@ const (
 	readyColumnWidthPercentage    = 4
 	statusColumnWidthPercentage   = 10
 	restartsColumnWidthPercentage = 6
-	nodeColumnWidthPercentage     = 30
+	nodeColumnWidthPercentage     = 29
 	ageColumnWidthPercentage      = 8
 )
 

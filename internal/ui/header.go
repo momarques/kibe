@@ -28,14 +28,14 @@ func (c *content) updateHeader(title string, itemCount int) tea.Cmd {
 }
 
 func (t headerModel) viewHeaderUI(size int) string {
-	textStyle := uistyles.
+	titleStyle := uistyles.
 		ViewTitleStyle.
 		Copy().
 		PaddingLeft(1).
 		MarginTop(1).
 		MarginLeft(2)
 
-	// lineStyle := textStyle.
+	// lineStyle := titleStyle.
 	// 	Copy().
 	// 	MarginBottom(0).
 	// 	MarginTop(0).
@@ -50,8 +50,8 @@ func (t headerModel) viewHeaderUI(size int) string {
 		MarginLeft(2).
 		MarginBottom(3)
 
-	return lipgloss.JoinVertical(lipgloss.Top,
-		textStyle.Render(t.text),
+	return lipgloss.JoinVertical(lipgloss.Left,
+		titleStyle.Render(t.text),
 		// lineStyle.Render(t.line),
 		itemCountStyle.Render(t.itemCount),
 	)
