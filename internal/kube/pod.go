@@ -90,3 +90,22 @@ func checkRestartedContainers(containers []corev1.ContainerStatus) string {
 			return restarts + int(container.RestartCount)
 		}, 0))
 }
+
+func DescribePod(c *ClientReady, podID string) *corev1.Pod {
+	pod, err := c.Client.
+		CoreV1().
+		Pods(c.Namespace.NS).
+		Get(context.Background(), podID, v1.GetOptions{})
+	if err != nil {
+		logging.Log.Error(err)
+	}
+	return pod
+}
+
+func NewPodDescription(c *ClientReady, podID string) PodDescription {
+	pod := DescribePod(c, podID)
+
+	return PodDescription{
+		Overview: newPodOverview(pod),
+	}
+}

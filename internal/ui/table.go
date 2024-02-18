@@ -7,6 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/logging"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
 const tableViewProportionPercentage int = 30
@@ -19,8 +20,8 @@ func newTableUI() table.Model {
 	s := table.DefaultStyles()
 
 	s.Cell = s.Cell.Blink(false)
-	s.Header = s.Header.Blink(false).Background(lipgloss.Color("#c5636a"))
-	s.Selected = s.Selected.Blink(false).Background(lipgloss.Color("#ffb1b5")).Foreground(lipgloss.Color("#322223"))
+	s.Header = uistyles.TableHeaderStyle
+	s.Selected = uistyles.TableSelectedStyle
 
 	// s.Header = s.Header.
 	// 	Border(lipgloss.NormalBorder()).
@@ -70,7 +71,7 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q", "ctrl+c":
 				return m, tea.Quit
 			case "enter":
-				m.tabUI.Tabs, m.tabUI.TabContent = FetchDescribeContent()
+				m.tabUI.Tabs, m.tabUI.TabContent = m.tabUI.describeResource(m.client, "")
 
 				m.state = showTab
 				return m, nil
@@ -98,8 +99,8 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CoreUI) viewTableUI() string {
-	tableStyle := lipgloss.NewStyle()
-	tableView := tableStyle.
+	tableView := uistyles.TableStyle.
+		Copy().
 		MarginLeft(2).
 		Border(lipgloss.DoubleBorder(), true, true, true, true).
 		BorderForeground(lipgloss.Color("#ffb8bc")).

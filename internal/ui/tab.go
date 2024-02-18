@@ -5,6 +5,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/kube"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
@@ -43,9 +44,22 @@ type tabModel struct {
 }
 
 func newTabUI() tabModel {
-
 	return tabModel{}
 }
+
+// func (t tabModel) colorizeTabContent() string {
+// 	colorStyles := uistyles.RandomColorStyleCollection(len(t.TabContent))
+// 	var colorizedContent []string
+
+// 	for index, style := range colorStyles {
+// 		colorizedContent = append(colorizedContent,
+// 			style.Render(t.Tabs[index]),
+// 		)
+// 	}
+
+// 	return strings.Join(colorizedContent, "\n")
+
+// }
 
 func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -53,10 +67,10 @@ func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch keypress := msg.String(); keypress {
 		case "ctrl+c", "q":
 			return m, tea.Quit
-		case "right", "l", "n", "tab":
+		case "right", "tab":
 			m.tabUI.activeTab = min(m.tabUI.activeTab+1, len(m.tabUI.Tabs)-1)
 			return m, nil
-		case "left", "h", "p", "shift+tab":
+		case "left", "shift+tab":
 			m.tabUI.activeTab = max(m.tabUI.activeTab-1, 0)
 			return m, nil
 		}
@@ -121,9 +135,23 @@ func min(a, b int) int {
 	return b
 }
 
-func FetchDescribeContent() ([]string, []string) {
-	tabs := []string{"Lip Gloss", "Blush", "Eye Shadow", "Mascara", "Foundation"}
-	tabContent := []string{"Lip Gloss Tab", "Blush Tab", "Eye Shadow Tab", "Mascara Tab", "Foundation Tab"}
+func (t tabModel) describeResource(c *kube.ClientReady, resourceID string) ([]string, []string) {
+	switch c.ResourceSelected.R.(type) {
+	case *kube.Pod:
+		pod := kube.NewPodDescription(c, resourceID)
 
-	return tabs, tabContent
+		return pod.TabNames(), []string{
+			pod.Overview.TabContent(),
+			"",
+			"",
+			"",
+			"",
+			"",
+		}
+	case *kube.Namespace:
+		return nil, nil
+	case *kube.Service:
+		return nil, nil
+	}
+	return nil, nil
 }
