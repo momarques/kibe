@@ -5,6 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
@@ -89,7 +90,11 @@ func (m CoreUI) View() string {
 		return m.viewListUI()
 
 	case showTable:
-		return m.viewTableUI()
+		return lipgloss.JoinVertical(
+			lipgloss.Left,
+			m.headerUI.viewHeaderUI(0),
+			m.viewTableUI(),
+			m.statusbarUI.View())
 	}
 	return m.View()
 }

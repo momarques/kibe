@@ -9,6 +9,8 @@ import (
 	"github.com/momarques/kibe/internal/logging"
 )
 
+const tableViewProportionPercentage int = 5
+
 func newTableUI() table.Model {
 	t := table.New(
 		table.WithFocused(true),
@@ -100,15 +102,8 @@ func (m CoreUI) viewTableUI() string {
 		MarginLeft(2).
 		Border(lipgloss.DoubleBorder(), true, true, true, true).
 		BorderForeground(lipgloss.Color("#ffb8bc")).
+		// Height(1).
 		Render(m.tableUI.View())
-	// statusbarView := lipgloss.Place(1, 1,
-	// 	lipgloss.Center,
-	// 	lipgloss.Bottom,
-	// 	)
 
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		m.headerUI.viewHeaderUI(0),
-		tableView,
-		m.statusbarUI.View())
+	return tableView
 }

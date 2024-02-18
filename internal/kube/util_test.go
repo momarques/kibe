@@ -1,7 +1,6 @@
 package kube
 
 import (
-	"fmt"
 	"testing"
 	"time"
 )
@@ -20,12 +19,5 @@ func Test_DeltaTime(t *testing.T) {
 	for i, duration := range testCases {
 		t.Logf("test case n%d -> %s\n", i, DeltaTime(duration))
 	}
-	t.Fail()
-}
-
-func Test_computeWidthPercentage(t *testing.T) {
-
-	width := computeWidthPercentage(120, 34)
-	t.Logf(fmt.Sprintf("%d per cent of %d is equal to %d", 34, 120, width))
 	t.Fail()
 }

@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
+	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,17 +41,17 @@ func ListPods(c *ClientReady) []corev1.Pod {
 func ListPodColumns(pods []corev1.Pod, width int) (podAttributes []table.Column) {
 
 	return append(podAttributes,
-		table.Column{Title: "Name", Width: computeWidthPercentage(
+		table.Column{Title: "Name", Width: windowutil.ComputePercentage(
 			width, nameColumnWidthPercentage)},
-		table.Column{Title: "Ready", Width: computeWidthPercentage(
+		table.Column{Title: "Ready", Width: windowutil.ComputePercentage(
 			width, readyColumnWidthPercentage)},
-		table.Column{Title: "Status", Width: computeWidthPercentage(
+		table.Column{Title: "Status", Width: windowutil.ComputePercentage(
 			width, statusColumnWidthPercentage)},
-		table.Column{Title: "Restarts", Width: computeWidthPercentage(
+		table.Column{Title: "Restarts", Width: windowutil.ComputePercentage(
 			width, restartsColumnWidthPercentage)},
-		table.Column{Title: "Node", Width: computeWidthPercentage(
+		table.Column{Title: "Node", Width: windowutil.ComputePercentage(
 			width, nodeColumnWidthPercentage)},
-		table.Column{Title: "Age", Width: computeWidthPercentage(
+		table.Column{Title: "Age", Width: windowutil.ComputePercentage(
 			width, ageColumnWidthPercentage)},
 	)
 }
