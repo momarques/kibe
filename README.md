@@ -25,7 +25,6 @@ Just call for a `kibe` and put some ketchup!
 The interface has different kind of views, which can be a list, a table, etc. To interact with these views, just follow the help located below. It shows every key binding you need to know to execute operations.
 
 
-
 ## Why?
 
 As a Platform Engineer, I like to have a toolbelt with a lot of tools to get things done. Kibe is one of these tools, which I can bring with me to whatever context I'm working on (companies, freelance jobs, study, personal projects, etc.).
@@ -40,7 +39,7 @@ Also, as a personal project, I wanted to try a [TUI](https://en.wikipedia.org/wi
 
 Finally, why not a GUI? Well, it's just a personal taste. I like to make things in terminal.
 
-## Current status
+## Roadmap
 
 Kibe is still in development, and should be released when I achieve a MVP. This means that Kibe needs the following capabilities:
 
@@ -63,3 +62,7 @@ Kibe is still in development, and should be released when I achieve a MVP. This 
   - Logs visualization
 
 You can follow the project progress [here](https://github.com/users/momarques/projects/1).
+
+## UI elements
+
+<img src="assets/kibe_ui.svg">
