@@ -13,6 +13,10 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+// PodDescription provides information about the pod structured in Sections
+//
+// Those Sections are segmented in categories to enable a cleaner view of all the pod config
+// Every Section has its own style
 type PodDescription struct {
 	Overview PodOverview `kibedescription:"Overview"`
 	Status   struct {
@@ -35,10 +39,32 @@ type PodDescription struct {
 		NodeAffinity map[string]interface{}
 		PodAffinity  map[string]interface{}
 	} `kibedescription:"Scheduling"`
+	Events []string `kibedescription:"Scheduling"`
+}
+
+func NewPodDescription(c *ClientReady, podID string) PodDescription {
+	pod := DescribePod(c, podID)
+
+	return PodDescription{
+		Overview: newPodOverview(pod),
+	}
 }
 
 func (p PodDescription) TabNames() []string {
 	return LookupStructFieldNames(reflect.TypeOf(p))
+}
+
+// PodOverview provides basic information about the pod
+//
+// This object must return the whole content in a single formatted string
+type PodOverview struct {
+	Name           string   `kibedescription:"Name"`
+	Namespace      string   `kibedescription:"Namespace"`
+	ServiceAccount string   `kibedescription:"Service Account"`
+	IP             net.IP   `kibedescription:"IP"`
+	IPs            []net.IP `kibedescription:"IPs"`
+	ControlledBy   string   `kibedescription:"Controlled By"`
+	QoSClass       string   `kibedescription:"QoS Class"`
 }
 
 func (p PodOverview) TabContent() string {
@@ -47,8 +73,6 @@ func (p PodOverview) TabContent() string {
 	})
 
 	fieldNames := LookupStructFieldNames(reflect.TypeOf(p))
-
-	// fieldNames = uistyles.ColorizeDescriptionSectionKeys(fieldNames)
 
 	t := table.New()
 	t.Rows(
@@ -63,16 +87,6 @@ func (p PodOverview) TabContent() string {
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
-}
-
-type PodOverview struct {
-	Name           string   `kibedescription:"Name"`
-	Namespace      string   `kibedescription:"Namespace"`
-	ServiceAccount string   `kibedescription:"Service Account"`
-	IP             net.IP   `kibedescription:"IP"`
-	IPs            []net.IP `kibedescription:"IPs"`
-	ControlledBy   string   `kibedescription:"Controlled By"`
-	QoSClass       string   `kibedescription:"QoS Class"`
 }
 
 func newPodOverview(pod *corev1.Pod) PodOverview {

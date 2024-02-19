@@ -101,11 +101,3 @@ func DescribePod(c *ClientReady, podID string) *corev1.Pod {
 	}
 	return pod
 }
-
-func NewPodDescription(c *ClientReady, podID string) PodDescription {
-	pod := DescribePod(c, podID)
-
-	return PodDescription{
-		Overview: newPodOverview(pod),
-	}
-}
