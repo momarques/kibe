@@ -52,7 +52,6 @@ func (t headerModel) viewHeaderUI(size int) string {
 
 	return lipgloss.JoinVertical(lipgloss.Left,
 		titleStyle.Render(t.text),
-		// lineStyle.Render(t.line),
 		itemCountStyle.Render(t.itemCount),
 	)
 }

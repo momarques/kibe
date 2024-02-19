@@ -1,6 +1,7 @@
 package kube
 
 import (
+	"fmt"
 	"net"
 	"reflect"
 	"strings"
@@ -18,12 +19,8 @@ import (
 // Those Sections are segmented in categories to enable a cleaner view of all the pod config
 // Every Section has its own style
 type PodDescription struct {
-	Overview PodOverview `kibedescription:"Overview"`
-	Status   struct {
-		Start      time.Time
-		Status     string
-		Conditions []map[string]interface{}
-	} `kibedescription:"Status"`
+	Overview             PodOverview `kibedescription:"Overview"`
+	Status               PodStatus   `kibedescription:"Status"`
 	LabelsAndAnnotations struct {
 		Labels      map[string]interface{}
 		Annotations map[string]interface{}
@@ -47,11 +44,12 @@ func NewPodDescription(c *ClientReady, podID string) PodDescription {
 
 	return PodDescription{
 		Overview: newPodOverview(pod),
+		Status:   newPodStatus(pod),
 	}
 }
 
-func (p PodDescription) TabNames() []string {
-	return LookupStructFieldNames(reflect.TypeOf(p))
+func (pd PodDescription) TabNames() []string {
+	return LookupStructFieldNames(reflect.TypeOf(pd))
 }
 
 // PodOverview provides basic information about the pod
@@ -67,22 +65,22 @@ type PodOverview struct {
 	QoSClass       string   `kibedescription:"QoS Class"`
 }
 
-func (p PodOverview) TabContent() string {
-	ips := lo.Map(p.IPs, func(item net.IP, _ int) string {
+func (po PodOverview) TabContent() string {
+	ips := lo.Map(po.IPs, func(item net.IP, _ int) string {
 		return item.String()
 	})
 
-	fieldNames := LookupStructFieldNames(reflect.TypeOf(p))
+	fieldNames := LookupStructFieldNames(reflect.TypeOf(po))
 
 	t := table.New()
 	t.Rows(
-		[]string{fieldNames[0], p.Name},
-		[]string{fieldNames[1], p.Namespace},
-		[]string{fieldNames[2], p.ServiceAccount},
-		[]string{fieldNames[3], p.IP.String()},
+		[]string{fieldNames[0], po.Name},
+		[]string{fieldNames[1], po.Namespace},
+		[]string{fieldNames[2], po.ServiceAccount},
+		[]string{fieldNames[3], po.IP.String()},
 		[]string{fieldNames[4], strings.Join(ips, ",")},
-		[]string{fieldNames[5], p.ControlledBy},
-		[]string{fieldNames[6], p.QoSClass},
+		[]string{fieldNames[5], po.ControlledBy},
+		[]string{fieldNames[6], po.QoSClass},
 	)
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
@@ -101,4 +99,49 @@ func newPodOverview(pod *corev1.Pod) PodOverview {
 		ControlledBy: pod.OwnerReferences[0].Kind + "/" + pod.OwnerReferences[0].Name,
 		QoSClass:     string(pod.Status.QOSClass),
 	}
+}
+
+// PodStatus provides historic status information from the pod
+type PodStatus struct {
+	Start      time.Time `kibedescription:"Started at"`
+	Status     string    `kibedescription:"Status"`
+	Conditions []string  `kibedescription:"Conditions"`
+}
+
+func newPodStatus(pod *corev1.Pod) PodStatus {
+	return PodStatus{
+		Start:      pod.CreationTimestamp.Time,
+		Status:     string(pod.Status.Phase),
+		Conditions: lo.Map(pod.Status.Conditions, setPodCondition),
+	}
+}
+
+func setPodCondition(condition corev1.PodCondition, _ int) string {
+	questionCondition := fmt.Sprintf("%s?", condition.Type)
+
+	switch condition.Status {
+	case corev1.ConditionTrue:
+		return uistyles.OKStatusMessage.Render(questionCondition)
+	case corev1.ConditionFalse:
+		return uistyles.NOKStatusMessage.Render(questionCondition)
+	case corev1.ConditionUnknown:
+		return uistyles.WarnStatusMessage.Render(questionCondition)
+
+	}
+	return ""
+}
+
+func (ps PodStatus) TabContent() string {
+
+	fieldNames := LookupStructFieldNames(reflect.TypeOf(ps))
+
+	t := table.New()
+	t.Rows(
+		[]string{fieldNames[0], ps.Start.String()},
+		[]string{fieldNames[1], ps.Status},
+		[]string{fieldNames[2], strings.Join(ps.Conditions, " -> ")},
+	)
+	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
 }

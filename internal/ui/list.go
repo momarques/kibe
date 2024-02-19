@@ -18,10 +18,10 @@ func newListUI(s *selector) list.Model {
 		[]list.Item{},
 		newItemDelegate(s), 0, 0)
 
-	l.Styles.Title = uistyles.ViewTitleStyle
-	l.Styles.HelpStyle = uistyles.HelpStyle
-	l.Styles.FilterPrompt = uistyles.ListFilterPromptStyle
-	l.Styles.FilterCursor = uistyles.ListFilterCursorStyle
+	l.Styles.Title = uistyles.ViewTitleStyle.Copy()
+	l.Styles.HelpStyle = uistyles.HelpStyle.Copy()
+	l.Styles.FilterPrompt = uistyles.ListFilterPromptStyle.Copy()
+	l.Styles.FilterCursor = uistyles.ListFilterCursorStyle.Copy()
 	l.InfiniteScrolling = false
 	l.KeyMap.Quit = bindings.New("q", "quit")
 
@@ -34,7 +34,10 @@ func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		h, v := uistyles.AppStyle.GetFrameSize()
+		h, v := uistyles.
+			AppStyle.
+			Copy().
+			GetFrameSize()
 		m.listUI.SetSize(msg.Width-h, msg.Height-v)
 
 		m.height = msg.Height

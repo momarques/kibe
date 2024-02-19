@@ -9,10 +9,10 @@ var (
 			BorderForeground(lipgloss.Color("#ffb8bc"))
 
 	TableHeaderStyle = lipgloss.NewStyle().
-				Blink(false).
 				Background(lipgloss.Color("#c5636a"))
+	TableCellStyle = lipgloss.NewStyle()
+
 	TableSelectedStyle = lipgloss.NewStyle().
-				Blink(false).
 				Background(lipgloss.Color("#ffb1b5")).
 				Foreground(lipgloss.Color("#322223"))
 )

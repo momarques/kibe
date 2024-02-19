@@ -52,11 +52,11 @@ func newItemDelegate(s *selector) list.DefaultDelegate {
 
 	d.UpdateFunc = s.update
 
-	d.Styles.SelectedTitle = uistyles.ListActiveSelectionTitleStyle
-	d.Styles.SelectedDesc = uistyles.ListActiveSelectionDescStyle
-	d.Styles.DimmedDesc = uistyles.ListDimmedDescStyle
-	d.Styles.NormalDesc = uistyles.ListDimmedDescStyle
-	d.Styles.NormalTitle = uistyles.ListNormalTitleStyle
+	d.Styles.SelectedTitle = uistyles.ListActiveSelectionTitleStyle.Copy()
+	d.Styles.SelectedDesc = uistyles.ListActiveSelectionDescStyle.Copy()
+	d.Styles.DimmedDesc = uistyles.ListDimmedDescStyle.Copy()
+	d.Styles.NormalDesc = uistyles.ListDimmedDescStyle.Copy()
+	d.Styles.NormalTitle = uistyles.ListNormalTitleStyle.Copy()
 
 	d.ShortHelpFunc = func() []key.Binding { return []key.Binding{s.chooseKey} }
 	d.FullHelpFunc = func() [][]key.Binding { return [][]key.Binding{{s.chooseKey}} }

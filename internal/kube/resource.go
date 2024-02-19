@@ -21,10 +21,6 @@ type ResourceSectionDescription interface {
 	TabNames() []string
 }
 
-type ResourceSectionContent interface {
-	TabContent() string
-}
-
 type SelectResource struct{ Resources []list.Item }
 
 func NewSelectResource(c *ClientReady) func() tea.Msg {

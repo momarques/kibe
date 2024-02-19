@@ -38,7 +38,7 @@ func (c *content) fetch(m table.Model) (table.Model, tea.Cmd) {
 	m.SetRows(rows)
 	m.SetHeight(
 		windowutil.ComputePercentage(
-			windowHeight, tableViewProportionPercentage))
+			windowHeight, tableViewHeightPercentage))
 	c.contentState = loaded
 	return m, c.updateHeader(title, len(rows))
 }

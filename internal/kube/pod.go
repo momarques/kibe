@@ -14,9 +14,9 @@ import (
 )
 
 const (
-	nameColumnWidthPercentage     = 34
-	readyColumnWidthPercentage    = 4
-	statusColumnWidthPercentage   = 10
+	nameColumnWidthPercentage     = 39
+	readyColumnWidthPercentage    = 5
+	statusColumnWidthPercentage   = 11
 	restartsColumnWidthPercentage = 6
 	nodeColumnWidthPercentage     = 29
 	ageColumnWidthPercentage      = 8

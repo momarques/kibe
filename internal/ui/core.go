@@ -9,6 +9,11 @@ import (
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	windowutil "github.com/momarques/kibe/internal/ui/window_util"
+)
+
+var (
+	windowWidth, windowHeight = windowutil.GetWindowSize()
 )
 
 type coreState int

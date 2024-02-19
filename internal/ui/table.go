@@ -10,7 +10,7 @@ import (
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
-const tableViewProportionPercentage int = 30
+const tableViewHeightPercentage int = 30
 
 func newTableUI() table.Model {
 	t := table.New(
@@ -19,9 +19,9 @@ func newTableUI() table.Model {
 
 	s := table.DefaultStyles()
 
-	s.Cell = s.Cell.Blink(false)
-	s.Header = uistyles.TableHeaderStyle
-	s.Selected = uistyles.TableSelectedStyle
+	s.Cell = uistyles.TableCellStyle.Copy()
+	s.Header = uistyles.TableHeaderStyle.Copy()
+	s.Selected = uistyles.TableSelectedStyle.Copy()
 
 	// s.Header = s.Header.
 	// 	Border(lipgloss.NormalBorder()).
