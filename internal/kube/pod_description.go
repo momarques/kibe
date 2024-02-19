@@ -1,39 +1,39 @@
 package kube
 
 import (
-	"fmt"
 	"net"
 	"reflect"
 	"strings"
 	"time"
 
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	"github.com/charmbracelet/lipgloss/table"
+	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 )
 
 type PodDescription struct {
-	Overview PodOverview `kibetab:"Overview"`
+	Overview PodOverview `kibedescription:"Overview"`
 	Status   struct {
 		Start      time.Time
 		Status     string
 		Conditions []map[string]interface{}
-	} `kibetab:"Status"`
+	} `kibedescription:"Status"`
 	LabelsAndAnnotations struct {
 		Labels      map[string]interface{}
 		Annotations map[string]interface{}
-	} `kibetab:"Labels and Annotations"`
+	} `kibedescription:"Labels and Annotations"`
 	Mounts struct {
 		Volumes []map[string]interface{}
-	} `kibetab:"Mounts"`
-	Containers []struct{} `kibetab:"Containers"`
+	} `kibedescription:"Mounts"`
+	Containers []struct{} `kibedescription:"Containers"`
 	Scheduling struct {
 		Node         string
 		NodeSelector map[string]interface{}
 		Tolerations  map[string]interface{}
 		NodeAffinity map[string]interface{}
 		PodAffinity  map[string]interface{}
-	} `kibetab:"Scheduling"`
+	} `kibedescription:"Scheduling"`
 }
 
 func (p PodDescription) TabNames() []string {
@@ -47,26 +47,31 @@ func (p PodOverview) TabContent() string {
 
 	fieldNames := LookupStructFieldNames(reflect.TypeOf(p))
 
-	fieldNames = uistyles.ColorizeDescriptionSectionKeys(fieldNames)
+	// fieldNames = uistyles.ColorizeDescriptionSectionKeys(fieldNames)
 
-	return strings.Join([]string{
-		fmt.Sprintf("%s=%s", fieldNames[0], p.Name),
-		fmt.Sprintf("%s=%s", fieldNames[1], p.Namespace),
-		fmt.Sprintf("%s=%s", fieldNames[2], p.ServiceAccount),
-		fmt.Sprintf("%s=%s", fieldNames[3], p.IP.String()),
-		fmt.Sprintf("%s=%s", fieldNames[4], strings.Join(ips, ",")),
-		fmt.Sprintf("%s=%s", fieldNames[5], p.ControlledBy),
-		fmt.Sprintf("%s=%s", fieldNames[6], p.QoSClass)}, "\n")
+	logging.Log.Info(fieldNames)
+
+	t := table.New()
+	t.Rows(
+		[]string{fieldNames[0], p.Name},
+		[]string{fieldNames[1], p.Namespace},
+		[]string{fieldNames[2], p.ServiceAccount},
+		[]string{fieldNames[3], p.IP.String()},
+		[]string{fieldNames[4], strings.Join(ips, ",")},
+		[]string{fieldNames[5], p.ControlledBy},
+		[]string{fieldNames[6], p.QoSClass},
+	)
+	return t.Render()
 }
 
 type PodOverview struct {
-	Name           string
-	Namespace      string
-	ServiceAccount string
-	IP             net.IP
-	IPs            []net.IP
-	ControlledBy   string
-	QoSClass       string
+	Name           string   `kibedescription:"Name"`
+	Namespace      string   `kibedescription:"Namespace"`
+	ServiceAccount string   `kibedescription:"Service Account"`
+	IP             net.IP   `kibedescription:"IP"`
+	IPs            []net.IP `kibedescription:"IPs"`
+	ControlledBy   string   `kibedescription:"Controlled By"`
+	QoSClass       string   `kibedescription:"QoS Class"`
 }
 
 func newPodOverview(pod *corev1.Pod) PodOverview {

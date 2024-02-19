@@ -9,7 +9,7 @@ import (
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
-const tabViewProportionPercentage int = 15
+const tabViewProportionPercentage int = 10
 
 var (
 	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")

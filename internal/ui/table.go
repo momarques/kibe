@@ -71,7 +71,8 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q", "ctrl+c":
 				return m, tea.Quit
 			case "enter":
-				m.tabUI.Tabs, m.tabUI.TabContent = m.tabUI.describeResource(m.client, "")
+				selectedResource := m.tableUI.SelectedRow()
+				m.tabUI.Tabs, m.tabUI.TabContent = m.tabUI.describeResource(m.client, selectedResource[0])
 
 				m.state = showTab
 				return m, nil

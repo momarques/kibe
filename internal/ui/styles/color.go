@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 )
 
@@ -32,7 +33,9 @@ func randomColorCode(prefixes []string) lipgloss.Color {
 	colorCharacters := lo.Times(5, func(index int) string {
 		return string(hexCodeChars[rand.Intn(15)])
 	})
-	colorCode := prefixes[rand.Intn(len(prefixes))] +
+	colorCode := "#" + prefixes[rand.Intn(len(prefixes))] +
 		strings.Join(colorCharacters, "")
+	logging.Log.Info(colorCode)
+
 	return lipgloss.Color(colorCode)
 }
