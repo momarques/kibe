@@ -39,9 +39,6 @@ func newTableUI() table.Model {
 	// 	Foreground(lipgloss.Color("#ffffff"))
 
 	t.SetStyles(s)
-
-	logging.Log.Infof("window size at the start of the program -> %d x %d", windowWidth, windowHeight)
-
 	return t
 }
 

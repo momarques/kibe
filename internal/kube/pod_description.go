@@ -6,8 +6,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
-	"github.com/momarques/kibe/internal/logging"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -49,8 +50,6 @@ func (p PodOverview) TabContent() string {
 
 	// fieldNames = uistyles.ColorizeDescriptionSectionKeys(fieldNames)
 
-	logging.Log.Info(fieldNames)
-
 	t := table.New()
 	t.Rows(
 		[]string{fieldNames[0], p.Name},
@@ -61,6 +60,8 @@ func (p PodOverview) TabContent() string {
 		[]string{fieldNames[5], p.ControlledBy},
 		[]string{fieldNames[6], p.QoSClass},
 	)
+	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
 
