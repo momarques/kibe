@@ -1,6 +1,6 @@
 <img src="assets/kibe_logo.png" alt="drawing" width="190" style="vertical-align:middle"/>
 
-<img alt="Static Badge" src="https://img.shields.io/badge/development_status-alpha-995b3c?style=flat">
+<img alt="Static Badge" src="https://img.shields.io/badge/development_status-alpha-pink?style=flat-square">
 
 # Kibe
 
