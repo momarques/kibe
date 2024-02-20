@@ -21,22 +21,22 @@ var (
 
 	activeTabBorder = tabBorderWithBottom("┘", " ", "└")
 	ActiveTabStyle  = InactiveTabStyle.
-			Copy().
+			Copy(). // MarginLeft(2).
 			Border(activeTabBorder, true).
 			Background(lipgloss.Color("#ffb1b5")).
 			Foreground(lipgloss.Color("#322223"))
 	highlightColor = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#ffb8bc"}
 
 	DocStyle = lipgloss.NewStyle().
-			Padding(1, 2, 1, 2)
+			Padding(0).
+			MarginLeft(2).
+			Width(120)
 	WindowStyle = lipgloss.NewStyle().
-			BorderForeground(highlightColor).
-			Padding(
-			windowutil.ComputePercentage(
-				WindowHeight, tabViewProportionPercentage), 0).
-		Align(lipgloss.Center).
-		Border(lipgloss.NormalBorder()).
-		UnsetBorderTop()
+			BorderForeground(highlightColor). // MarginLeft(2).
+			Padding(windowutil.ComputePercentage(WindowHeight, tabViewProportionPercentage), 0).
+			Align(lipgloss.Center).
+			Border(lipgloss.NormalBorder()).
+			UnsetBorderTop()
 )
 
 func tabBorderWithBottom(left, middle, right string) lipgloss.Border {

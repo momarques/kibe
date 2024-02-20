@@ -29,6 +29,7 @@ func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.tabUI.activeTab = min(m.tabUI.activeTab+1, len(m.tabUI.Tabs)-1)
 			return m, nil
 		case "left", "shift+tab":
+
 			m.tabUI.activeTab = max(m.tabUI.activeTab-1, 0)
 			return m, nil
 		}
@@ -44,7 +45,9 @@ func (m CoreUI) viewTabUI() string {
 
 	for i, t := range m.tabUI.Tabs {
 		var style lipgloss.Style
-		isFirst, isLast, isActive := i == 0, i == len(m.tabUI.Tabs)-1, i == m.tabUI.activeTab
+
+		isFirst, isLast, isActive := m.tabUI.getTabPositions(i)
+
 		if isActive {
 			style = uistyles.ActiveTabStyle.Copy()
 		} else {
@@ -65,6 +68,7 @@ func (m CoreUI) viewTabUI() string {
 	}
 
 	row := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+
 	doc.WriteString(row)
 	doc.WriteString("\n")
 	doc.WriteString(
@@ -75,6 +79,10 @@ func (m CoreUI) viewTabUI() string {
 				m.tabUI.TabContent[m.tabUI.activeTab]))
 
 	return uistyles.DocStyle.Render(doc.String())
+}
+
+func (t tabModel) getTabPositions(index int) (bool, bool, bool) {
+	return index == 0, index == len(t.Tabs)-1, index == t.activeTab
 }
 
 func max(a, b int) int {
@@ -99,6 +107,7 @@ func (t tabModel) describeResource(c *kube.ClientReady, resourceID string) ([]st
 		return pod.TabNames(), []string{
 			pod.Overview.TabContent(),
 			pod.Status.TabContent(),
+			"",
 			"",
 			"",
 			"",

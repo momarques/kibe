@@ -36,7 +36,7 @@ type PodDescription struct {
 		NodeAffinity map[string]interface{}
 		PodAffinity  map[string]interface{}
 	} `kibedescription:"Scheduling"`
-	Events []string `kibedescription:"Scheduling"`
+	Events []string `kibedescription:"Events"`
 }
 
 func NewPodDescription(c *ClientReady, podID string) PodDescription {
@@ -139,9 +139,15 @@ func (ps PodStatus) TabContent() string {
 	t.Rows(
 		[]string{fieldNames[0], ps.Start.String()},
 		[]string{fieldNames[1], ps.Status},
-		[]string{fieldNames[2], strings.Join(ps.Conditions, " -> ")},
+		[]string{fieldNames[2], strings.Join(ps.Conditions, "\n")},
+		[]string{"", ""},
 	)
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
+}
+
+type PodLabelsAndAnnotations struct {
+	Labels      map[string]interface{}
+	Annotations map[string]interface{}
 }
