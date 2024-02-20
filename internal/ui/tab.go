@@ -6,35 +6,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
-	windowutil "github.com/momarques/kibe/internal/ui/window_util"
-)
-
-const tabViewProportionPercentage int = 10
-
-var (
-	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
-	inactiveTabStyle  = lipgloss.NewStyle().
-				Border(inactiveTabBorder, true).
-				BorderForeground(highlightColor).Padding(0, 1)
-
-	activeTabBorder = tabBorderWithBottom("┘", " ", "└")
-	activeTabStyle  = inactiveTabStyle.
-			Copy().
-			Border(activeTabBorder, true).
-			Background(lipgloss.Color("#ffb1b5")).
-			Foreground(lipgloss.Color("#322223"))
-	highlightColor = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#ffb8bc"}
-
-	docStyle = lipgloss.NewStyle().
-			Padding(1, 2, 1, 2)
-	windowStyle = lipgloss.NewStyle().
-			BorderForeground(highlightColor).
-			Padding(
-			windowutil.ComputePercentage(
-				windowHeight, tabViewProportionPercentage), 0).
-		Align(lipgloss.Center).
-		Border(lipgloss.NormalBorder()).
-		UnsetBorderTop()
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
 type tabModel struct {
@@ -46,20 +18,6 @@ type tabModel struct {
 func newTabUI() tabModel {
 	return tabModel{}
 }
-
-// func (t tabModel) colorizeTabContent() string {
-// 	colorStyles := uistyles.RandomColorStyleCollection(len(t.TabContent))
-// 	var colorizedContent []string
-
-// 	for index, style := range colorStyles {
-// 		colorizedContent = append(colorizedContent,
-// 			style.Render(t.Tabs[index]),
-// 		)
-// 	}
-
-// 	return strings.Join(colorizedContent, "\n")
-
-// }
 
 func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
@@ -79,14 +37,6 @@ func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
-	border := lipgloss.RoundedBorder()
-	border.BottomLeft = left
-	border.Bottom = middle
-	border.BottomRight = right
-	return border
-}
-
 func (m CoreUI) viewTabUI() string {
 	doc := strings.Builder{}
 
@@ -96,9 +46,9 @@ func (m CoreUI) viewTabUI() string {
 		var style lipgloss.Style
 		isFirst, isLast, isActive := i == 0, i == len(m.tabUI.Tabs)-1, i == m.tabUI.activeTab
 		if isActive {
-			style = activeTabStyle.Copy()
+			style = uistyles.ActiveTabStyle.Copy()
 		} else {
-			style = inactiveTabStyle.Copy()
+			style = uistyles.InactiveTabStyle.Copy()
 		}
 		border, _, _, _, _ := style.GetBorder()
 		if isFirst && isActive {
@@ -117,8 +67,14 @@ func (m CoreUI) viewTabUI() string {
 	row := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
 	doc.WriteString(row)
 	doc.WriteString("\n")
-	doc.WriteString(windowStyle.Width((lipgloss.Width(row) - windowStyle.GetHorizontalFrameSize())).Render(m.tabUI.TabContent[m.tabUI.activeTab]))
-	return docStyle.Render(doc.String())
+	doc.WriteString(
+		uistyles.WindowStyle.
+			Width(
+				(lipgloss.Width(row) - uistyles.WindowStyle.GetHorizontalFrameSize())).
+			Render(
+				m.tabUI.TabContent[m.tabUI.activeTab]))
+
+	return uistyles.DocStyle.Render(doc.String())
 }
 
 func max(a, b int) int {
