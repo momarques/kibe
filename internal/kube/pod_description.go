@@ -140,7 +140,6 @@ func (ps PodStatus) TabContent() string {
 		[]string{fieldNames[0], ps.Start.String()},
 		[]string{fieldNames[1], ps.Status},
 		[]string{fieldNames[2], strings.Join(ps.Conditions, "\n")},
-		[]string{"", ""},
 	)
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
