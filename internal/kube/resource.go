@@ -5,7 +5,11 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/momarques/kibe/internal/logging"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	"github.com/samber/lo"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -69,4 +73,34 @@ func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {
 		}
 	}
 	return ""
+}
+
+// ResourceLabels provides a map of labels from the resource
+type ResourceLabels map[string]string
+
+func (rl ResourceLabels) TabContent() string {
+	t := table.New()
+	t.Rows(resourceLabelsToRows(rl))
+	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
+}
+
+// ResourceAnnotations provides a map of annotations from the resource
+type ResourceAnnotations map[string]string
+
+func (ra ResourceAnnotations) TabContent() string {
+	t := table.New()
+	t.Rows(resourceLabelsToRows(ra))
+	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
+}
+
+func resourceLabelsToRows(l map[string]string) ([]string, []string) {
+	return lo.MapToSlice(l, func(k, _ string) string {
+			return k
+		}), lo.MapToSlice(l, func(_, v string) string {
+			return v
+		})
 }

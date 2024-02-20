@@ -19,13 +19,11 @@ import (
 // Those Sections are segmented in categories to enable a cleaner view of all the pod config
 // Every Section has its own style
 type PodDescription struct {
-	Overview             PodOverview `kibedescription:"Overview"`
-	Status               PodStatus   `kibedescription:"Status"`
-	LabelsAndAnnotations struct {
-		Labels      map[string]interface{}
-		Annotations map[string]interface{}
-	} `kibedescription:"Labels and Annotations"`
-	Mounts struct {
+	Overview    PodOverview         `kibedescription:"Overview"`
+	Status      PodStatus           `kibedescription:"Status"`
+	Labels      ResourceLabels      `kibedescription:"Labels"`
+	Annotations ResourceAnnotations `kibedescription:"Annotations"`
+	Mounts      struct {
 		Volumes []map[string]interface{}
 	} `kibedescription:"Mounts"`
 	Containers []struct{} `kibedescription:"Containers"`
@@ -43,8 +41,10 @@ func NewPodDescription(c *ClientReady, podID string) PodDescription {
 	pod := DescribePod(c, podID)
 
 	return PodDescription{
-		Overview: newPodOverview(pod),
-		Status:   newPodStatus(pod),
+		Overview:    newPodOverview(pod),
+		Status:      newPodStatus(pod),
+		Labels:      ResourceLabels(pod.Labels),
+		Annotations: ResourceAnnotations(pod.Annotations),
 	}
 }
 
@@ -110,13 +110,15 @@ type PodStatus struct {
 
 func newPodStatus(pod *corev1.Pod) PodStatus {
 	return PodStatus{
-		Start:      pod.CreationTimestamp.Time,
-		Status:     string(pod.Status.Phase),
-		Conditions: lo.Map(pod.Status.Conditions, setPodCondition),
+		Start:  pod.CreationTimestamp.Time,
+		Status: string(pod.Status.Phase),
+		Conditions: lo.Map(
+			pod.Status.Conditions,
+			podConditionToString),
 	}
 }
 
-func setPodCondition(condition corev1.PodCondition, _ int) string {
+func podConditionToString(condition corev1.PodCondition, _ int) string {
 	questionCondition := fmt.Sprintf("%s?", condition.Type)
 
 	switch condition.Status {
@@ -126,13 +128,11 @@ func setPodCondition(condition corev1.PodCondition, _ int) string {
 		return uistyles.NOKStatusMessage.Render(questionCondition)
 	case corev1.ConditionUnknown:
 		return uistyles.WarnStatusMessage.Render(questionCondition)
-
 	}
 	return ""
 }
 
 func (ps PodStatus) TabContent() string {
-
 	fieldNames := LookupStructFieldNames(reflect.TypeOf(ps))
 
 	t := table.New()
@@ -144,9 +144,4 @@ func (ps PodStatus) TabContent() string {
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
-}
-
-type PodLabelsAndAnnotations struct {
-	Labels      map[string]interface{}
-	Annotations map[string]interface{}
 }
