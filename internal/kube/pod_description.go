@@ -23,11 +23,9 @@ type PodDescription struct {
 	Status      PodStatus           `kibedescription:"Status"`
 	Labels      ResourceLabels      `kibedescription:"Labels"`
 	Annotations ResourceAnnotations `kibedescription:"Annotations"`
-	Mounts      struct {
-		Volumes []map[string]interface{}
-	} `kibedescription:"Mounts"`
-	Containers []struct{} `kibedescription:"Containers"`
-	Scheduling struct {
+	Volumes     PodVolumes          `kibedescription:"Volumes"`
+	Containers  []struct{}          `kibedescription:"Containers"`
+	Scheduling  struct {
 		Node         string
 		NodeSelector map[string]interface{}
 		Tolerations  map[string]interface{}
@@ -45,6 +43,7 @@ func NewPodDescription(c *ClientReady, podID string) PodDescription {
 		Status:      newPodStatus(pod),
 		Labels:      ResourceLabels(pod.Labels),
 		Annotations: ResourceAnnotations(pod.Annotations),
+		Volumes:     newPodVolumes(pod),
 	}
 }
 
@@ -144,4 +143,26 @@ func (ps PodStatus) TabContent() string {
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
+}
+
+type PodVolumes map[string]string
+
+func newPodVolumes(pod *corev1.Pod) PodVolumes {
+	return retrieveVolumeObjects(pod.Spec.Volumes)
+}
+
+func (this PodVolumes) TabContent() string {
+	t := table.New()
+	t.Rows(
+		mapToDoubleSlices(this),
+	)
+	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
+}
+
+func retrieveVolumeObjects(vol []corev1.Volume) map[string]string {
+	return lo.SliceToMap(vol, func(item corev1.Volume) (string, string) {
+		return item.Name, item.String()
+	})
 }

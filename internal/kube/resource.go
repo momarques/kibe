@@ -80,7 +80,7 @@ type ResourceLabels map[string]string
 
 func (rl ResourceLabels) TabContent() string {
 	t := table.New()
-	t.Rows(resourceLabelsToRows(rl))
+	t.Rows(mapToDoubleSlices(rl))
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
@@ -91,16 +91,16 @@ type ResourceAnnotations map[string]string
 
 func (ra ResourceAnnotations) TabContent() string {
 	t := table.New()
-	t.Rows(resourceLabelsToRows(ra))
+	t.Rows(mapToDoubleSlices(ra))
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
 
-func resourceLabelsToRows(l map[string]string) ([]string, []string) {
-	return lo.MapToSlice(l, func(k, _ string) string {
+func mapToDoubleSlices(m map[string]string) ([]string, []string) {
+	return lo.MapToSlice(m, func(k, _ string) string {
 			return k
-		}), lo.MapToSlice(l, func(_, v string) string {
+		}), lo.MapToSlice(m, func(_, v string) string {
 			return v
 		})
 }
