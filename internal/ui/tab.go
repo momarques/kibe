@@ -110,7 +110,7 @@ func (t tabModel) describeResource(c *kube.ClientReady, resourceID string) ([]st
 			pod.Labels.TabContent(),
 			pod.Annotations.TabContent(),
 			pod.Volumes.TabContent(),
-			"",
+			pod.Containers.TabContent(),
 			"",
 			"",
 		}

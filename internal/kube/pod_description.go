@@ -1,6 +1,7 @@
 package kube
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"reflect"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
@@ -24,7 +26,7 @@ type PodDescription struct {
 	Labels      ResourceLabels      `kibedescription:"Labels"`
 	Annotations ResourceAnnotations `kibedescription:"Annotations"`
 	Volumes     PodVolumes          `kibedescription:"Volumes"`
-	Containers  []struct{}          `kibedescription:"Containers"`
+	Containers  PodContainers       `kibedescription:"Containers"`
 	Scheduling  struct {
 		Node         string
 		NodeSelector map[string]interface{}
@@ -44,6 +46,7 @@ func NewPodDescription(c *ClientReady, podID string) PodDescription {
 		Labels:      ResourceLabels(pod.Labels),
 		Annotations: ResourceAnnotations(pod.Annotations),
 		Volumes:     newPodVolumes(pod),
+		Containers:  newPodContainers(pod),
 	}
 }
 
@@ -151,18 +154,51 @@ func newPodVolumes(pod *corev1.Pod) PodVolumes {
 	return retrieveVolumeObjects(pod.Spec.Volumes)
 }
 
-func (this PodVolumes) TabContent() string {
+func (pv PodVolumes) TabContent() string {
 	t := table.New()
-	t.Rows(
-		mapToDoubleSlices(this),
-	)
+	t.Rows(mapToTableRows(pv)...)
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
 
 func retrieveVolumeObjects(vol []corev1.Volume) map[string]string {
+
 	return lo.SliceToMap(vol, func(item corev1.Volume) (string, string) {
-		return item.Name, item.String()
+
+		jsonString, err := item.VolumeSource.Marshal()
+		if err != nil {
+			logging.Log.Error(err)
+		}
+		var volumeSourceAsMap map[string]interface{}
+
+		err = json.Unmarshal(jsonString, &volumeSourceAsMap)
+		if err != nil {
+			logging.Log.Error(err)
+		}
+
+		return item.Name, fmt.Sprintf("%v", volumeSourceAsMap)
 	})
+}
+
+type PodContainers []corev1.Container
+
+func newPodContainers(pod *corev1.Pod) PodContainers {
+	return pod.Spec.Containers
+}
+
+func (pc PodContainers) TabContent() string {
+	t := table.New()
+	t.Rows(podContainerToTableRows(pc))
+	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
+}
+
+func podContainerToTableRows(c []corev1.Container) ([]string, []string) {
+	return lo.Map(c, func(_ corev1.Container, index int) string {
+			return fmt.Sprintf("Container %d", index)
+		}), lo.Map(c, func(item corev1.Container, _ int) string {
+			return item.Name
+		})
 }
