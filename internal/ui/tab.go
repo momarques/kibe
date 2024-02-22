@@ -111,7 +111,8 @@ func (t tabModel) describeResource(c *kube.ClientReady, resourceID string) ([]st
 			pod.Annotations.TabContent(),
 			pod.Volumes.TabContent(),
 			pod.Containers.TabContent(),
-			"",
+			pod.NodeSelectors.TabContent(),
+			pod.Tolerations.TabContent(),
 			"",
 		}
 	case *kube.Namespace:

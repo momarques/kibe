@@ -21,32 +21,29 @@ import (
 // Those Sections are segmented in categories to enable a cleaner view of all the pod config
 // Every Section has its own style
 type PodDescription struct {
-	Overview    PodOverview         `kibedescription:"Overview"`
-	Status      PodStatus           `kibedescription:"Status"`
-	Labels      ResourceLabels      `kibedescription:"Labels"`
-	Annotations ResourceAnnotations `kibedescription:"Annotations"`
-	Volumes     PodVolumes          `kibedescription:"Volumes"`
-	Containers  PodContainers       `kibedescription:"Containers"`
-	Scheduling  struct {
-		Node         string
-		NodeSelector map[string]interface{}
-		Tolerations  map[string]interface{}
-		NodeAffinity map[string]interface{}
-		PodAffinity  map[string]interface{}
-	} `kibedescription:"Scheduling"`
-	Events []string `kibedescription:"Events"`
+	Overview      PodOverview         `kibedescription:"Overview"`
+	Status        PodStatus           `kibedescription:"Status"`
+	Labels        ResourceLabels      `kibedescription:"Labels"`
+	Annotations   ResourceAnnotations `kibedescription:"Annotations"`
+	Volumes       PodVolumes          `kibedescription:"Volumes"`
+	Containers    PodContainers       `kibedescription:"Containers"`
+	NodeSelectors PodNodeSelector     `kibedescription:"Node Selectors"`
+	Tolerations   PodTolerations      `kibedescription:"Tolerations"`
+	Events        []string            `kibedescription:"Events"`
 }
 
 func NewPodDescription(c *ClientReady, podID string) PodDescription {
 	pod := DescribePod(c, podID)
 
 	return PodDescription{
-		Overview:    newPodOverview(pod),
-		Status:      newPodStatus(pod),
-		Labels:      ResourceLabels(pod.Labels),
-		Annotations: ResourceAnnotations(pod.Annotations),
-		Volumes:     newPodVolumes(pod),
-		Containers:  newPodContainers(pod),
+		Overview:      newPodOverview(pod),
+		Status:        newPodStatus(pod),
+		Labels:        ResourceLabels(pod.Labels),
+		Annotations:   ResourceAnnotations(pod.Annotations),
+		Volumes:       newPodVolumes(pod),
+		Containers:    newPodContainers(pod),
+		NodeSelectors: newPodNodeSelector(pod),
+		Tolerations:   newPodTolerations(pod),
 	}
 }
 
@@ -60,6 +57,7 @@ func (pd PodDescription) TabNames() []string {
 type PodOverview struct {
 	Name           string   `kibedescription:"Name"`
 	Namespace      string   `kibedescription:"Namespace"`
+	NodeName       string   `kibedescription:"Node Name"`
 	ServiceAccount string   `kibedescription:"Service Account"`
 	IP             net.IP   `kibedescription:"IP"`
 	IPs            []net.IP `kibedescription:"IPs"`
@@ -67,10 +65,27 @@ type PodOverview struct {
 	QoSClass       string   `kibedescription:"QoS Class"`
 }
 
+func newPodOverview(pod *corev1.Pod) PodOverview {
+	return PodOverview{
+		Name:           pod.Name,
+		Namespace:      pod.Namespace,
+		NodeName:       pod.Spec.NodeName,
+		ServiceAccount: pod.Spec.ServiceAccountName,
+		IP:             net.ParseIP(pod.Status.PodIP),
+		IPs: lo.Map(pod.Status.PodIPs,
+			func(item corev1.PodIP, _ int) net.IP {
+				return net.ParseIP(item.IP)
+			}),
+		ControlledBy: pod.OwnerReferences[0].Kind + "/" + pod.OwnerReferences[0].Name,
+		QoSClass:     string(pod.Status.QOSClass),
+	}
+}
+
 func (po PodOverview) TabContent() string {
-	ips := lo.Map(po.IPs, func(item net.IP, _ int) string {
-		return item.String()
-	})
+	ips := lo.Map(po.IPs,
+		func(item net.IP, _ int) string {
+			return item.String()
+		})
 
 	fieldNames := LookupStructFieldNames(reflect.TypeOf(po))
 
@@ -78,29 +93,16 @@ func (po PodOverview) TabContent() string {
 	t.Rows(
 		[]string{fieldNames[0], po.Name},
 		[]string{fieldNames[1], po.Namespace},
-		[]string{fieldNames[2], po.ServiceAccount},
-		[]string{fieldNames[3], po.IP.String()},
-		[]string{fieldNames[4], strings.Join(ips, ",")},
-		[]string{fieldNames[5], po.ControlledBy},
-		[]string{fieldNames[6], po.QoSClass},
+		[]string{fieldNames[2], po.NodeName},
+		[]string{fieldNames[3], po.ServiceAccount},
+		[]string{fieldNames[4], po.IP.String()},
+		[]string{fieldNames[5], strings.Join(ips, ",")},
+		[]string{fieldNames[6], po.ControlledBy},
+		[]string{fieldNames[7], po.QoSClass},
 	)
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
-}
-
-func newPodOverview(pod *corev1.Pod) PodOverview {
-	return PodOverview{
-		Name:           pod.Name,
-		Namespace:      pod.Namespace,
-		ServiceAccount: pod.Spec.ServiceAccountName,
-		IP:             net.ParseIP(pod.Status.PodIP),
-		IPs: lo.Map(pod.Status.PodIPs, func(item corev1.PodIP, _ int) net.IP {
-			return net.ParseIP(item.IP)
-		}),
-		ControlledBy: pod.OwnerReferences[0].Kind + "/" + pod.OwnerReferences[0].Name,
-		QoSClass:     string(pod.Status.QOSClass),
-	}
 }
 
 // PodStatus provides historic status information from the pod
@@ -148,57 +150,98 @@ func (ps PodStatus) TabContent() string {
 	return t.Render()
 }
 
-type PodVolumes map[string]string
+type PodVolumes []corev1.Volume
 
 func newPodVolumes(pod *corev1.Pod) PodVolumes {
-	return retrieveVolumeObjects(pod.Spec.Volumes)
+	return PodVolumes(pod.Spec.Volumes)
 }
 
 func (pv PodVolumes) TabContent() string {
 	t := table.New()
-	t.Rows(mapToTableRows(pv)...)
+	t.Rows(mapToTableRows(
+		pv.podVolumesToTableRows())...)
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
 
-func retrieveVolumeObjects(vol []corev1.Volume) map[string]string {
+func (pv PodVolumes) podVolumesToTableRows() map[string]string {
+	return lo.SliceToMap(pv,
+		func(item corev1.Volume) (string, string) {
+			jsonString, err := item.VolumeSource.Marshal()
+			if err != nil {
+				logging.Log.Error(err)
+			}
+			var volumeSourceAsMap map[string]interface{}
 
-	return lo.SliceToMap(vol, func(item corev1.Volume) (string, string) {
+			err = json.Unmarshal(jsonString, &volumeSourceAsMap)
+			if err != nil {
+				logging.Log.Error(err)
+			}
 
-		jsonString, err := item.VolumeSource.Marshal()
-		if err != nil {
-			logging.Log.Error(err)
-		}
-		var volumeSourceAsMap map[string]interface{}
-
-		err = json.Unmarshal(jsonString, &volumeSourceAsMap)
-		if err != nil {
-			logging.Log.Error(err)
-		}
-
-		return item.Name, fmt.Sprintf("%v", volumeSourceAsMap)
-	})
+			return item.Name, fmt.Sprintf("%v", volumeSourceAsMap)
+		})
 }
 
 type PodContainers []corev1.Container
 
 func newPodContainers(pod *corev1.Pod) PodContainers {
-	return pod.Spec.Containers
+	return PodContainers(pod.Spec.Containers)
 }
 
 func (pc PodContainers) TabContent() string {
 	t := table.New()
-	t.Rows(podContainerToTableRows(pc))
+	t.Rows(pc.podContainerToTableRows()...)
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
 
-func podContainerToTableRows(c []corev1.Container) ([]string, []string) {
-	return lo.Map(c, func(_ corev1.Container, index int) string {
-			return fmt.Sprintf("Container %d", index)
-		}), lo.Map(c, func(item corev1.Container, _ int) string {
-			return item.Name
+func (pc PodContainers) podContainerToTableRows() [][]string {
+	return lo.Map(pc,
+		func(c corev1.Container, index int) []string {
+			return []string{fmt.Sprintf("Container %d", index), c.Name}
 		})
+}
+
+type PodNodeSelector map[string]string
+
+func newPodNodeSelector(pod *corev1.Pod) PodNodeSelector {
+	return PodNodeSelector(pod.Spec.NodeSelector)
+}
+
+func (pn PodNodeSelector) TabContent() string {
+	t := table.New()
+
+	t.Rows(mapToTableRows(pn)...)
+	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
+}
+
+type PodTolerations []corev1.Toleration
+
+func newPodTolerations(pod *corev1.Pod) PodTolerations {
+	return PodTolerations(pod.Spec.Tolerations)
+}
+
+func (pt PodTolerations) podTolerationsToTableRows() [][]string {
+	return lo.Map(pt,
+		func(t corev1.Toleration, index int) []string {
+			return []string{fmt.Sprintf("%s=%s:%s op=%s for %ds",
+				t.Key,
+				t.Value,
+				t.Effect,
+				t.Operator,
+				t.TolerationSeconds)}
+		})
+}
+
+func (pt PodTolerations) TabContent() string {
+	t := table.New()
+
+	t.Rows(pt.podTolerationsToTableRows()...)
+	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
 }
