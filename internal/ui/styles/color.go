@@ -9,6 +9,8 @@ import (
 	"github.com/samber/lo"
 )
 
+const HEXCODECHARS string = "0123456789abcdef"
+
 func ColorizeDescriptionSectionKeys(k []string) []string {
 	return lo.Map(k, RandomColorStyle)
 }
@@ -35,12 +37,10 @@ var darkColorCodePrefixes = lo.Times(8,
 		return strconv.Itoa(index)
 	})
 
-const hexCodeChars string = "0123456789abcdef"
-
 func randomColor(prefixes []string) lipgloss.Color {
 	colorCharacters := lo.Times(5,
 		func(index int) string {
-			return string(hexCodeChars[rand.Intn(15)])
+			return string(HEXCODECHARS[rand.Intn(15)])
 		})
 	colorCode := "#" + prefixes[rand.Intn(len(prefixes))] +
 		strings.Join(colorCharacters, "")
