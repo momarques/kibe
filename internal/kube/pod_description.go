@@ -61,7 +61,7 @@ type PodOverview struct {
 	ServiceAccount string   `kibedescription:"Service Account"`
 	IP             net.IP   `kibedescription:"IP"`
 	IPs            []net.IP `kibedescription:"IPs"`
-	ControlledBy   string   `kibedescription:"Controlled By"`
+	ControlledBy   string   `kibedescription:"Controlled by"`
 	QoSClass       string   `kibedescription:"QoS Class"`
 }
 
