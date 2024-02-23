@@ -1,7 +1,6 @@
 package kube
 
 import (
-	"encoding/json"
 	"fmt"
 	"net"
 	"reflect"
@@ -10,7 +9,6 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
-	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
@@ -168,18 +166,7 @@ func (pv PodVolumes) TabContent() string {
 func (pv PodVolumes) podVolumesToTableRows() map[string]string {
 	return lo.SliceToMap(pv,
 		func(item corev1.Volume) (string, string) {
-			jsonString, err := item.VolumeSource.Marshal()
-			if err != nil {
-				logging.Log.Error(err)
-			}
-			var volumeSourceAsMap map[string]interface{}
-
-			err = json.Unmarshal(jsonString, &volumeSourceAsMap)
-			if err != nil {
-				logging.Log.Error(err)
-			}
-
-			return item.Name, fmt.Sprintf("%v", volumeSourceAsMap)
+			return item.Name, fmt.Sprintf("%v", item.VolumeSource.String())
 		})
 }
 
