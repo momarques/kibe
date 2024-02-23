@@ -135,13 +135,14 @@ func (s *selector) namespaceSelected(namespace string) func() tea.Msg {
 }
 
 func (s *selector) resourceSelected(kind string) func() tea.Msg {
-	r, _ := lo.Find(kube.SupportedResources, func(item kube.Resource) bool {
-		switch item.Kind() {
-		case "Pod", "Service", "Namespace":
-			return true
-		}
-		return false
-	})
+	r, _ := lo.Find(kube.SupportedResources,
+		func(item kube.Resource) bool {
+			switch item.Kind() {
+			case "Pod", "Service", "Namespace":
+				return true
+			}
+			return false
+		})
 
 	return func() tea.Msg { return kube.ResourceSelected{R: r} }
 }

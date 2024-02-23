@@ -98,7 +98,8 @@ func (ra ResourceAnnotations) TabContent() string {
 }
 
 func mapToTableRows(m map[string]string) [][]string {
-	return lo.MapToSlice(m, func(k, v string) []string {
-		return []string{k, v}
-	})
+	return lo.MapToSlice(m,
+		func(k, v string) []string {
+			return []string{k, v}
+		})
 }

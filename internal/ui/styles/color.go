@@ -30,16 +30,18 @@ func NewRandomColorStyle() lipgloss.Style {
 		Foreground(lipgloss.Color("#ffffff")).Padding(0, 1)
 }
 
-var darkColorCodePrefixes = lo.Times(8, func(index int) string {
-	return strconv.Itoa(index)
-})
+var darkColorCodePrefixes = lo.Times(8,
+	func(index int) string {
+		return strconv.Itoa(index)
+	})
 
 const hexCodeChars string = "0123456789abcdef"
 
 func randomColor(prefixes []string) lipgloss.Color {
-	colorCharacters := lo.Times(5, func(index int) string {
-		return string(hexCodeChars[rand.Intn(15)])
-	})
+	colorCharacters := lo.Times(5,
+		func(index int) string {
+			return string(hexCodeChars[rand.Intn(15)])
+		})
 	colorCode := "#" + prefixes[rand.Intn(len(prefixes))] +
 		strings.Join(colorCharacters, "")
 	return lipgloss.Color(colorCode)

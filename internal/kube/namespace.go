@@ -49,12 +49,13 @@ func RetrieveNamespaceListAsTableRows(namespaces []corev1.Namespace) (namespaceR
 }
 
 func namespaceFieldWidth(fieldName string, namespaces []corev1.Namespace) int {
-	return lo.Reduce(namespaces, func(width int, ns corev1.Namespace, _ int) int {
-		if len(ns.Name) > width {
-			return len(ns.Name)
-		}
-		return width
-	}, 0)
+	return lo.Reduce(namespaces,
+		func(width int, ns corev1.Namespace, _ int) int {
+			if len(ns.Name) > width {
+				return len(ns.Name)
+			}
+			return width
+		}, 0)
 }
 
 type SelectNamespace struct{ Namespaces []list.Item }

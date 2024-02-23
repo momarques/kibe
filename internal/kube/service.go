@@ -62,32 +62,33 @@ func RetrieveServiceListAsTableRows(services []corev1.Service) (serviceRows []ta
 func serviceFieldWidth(fieldName string, services []corev1.Service) int {
 	var fieldValue string
 
-	return lo.Reduce(services, func(width int, svc corev1.Service, _ int) int {
+	return lo.Reduce(services,
+		func(width int, svc corev1.Service, _ int) int {
 
-		switch fieldName {
-		case "Name":
-			fieldValue = svc.Name
-		case "Type":
-			fieldValue = string(svc.Spec.Type)
-		case "ClusterIP":
-			fieldValue = svc.Spec.ClusterIP
-		case "ExternalIP":
-			fieldValue = strings.Join(
-				svc.Spec.ExternalIPs, ", ")
+			switch fieldName {
+			case "Name":
+				fieldValue = svc.Name
+			case "Type":
+				fieldValue = string(svc.Spec.Type)
+			case "ClusterIP":
+				fieldValue = svc.Spec.ClusterIP
+			case "ExternalIP":
+				fieldValue = strings.Join(
+					svc.Spec.ExternalIPs, ", ")
 
-			// workaround so the column can have sufficient space to print column name, in case the value is empty
-			if len(fieldValue) < 1 {
-				fieldValue = "ExternalIP"
+				// workaround so the column can have sufficient space to print column name, in case the value is empty
+				if len(fieldValue) < 1 {
+					fieldValue = "ExternalIP"
+				}
+			case "Ports":
+				fieldValue = servicePortsAsString(svc.Spec.Ports)
 			}
-		case "Ports":
-			fieldValue = servicePortsAsString(svc.Spec.Ports)
-		}
 
-		if len(fieldValue) > width {
-			return len(fieldValue)
-		}
-		return width
-	}, 0)
+			if len(fieldValue) > width {
+				return len(fieldValue)
+			}
+			return width
+		}, 0)
 }
 
 func servicePortsAsString(services []corev1.ServicePort) string {

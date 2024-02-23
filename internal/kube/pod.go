@@ -78,17 +78,19 @@ func RetrievePodListAsTableRows(pods []corev1.Pod) (podRows []table.Row) {
 
 func checkReadyContainers(containers []corev1.ContainerStatus) string {
 	return fmt.Sprintf("%d/%d",
-		lo.CountBy(containers, func(c corev1.ContainerStatus) bool {
-			return c.Ready
-		}),
+		lo.CountBy(containers,
+			func(c corev1.ContainerStatus) bool {
+				return c.Ready
+			}),
 		len(containers))
 }
 
 func checkRestartedContainers(containers []corev1.ContainerStatus) string {
 	return strconv.Itoa(
-		lo.Reduce(containers, func(restarts int, container corev1.ContainerStatus, _ int) int {
-			return restarts + int(container.RestartCount)
-		}, 0))
+		lo.Reduce(containers,
+			func(restarts int, container corev1.ContainerStatus, _ int) int {
+				return restarts + int(container.RestartCount)
+			}, 0))
 }
 
 func DescribePod(c *ClientReady, podID string) *corev1.Pod {
