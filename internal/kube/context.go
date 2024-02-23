@@ -8,12 +8,16 @@ import (
 	"k8s.io/client-go/tools/clientcmd/api"
 )
 
-type SelectContext struct{ Contexts []list.Item }
+type SelectContext struct {
+	Contexts       []list.Item
+	CurrentContext string
+}
 
 func NewSelectContext() func() tea.Msg {
 	return func() tea.Msg {
 		return SelectContext{
-			Contexts: ListContexts(),
+			Contexts:       ListContexts(),
+			CurrentContext: CurrentContext(),
 		}
 	}
 }
@@ -49,3 +53,4 @@ func newContextList(config *api.Config) []list.Item {
 }
 
 func ListContexts() []list.Item { return newContextList(FetchKubeConfig()) }
+func CurrentContext() string    { return FetchKubeConfig().CurrentContext }

@@ -25,9 +25,10 @@ type selector struct {
 
 	client *kube.ClientReady
 
-	context   string
-	namespace string
-	resource  string
+	context           string
+	useCurrentContext bool
+	namespace         string
+	resource          string
 
 	chooseKey key.Binding
 
@@ -39,6 +40,8 @@ func newListSelector(spinner spinner.Model, status statusbar.Model) *selector {
 	return &selector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,
+
+		useCurrentContext: true,
 
 		chooseKey: bindings.New("enter", "choose"),
 
@@ -68,6 +71,18 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	case kube.SelectContext:
 		m.Title = "Choose a context to connect"
+		if s.useCurrentContext {
+			m.Title = "Skipping context selection"
+
+			s.context = msg.CurrentContext
+			s.spinnerState = showSpinner
+
+			return tea.Batch(
+				m.NewStatusMessage(uistyles.StatusMessageStyle(
+					"Using current context", s.context)),
+				s.contextSelected(msg.CurrentContext),
+				s.spinner.Tick)
+		}
 		s.spinnerState = hideSpinner
 
 		return m.SetItems(msg.Contexts)
