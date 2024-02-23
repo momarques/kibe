@@ -228,12 +228,7 @@ func newPodTolerations(pod *corev1.Pod) PodTolerations {
 func (pt PodTolerations) podTolerationsToTableRows() [][]string {
 	return lo.Map(pt,
 		func(t corev1.Toleration, index int) []string {
-			return []string{fmt.Sprintf("%s=%s:%s op=%s for %ds",
-				t.Key,
-				t.Value,
-				t.Effect,
-				t.Operator,
-				t.TolerationSeconds)}
+			return []string{t.Key, prettyPrintTolerations(t)}
 		})
 }
 
@@ -244,4 +239,23 @@ func (pt PodTolerations) TabContent() string {
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
+}
+
+func prettyPrintTolerations(t corev1.Toleration) string {
+	toleration := strings.Builder{}
+
+	if !lo.IsEmpty(t.Value) {
+		toleration.WriteString(fmt.Sprintf("%s ", t.Value))
+	}
+	if !lo.IsEmpty(t.Effect) {
+		toleration.WriteString(fmt.Sprintf("%s ", t.Effect))
+	}
+	if !lo.IsEmpty(t.Operator) {
+		toleration.WriteString(fmt.Sprintf("op=%s ", t.Operator))
+	}
+	if !lo.IsEmpty(t.TolerationSeconds) {
+		toleration.WriteString(fmt.Sprintf("for %ds ", *t.TolerationSeconds))
+	}
+
+	return toleration.String()
 }
