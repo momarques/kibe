@@ -38,7 +38,7 @@ func (t headerModel) viewHeaderUI(size int) string {
 		Foreground(lipgloss.Color("#685e59")).
 		MarginTop(1).
 		MarginLeft(2).
-		MarginBottom(3)
+		MarginBottom(2)
 
 	return lipgloss.JoinVertical(lipgloss.Left,
 		titleStyle.Render(t.text),

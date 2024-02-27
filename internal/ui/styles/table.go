@@ -15,4 +15,6 @@ var (
 	TableSelectedStyle = lipgloss.NewStyle().
 				Background(lipgloss.Color("#ffb1b5")).
 				Foreground(lipgloss.Color("#322223"))
+
+	PaginatorStyle = lipgloss.NewStyle().MarginLeft(2)
 )

@@ -5,7 +5,6 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 )
 
 // var loadInterval = 2 * time.Second
@@ -70,7 +69,6 @@ func (c *content) fetchPageItems(m table.Model) table.Model {
 	start, end := c.paginator.GetSliceBounds(len(c.rows))
 
 	rows := c.rows[start:end]
-	logging.Log.Info("rows ", rows)
 	m.SetRows(rows)
 	return m
 }

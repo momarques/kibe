@@ -109,15 +109,15 @@ func (m CoreUI) View() string {
 			lipgloss.Left,
 			m.headerUI.viewHeaderUI(0),
 			m.viewTableUI(),
-			m.tableContent.paginator.View(),
+			m.viewPaginatorUI(),
 			m.statusbar.View())
 	case showTab:
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			m.headerUI.viewHeaderUI(0),
 			m.viewTableUI(),
+			m.viewPaginatorUI(),
 			m.viewTabUI(),
-			m.tableContent.paginator.View(),
 			m.statusbar.View())
 	}
 	return m.View()
