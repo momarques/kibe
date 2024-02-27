@@ -2,12 +2,10 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/logging"
-	"github.com/momarques/kibe/internal/ui"
 	core "github.com/momarques/kibe/internal/ui"
 	"github.com/spf13/cobra"
 )
@@ -51,10 +49,7 @@ var testCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Used for testing layouts without needing to execute the whole program",
 	Run: func(cmd *cobra.Command, args []string) {
-		p := tea.NewProgram(ui.NewModel())
-		if _, err := p.Run(); err != nil {
-			log.Fatal(err)
-		}
+
 	},
 }
 
