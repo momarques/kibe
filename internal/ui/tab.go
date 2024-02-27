@@ -7,7 +7,11 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
+
+const tabViewShowedHeightPercentage int = 36
+const tabViewHiddenHeightPercentage int = 44
 
 type tabModel struct {
 	Tabs       []string
@@ -38,6 +42,11 @@ func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CoreUI) viewTabUI() string {
+	if m.tabUI.Tabs == nil {
+		return lipgloss.NewStyle().Height(windowutil.
+			ComputePercentage(windowHeight, tabViewHiddenHeightPercentage)).Render("")
+	}
+
 	doc := strings.Builder{}
 
 	var renderedTabs []string
@@ -66,14 +75,17 @@ func (m CoreUI) viewTabUI() string {
 		renderedTabs = append(renderedTabs, style.Render(t))
 	}
 
-	row := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+	tabs := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
 
-	doc.WriteString(row)
+	doc.WriteString(tabs)
 	doc.WriteString("\n")
 	doc.WriteString(
 		uistyles.WindowStyle.
+			Copy().
+			Height(windowutil.
+				ComputePercentage(windowHeight, tabViewShowedHeightPercentage)).
 			Width(
-				(lipgloss.Width(row) - uistyles.WindowStyle.GetHorizontalFrameSize())).
+				(lipgloss.Width(tabs) - uistyles.WindowStyle.GetHorizontalFrameSize())).
 			Render(
 				m.tabUI.TabContent[m.tabUI.activeTab]))
 

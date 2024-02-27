@@ -12,10 +12,10 @@ func newPaginatorUI() paginator.Model {
 	p.Type = paginator.Dots
 	p.PerPage = 16
 	p.ActiveDot = lipgloss.NewStyle().
-		Foreground(lipgloss.AdaptiveColor{Light: "235", Dark: "252"}).
+		Foreground(lipgloss.AdaptiveColor{Light: "235", Dark: "#ffb1b5"}).
 		Render("•")
 	p.InactiveDot = lipgloss.NewStyle().
-		Foreground(lipgloss.AdaptiveColor{Light: "250", Dark: "238"}).
+		Foreground(lipgloss.AdaptiveColor{Light: "250", Dark: "#624548"}).
 		Render("•")
 
 	return p

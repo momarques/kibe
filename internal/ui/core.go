@@ -104,20 +104,20 @@ func (m CoreUI) View() string {
 	case showList:
 		return m.viewListUI()
 
-	case showTable:
+	// case showTable:
+	// 	return lipgloss.JoinVertical(
+	// 		lipgloss.Left,
+	// 		m.headerUI.viewHeaderUI(0),
+	// 		m.viewTableUI(),
+	// 		m.viewPaginatorUI(),
+	// 		m.statusbar.View())
+	case showTable, showTab:
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			m.headerUI.viewHeaderUI(0),
 			m.viewTableUI(),
-			m.viewPaginatorUI(),
-			m.statusbar.View())
-	case showTab:
-		return lipgloss.JoinVertical(
-			lipgloss.Left,
-			m.headerUI.viewHeaderUI(0),
-			m.viewTableUI(),
-			m.viewPaginatorUI(),
 			m.viewTabUI(),
+			m.viewPaginatorUI(),
 			m.statusbar.View())
 	}
 	return m.View()

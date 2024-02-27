@@ -30,11 +30,10 @@ var (
 	DocStyle = lipgloss.NewStyle().
 			Padding(0).
 			MarginLeft(2).
-			Width(120)
+			Width(WindowWidth)
 	WindowStyle = lipgloss.NewStyle().
 			BorderForeground(highlightColor). // MarginLeft(2).
-			Padding(windowutil.ComputePercentage(WindowHeight, tabViewProportionPercentage), 0).
-			Align(lipgloss.Center).
+			Align(lipgloss.Center, lipgloss.Center).
 			Border(lipgloss.NormalBorder()).
 			UnsetBorderTop()
 )
