@@ -9,20 +9,19 @@ import (
 )
 
 type headerModel struct {
-	text, line string
-	itemCount  string
+	text      string
+	itemCount string
 }
 
 type headerUpdated struct {
-	text, line string
-	itemCount  string
+	text      string
+	itemCount string
 }
 
 func (c *content) updateHeader(title string, itemCount int) tea.Cmd {
 	return func() tea.Msg {
 		return headerUpdated{
 			text:      title,
-			line:      "",
 			itemCount: fmt.Sprintf("%d items", itemCount)}
 	}
 }
@@ -34,15 +33,6 @@ func (t headerModel) viewHeaderUI(size int) string {
 		PaddingLeft(1).
 		MarginTop(1).
 		MarginLeft(2)
-
-	// lineStyle := titleStyle.
-	// 	Copy().
-	// 	MarginBottom(0).
-	// 	MarginTop(0).
-	// 	Width(windowWidth).
-	// 	Border(lipgloss.DoubleBorder(), true, false, false, false).
-	// 	BorderTopForeground(lipgloss.Color("#d65f50")).
-	// 	Background(lipgloss.NoColor{})
 
 	itemCountStyle := lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#685e59")).

@@ -1,15 +1,14 @@
 package ui
 
 import (
-	"time"
-
+	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
-	windowutil "github.com/momarques/kibe/internal/ui/window_util"
+	"github.com/momarques/kibe/internal/logging"
 )
 
-var loadInterval = 2 * time.Second
+// var loadInterval = 2 * time.Second
 
 type contentState int
 
@@ -23,24 +22,17 @@ type content struct {
 	contentState
 
 	client *kube.ClientReady
+
+	rows      []table.Row
+	paginator paginator.Model
 }
 
-func newTableContent(c *kube.ClientReady) *content {
+func newTableContent(c *kube.ClientReady, paginator paginator.Model) *content {
 	return &content{
 		contentState: notLoaded,
 		client:       c,
+		paginator:    paginator,
 	}
-}
-
-func (c *content) fetch(m table.Model) (table.Model, tea.Cmd) {
-	columns, rows, title := FetchTableView(c.client)
-	m.SetColumns(columns)
-	m.SetRows(rows)
-	m.SetHeight(
-		windowutil.ComputePercentage(
-			windowHeight, tableViewHeightPercentage))
-	c.contentState = loaded
-	return m, c.updateHeader(title, len(rows))
 }
 
 func FetchTableView(c *kube.ClientReady) ([]table.Column, []table.Row, string) {
@@ -62,4 +54,23 @@ func FetchTableView(c *kube.ClientReady) ([]table.Column, []table.Row, string) {
 		return svcColumns, kube.RetrieveServiceListAsTableRows(svc), "Service interaction"
 	}
 	return nil, nil, ""
+}
+
+func (c *content) fetchTableItems(m table.Model) (table.Model, tea.Cmd) {
+	columns, rows, title := FetchTableView(c.client)
+
+	m.SetColumns(columns)
+
+	c.paginator.SetTotalPages(len(rows))
+	c.rows = rows
+	return m, c.updateHeader(title, len(rows))
+}
+
+func (c *content) fetchPageItems(m table.Model) table.Model {
+	start, end := c.paginator.GetSliceBounds(len(c.rows))
+
+	rows := c.rows[start:end]
+	logging.Log.Info("rows ", rows)
+	m.SetRows(rows)
+	return m
 }

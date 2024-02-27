@@ -30,6 +30,7 @@ type CoreUI struct {
 
 	client *kube.ClientReady
 
+	// main UIs
 	listSelector *selector
 	listUI       list.Model
 
@@ -38,9 +39,10 @@ type CoreUI struct {
 
 	tabUI tabModel
 
-	headerUI    headerModel
-	spinner     spinner.Model
-	statusbarUI statusbar.Model
+	// utility UIs
+	headerUI  headerModel
+	spinner   spinner.Model
+	statusbar statusbar.Model
 }
 
 func NewUI() CoreUI {
@@ -49,11 +51,13 @@ func NewUI() CoreUI {
 	)
 	sp.Spinner = spinner.Dot
 
-	status := newStatusBarUI()
+	status := newStatusBar()
 	status.SetContent("Resource", "", "", "")
 
 	selector := newListSelector(sp, status)
-	content := newTableContent(nil)
+	paginator := newPaginatorUI()
+
+	content := newTableContent(nil, paginator)
 
 	list := newListUI(selector)
 
@@ -68,9 +72,8 @@ func NewUI() CoreUI {
 
 		tabUI: newTabUI(),
 
-		spinner: sp,
-
-		statusbarUI: status,
+		spinner:   sp,
+		statusbar: status,
 	}
 }
 
@@ -106,14 +109,16 @@ func (m CoreUI) View() string {
 			lipgloss.Left,
 			m.headerUI.viewHeaderUI(0),
 			m.viewTableUI(),
-			m.statusbarUI.View())
+			m.tableContent.paginator.View(),
+			m.statusbar.View())
 	case showTab:
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			m.headerUI.viewHeaderUI(0),
 			m.viewTableUI(),
 			m.viewTabUI(),
-			m.statusbarUI.View())
+			m.tableContent.paginator.View(),
+			m.statusbar.View())
 	}
 	return m.View()
 }

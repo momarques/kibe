@@ -1,13 +1,12 @@
 package ui
 
 import (
-	"time"
-
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
 const tableViewHeightPercentage int = 30
@@ -23,22 +22,10 @@ func newTableUI() table.Model {
 	s.Header = uistyles.TableHeaderStyle.Copy()
 	s.Selected = uistyles.TableSelectedStyle.Copy()
 
-	// s.Header = s.Header.
-	// 	Border(lipgloss.NormalBorder()).
-	// 	BorderForeground(lipgloss.Color("99")).
-	// 	Bold(true).
-	// 	Foreground(lipgloss.Color("99"))
-
-	// s.Cell = s.Cell.
-	// 	Border(lipgloss.NormalBorder()).
-	// 	BorderForeground(lipgloss.Color("99")).
-	// 	Foreground(lipgloss.Color("229"))
-
-	// s.Selected = s.Selected.
-	// 	BorderForeground(lipgloss.Color("#ffffff")).
-	// 	Foreground(lipgloss.Color("#ffffff"))
-
 	t.SetStyles(s)
+	t.SetHeight(
+		windowutil.ComputePercentage(
+			windowHeight, tableViewHeightPercentage))
 	return t
 }
 
@@ -73,22 +60,32 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				m.state = showTab
 				return m, nil
+			case "right", "left":
+				m.tableContent.paginator, _ = m.tableContent.paginator.Update(msg)
+				m.tableUI = m.tableContent.fetchPageItems(m.tableUI)
+
+				return m, cmd
 			}
 		case headerUpdated:
 			m.headerUI.text = msg.text
 			m.headerUI.itemCount = msg.itemCount
-
-		default:
-			return m, tea.Tick(loadInterval, func(t time.Time) tea.Msg {
+			return m, nil
+			/*tea.Tick(loadInterval, func(t time.Time) tea.Msg {
 				m.tableContent.contentState = notLoaded
 				return nil
-			})
+			})*/
 		}
 
 	case notLoaded:
 		m.tableContent.client = m.client
 
-		m.tableUI, cmd = m.tableContent.fetch(m.tableUI)
+		// m.state = showTab
+		m.tableUI, cmd = m.tableContent.fetchTableItems(m.tableUI)
+		m.tableContent.paginator, _ = m.tableContent.paginator.Update(msg)
+		m.tableUI = m.tableContent.fetchPageItems(m.tableUI)
+
+		m.tableContent.contentState = loaded
+
 		return m, cmd
 	}
 

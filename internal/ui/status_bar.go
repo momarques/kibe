@@ -6,7 +6,7 @@ import (
 	"github.com/mistakenelf/teacup/statusbar"
 )
 
-func newStatusBarUI() statusbar.Model {
+func newStatusBar() statusbar.Model {
 	s := statusbar.New(
 		statusbar.ColorConfig{
 			Foreground: lipgloss.AdaptiveColor{Dark: "#ffffff", Light: "#ffffff"},
@@ -28,11 +28,11 @@ func newStatusBarUI() statusbar.Model {
 	return s
 }
 
-type UpdateStatusBar struct{ resource, context, namespace string }
+type statusBarUpdated struct{ resource, context, namespace string }
 
 func (s *selector) updateStatusBar() func() tea.Msg {
 	return func() tea.Msg {
-		return UpdateStatusBar{
+		return statusBarUpdated{
 			resource:  s.resource,
 			context:   s.context,
 			namespace: s.namespace}

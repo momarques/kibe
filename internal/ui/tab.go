@@ -33,7 +33,6 @@ func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.tabUI.activeTab = max(m.tabUI.activeTab-1, 0)
 			return m, nil
 		}
-
 	}
 	return m, nil
 }

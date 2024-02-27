@@ -41,7 +41,7 @@ func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.listUI.SetSize(msg.Width-h, msg.Height-v)
 
 		m.height = msg.Height
-		m.statusbarUI.SetSize(msg.Width)
+		m.statusbar.SetSize(msg.Width)
 
 	case tea.KeyMsg:
 		if m.listUI.FilterState() == list.Filtering {
@@ -57,16 +57,16 @@ func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.client = msg
 		return m, nil
 
-	case UpdateStatusBar:
-		var statusbarUI statusbar.Model
+	case statusBarUpdated:
+		var statusbar statusbar.Model
 
-		m.statusbarUI.SetContent("Resource",
+		m.statusbar.SetContent("Resource",
 			m.listSelector.resource,
 			fmt.Sprintf("Context: %s", m.listSelector.context),
 			fmt.Sprintf("Namespace: %s", m.listSelector.namespace))
 
-		statusbarUI, cmd = m.statusbarUI.Update(msg)
-		m.statusbarUI = statusbarUI
+		statusbar, cmd = m.statusbar.Update(msg)
+		m.statusbar = statusbar
 
 		cmds = append(cmds, cmd)
 	}
@@ -84,9 +84,9 @@ func (m CoreUI) viewListUI() string {
 			fmt.Sprintf("%s%s",
 				m.spinner.View(),
 				m.listUI.View()),
-			m.statusbarUI.View())
+			m.statusbar.View())
 	}
 	return lipgloss.JoinVertical(
 		lipgloss.Top, m.listUI.View(),
-		m.statusbarUI.View())
+		m.statusbar.View())
 }
