@@ -109,13 +109,6 @@ func (m CoreUI) View() string {
 	case showList:
 		return m.viewListUI()
 
-	// case showTable:
-	// 	return lipgloss.JoinVertical(
-	// 		lipgloss.Left,
-	// 		m.headerUI.viewHeaderUI(0),
-	// 		m.viewTableUI(),
-	// 		m.viewPaginatorUI(),
-	// 		m.statusbar.View())
 	case showTable, showTab:
 		helpStyle := lipgloss.NewStyle().MarginBottom(1)
 

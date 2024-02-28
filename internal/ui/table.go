@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -45,22 +46,24 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 
 		case tea.KeyMsg:
-			switch msg.String() {
-			case "esc":
-				if m.tableUI.Focused() {
-					m.tableUI.Blur()
-				} else {
-					m.tableUI.Focus()
-				}
-			case "q", "ctrl+c":
+			switch {
+			// case "esc":
+			// 	if m.tableUI.Focused() {
+			// 		m.tableUI.Blur()
+			// 	} else {
+			// 		m.tableUI.Focus()
+			// 	}
+			// disable other keys
+
+			case key.Matches(msg, m.tableKeys.Quit):
 				return m, tea.Quit
-			case "enter":
+			case key.Matches(msg, m.tableKeys.Describe):
 				selectedResource := m.tableUI.SelectedRow()
 				m.tabUI.Tabs, m.tabUI.TabContent = m.tabUI.describeResource(m.client, selectedResource[0])
 
 				m.state = showTab
 				return m, nil
-			case "right", "left":
+			case key.Matches(msg, m.tableKeys.PreviousPage, m.tableKeys.NextPage):
 				m.tableContent.paginator, _ = m.tableContent.paginator.Update(msg)
 				m.tableUI = m.tableContent.fetchPageItems(m.tableUI)
 
