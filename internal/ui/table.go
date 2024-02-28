@@ -40,7 +40,7 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			// m.tableUI.SetHeight(msg.Height - m.tableUI.Height())
 			// m.tableUI.SetWidth(msg.Width - m.tableUI.Width())
 			logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
-
+			m.helpUI.Width = 20
 			m.tableUI, cmd = m.tableUI.Update(msg)
 			return m, cmd
 

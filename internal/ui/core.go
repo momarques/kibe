@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
@@ -35,11 +36,13 @@ type CoreUI struct {
 	listUI       list.Model
 
 	tableContent *content
+	tableKeys    tableKeyMap
 	tableUI      table.Model
 
 	tabUI tabModel
 
 	// utility UIs
+	helpUI    help.Model
 	headerUI  headerModel
 	spinner   spinner.Model
 	statusbar statusbar.Model
@@ -68,10 +71,12 @@ func NewUI() CoreUI {
 		listUI:       list,
 
 		tableContent: content,
+		tableKeys:    tableShortcuts,
 		tableUI:      newTableUI(),
 
 		tabUI: newTabUI(),
 
+		helpUI:    help.New(),
 		spinner:   sp,
 		statusbar: status,
 	}
@@ -112,12 +117,25 @@ func (m CoreUI) View() string {
 	// 		m.viewPaginatorUI(),
 	// 		m.statusbar.View())
 	case showTable, showTab:
+		helpStyle := lipgloss.NewStyle().MarginBottom(1)
+
+		helpView := lipgloss.JoinVertical(
+			lipgloss.Center,
+			helpStyle.Render(
+				m.helpUI.ShortHelpView(m.tableKeys.viewFirstLine())),
+			m.helpUI.ShortHelpView(m.tableKeys.viewSecondLine()),
+		)
+
 		return lipgloss.JoinVertical(
 			lipgloss.Left,
 			m.headerUI.viewHeaderUI(0),
 			m.viewTableUI(),
 			m.viewTabUI(),
-			m.viewPaginatorUI(),
+			lipgloss.JoinHorizontal(
+				lipgloss.Left,
+				m.viewPaginatorUI(),
+				helpView,
+			),
 			m.statusbar.View())
 	}
 	return m.View()
