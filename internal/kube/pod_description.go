@@ -1,6 +1,7 @@
 package kube
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"reflect"
@@ -9,10 +10,23 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
+	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
+
+func DescribePod(c *ClientReady, podID string) *corev1.Pod {
+	pod, err := c.Client.
+		CoreV1().
+		Pods(c.Namespace.NS).
+		Get(context.Background(), podID, v1.GetOptions{})
+	if err != nil {
+		logging.Log.Error(err)
+	}
+	return pod
+}
 
 // PodDescription provides information about the pod structured in Sections
 //

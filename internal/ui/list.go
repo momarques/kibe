@@ -23,7 +23,7 @@ func newListUI(s *selector) list.Model {
 	l.Styles.FilterPrompt = uistyles.ListFilterPromptStyle.Copy()
 	l.Styles.FilterCursor = uistyles.ListFilterCursorStyle.Copy()
 	l.InfiniteScrolling = false
-	l.KeyMap.Quit = bindings.New("q", "quit")
+	l.KeyMap.Quit = bindings.New("quit", "q", "ctrl+c")
 
 	return l
 }
@@ -60,8 +60,8 @@ func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case statusBarUpdated:
 		var statusbar statusbar.Model
 
-		m.statusbar.SetContent("Resource",
-			m.listSelector.resource,
+		m.statusbar.SetContent(
+			"Resource", m.listSelector.resource,
 			fmt.Sprintf("Context: %s", m.listSelector.context),
 			fmt.Sprintf("Namespace: %s", m.listSelector.namespace))
 

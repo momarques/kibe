@@ -30,7 +30,7 @@ func ListNamespaces(c *ClientReady) []corev1.Namespace {
 
 func ListNamespaceColumns(namespaces []corev1.Namespace) (namespaceAttributes []table.Column) {
 	return append(namespaceAttributes,
-		table.Column{Title: "Name", Width: namespaceFieldWidth("Name", namespaces)},
+		table.Column{Title: "Name", Width: namespaceFieldWidth(namespaces)},
 		table.Column{Title: "Age", Width: 20},
 	)
 }
@@ -48,7 +48,7 @@ func RetrieveNamespaceListAsTableRows(namespaces []corev1.Namespace) (namespaceR
 	return namespaceRows
 }
 
-func namespaceFieldWidth(fieldName string, namespaces []corev1.Namespace) int {
+func namespaceFieldWidth(namespaces []corev1.Namespace) int {
 	return lo.Reduce(namespaces,
 		func(width int, ns corev1.Namespace, _ int) int {
 			if len(ns.Name) > width {

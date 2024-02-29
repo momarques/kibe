@@ -2,9 +2,9 @@ package bindings
 
 import "github.com/charmbracelet/bubbles/key"
 
-func New(keyName, actionName string) key.Binding {
+func New(actionName string, keyBindings ...string) key.Binding {
 	return key.NewBinding(
-		key.WithKeys(keyName),
-		key.WithHelp(keyName, actionName),
+		key.WithKeys(keyBindings...),
+		key.WithHelp(keyBindings[0], actionName),
 	)
 }

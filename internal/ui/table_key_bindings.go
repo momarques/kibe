@@ -10,9 +10,14 @@ type tableKeyMap struct {
 	Down         key.Binding
 	PreviousPage key.Binding
 	NextPage     key.Binding
-	Help         key.Binding
-	Quit         key.Binding
-	Describe     key.Binding
+
+	CopyID   key.Binding
+	ShowYaml key.Binding
+	Describe key.Binding
+	Delete   key.Binding
+
+	Quit key.Binding
+	Help key.Binding
 }
 
 func (k tableKeyMap) ShortHelp() []key.Binding {
@@ -28,13 +33,14 @@ func (k tableKeyMap) FullHelp() [][]key.Binding {
 }
 
 var tableShortcuts = tableKeyMap{
-	Up:           bindings.New("up", "move up"),
-	Down:         bindings.New("down", "move down"),
-	PreviousPage: bindings.New("left", "previous page"),
-	NextPage:     bindings.New("right", "next page"),
-	Describe:     bindings.New("enter", "describe resource"),
-	Help:         bindings.New("?", "help"),
-	Quit:         bindings.New("q", "quit"),
+	Up:           bindings.New("move up", "up"),
+	Down:         bindings.New("move down", "down"),
+	PreviousPage: bindings.New("previous page", "left"),
+	NextPage:     bindings.New("next page", "right"),
+	Describe:     bindings.New("describe resource", "enter", "d"),
+
+	Help: bindings.New("help", "?", "h"),
+	Quit: bindings.New("quit", "q"),
 }
 
 func (k tableKeyMap) viewFirstLine() []key.Binding {

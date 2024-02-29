@@ -43,7 +43,7 @@ func newListSelector(spinner spinner.Model, status statusbar.Model) *selector {
 
 		useCurrentContext: true,
 
-		chooseKey: bindings.New("enter", "choose"),
+		chooseKey: bindings.New("choose", "enter"),
 
 		spinner:   spinner,
 		statusbar: status,
