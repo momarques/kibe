@@ -16,19 +16,15 @@ type tableKeyMap struct {
 	Describe key.Binding
 	Delete   key.Binding
 
+	Back key.Binding
 	Quit key.Binding
 	Help key.Binding
-}
-
-func (k tableKeyMap) ShortHelp() []key.Binding {
-	return []key.Binding{
-		k.Up, k.Down, k.PreviousPage, k.NextPage, k.Describe, k.Help, k.Quit}
 }
 
 func (k tableKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.Up, k.Down, k.PreviousPage, k.NextPage},
-		{k.Describe, k.Help, k.Quit},
+		{k.Back, k.Describe, k.Help, k.Quit},
 	}
 }
 
@@ -39,6 +35,7 @@ var tableShortcuts = tableKeyMap{
 	NextPage:     bindings.New("next page", "right"),
 	Describe:     bindings.New("describe resource", "enter", "d"),
 
+	Back: bindings.New("go back", "esc"),
 	Help: bindings.New("help", "?", "h"),
 	Quit: bindings.New("quit", "q", "ctrl+c"),
 }
@@ -48,5 +45,5 @@ func (k tableKeyMap) viewFirstLine() []key.Binding {
 }
 
 func (k tableKeyMap) viewSecondLine() []key.Binding {
-	return []key.Binding{k.Describe, k.Help, k.Quit}
+	return []key.Binding{k.Back, k.Describe, k.Help, k.Quit}
 }

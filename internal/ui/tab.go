@@ -28,6 +28,10 @@ func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
+		case key.Matches(msg, m.tabKeys.Back):
+			m.state = showTable
+			return m, nil
+
 		case key.Matches(msg, m.tabKeys.Quit):
 			return m, tea.Quit
 		case key.Matches(msg, m.tabKeys.NextTab):

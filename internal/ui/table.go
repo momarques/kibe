@@ -4,7 +4,6 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
@@ -17,13 +16,7 @@ func newTableUI() table.Model {
 		table.WithFocused(true),
 	)
 
-	s := table.DefaultStyles()
-
-	s.Cell = uistyles.TableCellStyle.Copy()
-	s.Header = uistyles.TableHeaderStyle.Copy()
-	s.Selected = uistyles.TableSelectedStyle.Copy()
-
-	t.SetStyles(s)
+	t.SetStyles(uistyles.NewTableStyle(false))
 	t.SetHeight(
 		windowutil.ComputePercentage(
 			windowHeight, tableViewHeightPercentage))
@@ -47,14 +40,6 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case tea.KeyMsg:
 			switch {
-			// case "esc":
-			// 	if m.tableUI.Focused() {
-			// 		m.tableUI.Blur()
-			// 	} else {
-			// 		m.tableUI.Focus()
-			// 	}
-			// disable other keys
-
 			case key.Matches(msg, m.tableKeys.Quit):
 				return m, tea.Quit
 			case key.Matches(msg, m.tableKeys.Describe):
@@ -97,13 +82,13 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CoreUI) viewTableUI() string {
-	tableView := uistyles.TableStyle.
-		Copy().
-		MarginLeft(2).
-		Border(lipgloss.DoubleBorder(), true, true, true, true).
-		BorderForeground(lipgloss.Color("#ffb8bc")).
-		// Height(1).
-		Render(m.tableUI.View())
+	tableStyle := uistyles.TableStyle
 
-	return tableView
+	if m.state == showTab {
+		tableStyle = uistyles.DimmedTableStyle
+		m.tableUI.SetStyles(uistyles.NewTableStyle(true))
+		return tableStyle.
+			Render(m.tableUI.View())
+	}
+	return tableStyle.Render(m.tableUI.View())
 }
