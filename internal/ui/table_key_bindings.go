@@ -40,7 +40,7 @@ var tableShortcuts = tableKeyMap{
 	Describe:     bindings.New("describe resource", "enter", "d"),
 
 	Help: bindings.New("help", "?", "h"),
-	Quit: bindings.New("quit", "q"),
+	Quit: bindings.New("quit", "q", "ctrl+c"),
 }
 
 func (k tableKeyMap) viewFirstLine() []key.Binding {

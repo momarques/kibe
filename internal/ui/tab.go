@@ -3,6 +3,7 @@ package ui
 import (
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
@@ -26,14 +27,13 @@ func newTabUI() tabModel {
 func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
-		switch keypress := msg.String(); keypress {
-		case "ctrl+c", "q":
+		switch {
+		case key.Matches(msg, m.tabKeys.Quit):
 			return m, tea.Quit
-		case "right", "tab":
+		case key.Matches(msg, m.tabKeys.NextTab):
 			m.tabUI.activeTab = min(m.tabUI.activeTab+1, len(m.tabUI.Tabs)-1)
 			return m, nil
-		case "left", "shift+tab":
-
+		case key.Matches(msg, m.tabKeys.PreviousTab):
 			m.tabUI.activeTab = max(m.tabUI.activeTab-1, 0)
 			return m, nil
 		}

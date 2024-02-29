@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/charmbracelet/bubbles/help"
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
@@ -39,7 +40,8 @@ type CoreUI struct {
 	tableKeys    tableKeyMap
 	tableUI      table.Model
 
-	tabUI tabModel
+	tabKeys tabKeyMap
+	tabUI   tabModel
 
 	// utility UIs
 	helpUI    help.Model
@@ -74,7 +76,8 @@ func NewUI() CoreUI {
 		tableKeys:    tableShortcuts,
 		tableUI:      newTableUI(),
 
-		tabUI: newTabUI(),
+		tabKeys: tabShortcuts,
+		tabUI:   newTabUI(),
 
 		helpUI:    help.New(),
 		spinner:   sp,
@@ -110,26 +113,50 @@ func (m CoreUI) View() string {
 		return m.viewListUI()
 
 	case showTable, showTab:
-		helpStyle := lipgloss.NewStyle().MarginBottom(1)
-
-		helpView := lipgloss.JoinVertical(
-			lipgloss.Center,
-			helpStyle.Render(
-				m.helpUI.ShortHelpView(m.tableKeys.viewFirstLine())),
-			m.helpUI.ShortHelpView(m.tableKeys.viewSecondLine()),
-		)
-
-		return lipgloss.JoinVertical(
-			lipgloss.Left,
-			m.headerUI.viewHeaderUI(0),
-			m.viewTableUI(),
-			m.viewTabUI(),
-			lipgloss.JoinHorizontal(
-				lipgloss.Left,
-				m.viewPaginatorUI(),
-				helpView,
-			),
-			m.statusbar.View())
+		return m.viewMainUI()
 	}
 	return m.View()
+}
+
+func (m CoreUI) viewMainUI() string {
+	var helpBindingLines [][]key.Binding
+
+	switch m.state {
+	case showTable:
+		helpBindingLines = append(helpBindingLines,
+			m.tableKeys.viewFirstLine(),
+			m.tableKeys.viewSecondLine())
+
+	case showTab:
+		helpBindingLines = append(helpBindingLines,
+			m.tabKeys.viewFirstLine())
+	}
+
+	helpView := lipgloss.JoinVertical(
+		lipgloss.Center,
+		m.showHelp(helpBindingLines...)...)
+
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		m.headerUI.viewHeaderUI(0),
+		m.viewTableUI(),
+		m.viewTabUI(),
+		lipgloss.JoinHorizontal(
+			lipgloss.Left,
+			m.viewPaginatorUI(),
+			helpView,
+		),
+		m.statusbar.View())
+}
+
+func (m CoreUI) showHelp(helpBindingLines ...[]key.Binding) []string {
+	var helpLines []string
+
+	helpStyle := lipgloss.NewStyle().MarginBottom(1)
+
+	for _, line := range helpBindingLines {
+		helpLines = append(helpLines, helpStyle.Render(
+			m.helpUI.ShortHelpView(line)))
+	}
+	return helpLines
 }
