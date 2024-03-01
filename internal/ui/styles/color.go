@@ -1,51 +1,8 @@
 package uistyles
 
 import (
-	"math/rand"
-	"strconv"
-	"strings"
-
 	"github.com/charmbracelet/lipgloss"
-	"github.com/samber/lo"
 )
-
-const HEXCODECHARS string = "0123456789abcdef"
-
-func ColorizeDescriptionSectionKeys(k []string) []string {
-	return lo.Map(k, RandomColorStyle)
-}
-
-func RandomColorStyle(content string, _ int) string {
-	return resourceSectionDescriptionStyle.
-		Copy().
-		Background(
-			randomColor(darkColorCodePrefixes)).
-		Foreground(lipgloss.Color("#ffffff")).
-		Render(content)
-}
-
-func NewRandomColorStyle() lipgloss.Style {
-	return resourceSectionDescriptionStyle.
-		Copy().
-		Background(
-			randomColor(darkColorCodePrefixes)).
-		Foreground(lipgloss.Color("#ffffff")).Padding(0, 1)
-}
-
-var darkColorCodePrefixes = lo.Times(8,
-	func(index int) string {
-		return strconv.Itoa(index)
-	})
-
-func randomColor(prefixes []string) lipgloss.Color {
-	colorCharacters := lo.Times(5,
-		func(index int) string {
-			return string(HEXCODECHARS[rand.Intn(15)])
-		})
-	colorCode := "#" + prefixes[rand.Intn(len(prefixes))] +
-		strings.Join(colorCharacters, "")
-	return lipgloss.Color(colorCode)
-}
 
 func ColorizeTabKey(row, col int) lipgloss.Style {
 	switch {

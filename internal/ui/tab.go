@@ -18,6 +18,7 @@ type tabModel struct {
 	Tabs       []string
 	TabContent []string
 	activeTab  int
+	dimm       bool
 }
 
 func newTabUI() tabModel {
@@ -30,6 +31,7 @@ func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.tabKeys.Back):
 			m.state = showTable
+
 			return m, nil
 
 		case key.Matches(msg, m.tabKeys.Quit):
@@ -51,8 +53,16 @@ func (m CoreUI) viewTabUI() string {
 			ComputePercentage(windowHeight, tabViewHiddenHeightPercentage)).Render("")
 	}
 
+	switch m.state {
+	case showTable:
+		m.tabUI.dimm = true
+	case showTab:
+		m.tabUI.dimm = false
+	}
+
 	doc := strings.Builder{}
 
+	var activeStyle, inactiveStyle lipgloss.Style = uistyles.NewTabStyle(m.tabUI.dimm)
 	var renderedTabs []string
 
 	for i, t := range m.tabUI.Tabs {
@@ -61,9 +71,9 @@ func (m CoreUI) viewTabUI() string {
 		isFirst, isLast, isActive := m.tabUI.getTabPositions(i)
 
 		if isActive {
-			style = uistyles.ActiveTabStyle.Copy()
+			style = activeStyle
 		} else {
-			style = uistyles.InactiveTabStyle.Copy()
+			style = inactiveStyle
 		}
 		border, _, _, _, _ := style.GetBorder()
 		if isFirst && isActive {
@@ -81,15 +91,17 @@ func (m CoreUI) viewTabUI() string {
 
 	tabs := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
 
+	windowStyle := uistyles.NewWindowStyle(m.tabUI.dimm)
+
 	doc.WriteString(tabs)
 	doc.WriteString("\n")
 	doc.WriteString(
-		uistyles.WindowStyle.
+		windowStyle.
 			Copy().
 			Height(windowutil.
 				ComputePercentage(windowHeight, tabViewShowedHeightPercentage)).
 			Width(
-				(lipgloss.Width(tabs) - uistyles.WindowStyle.GetHorizontalFrameSize())).
+				(lipgloss.Width(tabs) - windowStyle.GetHorizontalFrameSize())).
 			Render(
 				m.tabUI.TabContent[m.tabUI.activeTab]))
 

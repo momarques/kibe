@@ -1,0 +1,30 @@
+colors:
+  list:
+    background: '#f0f0f0'
+    text: '#000000'
+  header:
+    title:
+      background: '#f0f0f0'
+      text: '#000000'
+    itemCount:
+      background: '#f0f0f0'
+      text: '#000000'
+  table:
+    header:
+      background: '#f0f0f0'
+      text: '#000000'
+    row:
+      background: '#ffffff'
+      text: '#000000'
+    selectedRow:
+      background: '#f0f0f0'
+      text: '#000000'
+    border: '#000000'
+  tab: 
+    background: '#f0f0f0'
+    text: '#000000'
+    border: '#000000'
+    fields:
+      gradient: true
+      baseColor: '#f0f0f0'
+      

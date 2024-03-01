@@ -12,7 +12,7 @@ var (
 			BorderForeground(lipgloss.Color("#ffb8bc"))
 	DimmedTableStyle = TableStyle.
 				Copy().
-				BorderForeground(lipgloss.Color("#616161"))
+				BorderForeground(dimmHighlightColor)
 
 	tableHeaderStyle = lipgloss.NewStyle().
 				Background(lipgloss.Color("#c5636a"))
@@ -22,10 +22,10 @@ var (
 				Foreground(lipgloss.Color("#322223"))
 
 	dimmedTableHeaderStyle = lipgloss.NewStyle().
-				Background(lipgloss.AdaptiveColor{Light: "#494949", Dark: "#494949"}).
+				Background(dimmHighlightColor).
 				Foreground(lipgloss.Color("#616161"))
 	dimmedTableCellStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#616161"))
+				Foreground(dimmHighlightColor)
 
 	dimmedTableSelectedStyle = lipgloss.NewStyle().
 					Background(lipgloss.Color("#616161")).
