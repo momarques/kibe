@@ -16,8 +16,7 @@ universal_binaries:
   - replace: true
 
 brews:
-  -
-    name: kibe
+  - name: kibe
     homepage: "https://github.com/momarques/kibe"
     repository:
       owner: momarques

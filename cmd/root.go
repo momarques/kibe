@@ -14,9 +14,7 @@ var RootCmd = &cobra.Command{
 	Use:   "kibe",
 	Short: "Kubernetes Interaction with Beauty and Elegancy.",
 	Long: `
-Kibe aims to be a easy tool for interacting with Kubernetes objects without showing a lot of hard to understand information. 
-It's a tool focused for developers who doesn't necessarily need to understand the internals of Kubernetes resources.
-Also it's a tool made to look beautiful on modern terminals.
+Kibe aims to be an easy and beautiful tool for interacting with Kubernetes objects on modern terminals.
 `,
 }
 
