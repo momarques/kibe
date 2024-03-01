@@ -1,6 +1,6 @@
 module github.com/momarques/kibe
 
-go 1.21.5
+go 1.22
 
 require (
 	github.com/charmbracelet/bubbles v0.18.0
@@ -52,7 +52,6 @@ require (
 	github.com/rivo/uniseg v0.4.6 // indirect
 	github.com/sahilm/fuzzy v0.1.1-0.20230530133925-c48e322e2a8f // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/thoas/go-funk v0.9.3 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
 	golang.org/x/net v0.19.0 // indirect
 	golang.org/x/oauth2 v0.10.0 // indirect
