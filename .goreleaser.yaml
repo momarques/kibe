@@ -1,5 +1,5 @@
 builds:
-  - binary: mediumautopost
+  - binary: kibe
     goos:
       - darwin
       - linux
@@ -17,14 +17,14 @@ universal_binaries:
 
 brews:
   -
-    name: mediumautopost
-    homepage: "https://github.com/askcloudarchitech/mediumautopost"
-    tap:
-      owner: askcloudarchitech
-      name: homebrew-askcloudarchitech
+    name: kibe
+    homepage: "https://github.com/momarques/kibe"
+    repository:
+      owner: momarques
+      name: homebrew-momarques
     commit_author:
-      name: gmorse81
-      email: gmorse@emailaddress.com
+      name: Michael
+      email: michaeloliveira.mom32@gmail.com
 
 checksum:
   name_template: 'checksums.txt'
