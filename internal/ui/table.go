@@ -26,8 +26,8 @@ func newTableUI() table.Model {
 func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch m.tableContent.contentState {
-	case loaded:
+	switch m.tableContent.syncState {
+	case synced, syncing:
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
 
@@ -58,23 +58,19 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.headerUI.text = msg.text
 			m.headerUI.itemCount = msg.itemCount
 			return m, nil
-			/*tea.Tick(loadInterval, func(t time.Time) tea.Msg {
-				m.tableContent.contentState = notLoaded
-				return nil
-			})*/
+		case lastSync:
+			m.tableContent.syncState = synced
+
+			return m, tea.Batch(tea.Tick(loadInterval, startSyncing))
+		case syncState:
+			if msg == unsynced {
+				m.tableContent.syncState = unsynced
+				return m.sync(nil)
+			}
 		}
 
-	case notLoaded:
-		m.tableContent.client = m.client
-
-		// m.state = showTab
-		m.tableUI, cmd = m.tableContent.fetchTableItems(m.tableUI)
-		m.tableContent.paginator, _ = m.tableContent.paginator.Update(msg)
-		m.tableUI = m.tableContent.fetchPageItems(m.tableUI)
-
-		m.tableContent.contentState = loaded
-
-		return m, cmd
+	case unsynced:
+		return m.sync(msg)
 	}
 
 	m.tableUI, cmd = m.tableUI.Update(msg)

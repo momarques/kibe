@@ -1,13 +1,15 @@
 package ui
 
 import (
+	"time"
+
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/kube"
 )
 
-// var loadInterval = 2 * time.Second
+var loadInterval = 2 * time.Second
 
 type contentState int
 
@@ -18,7 +20,7 @@ const (
 )
 
 type content struct {
-	contentState
+	syncState
 
 	client *kube.ClientReady
 
@@ -28,9 +30,9 @@ type content struct {
 
 func newTableContent(c *kube.ClientReady, paginator paginator.Model) *content {
 	return &content{
-		contentState: notLoaded,
-		client:       c,
-		paginator:    paginator,
+		syncState: unsynced,
+		client:    c,
+		paginator: paginator,
 	}
 }
 

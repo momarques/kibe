@@ -6,6 +6,7 @@ require (
 	github.com/charmbracelet/bubbles v0.18.0
 	github.com/charmbracelet/bubbletea v0.25.0
 	github.com/charmbracelet/lipgloss v0.9.1
+	github.com/kyokomi/emoji/v2 v2.2.12
 	github.com/mistakenelf/teacup v0.4.1
 	github.com/samber/lo v1.39.0
 	github.com/sirupsen/logrus v1.9.3
