@@ -5,7 +5,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
@@ -19,7 +18,7 @@ const (
 	notReady
 )
 
-type selector struct {
+type listSelector struct {
 	clientState
 	spinnerState
 
@@ -32,12 +31,11 @@ type selector struct {
 
 	chooseKey key.Binding
 
-	spinner   spinner.Model
-	statusbar statusbar.Model
+	spinner spinner.Model
 }
 
-func newListSelector(spinner spinner.Model, status statusbar.Model) *selector {
-	return &selector{
+func newListSelector(spinner spinner.Model) *listSelector {
+	return &listSelector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,
 
@@ -45,12 +43,11 @@ func newListSelector(spinner spinner.Model, status statusbar.Model) *selector {
 
 		chooseKey: bindings.New("choose", "enter"),
 
-		spinner:   spinner,
-		statusbar: status,
+		spinner: spinner,
 	}
 }
 
-func newItemDelegate(s *selector) list.DefaultDelegate {
+func newItemDelegate(s *listSelector) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
 	d.UpdateFunc = s.update
@@ -66,7 +63,7 @@ func newItemDelegate(s *selector) list.DefaultDelegate {
 	return d
 }
 
-func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
+func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 	switch msg := msg.(type) {
 
 	case kube.SelectContext:
@@ -126,15 +123,15 @@ func (s *selector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		s.spinner.Tick)
 }
 
-func (s *selector) contextSelected(context string) func() tea.Msg {
+func (s *listSelector) contextSelected(context string) func() tea.Msg {
 	return func() tea.Msg { return kube.ContextSelected{C: context} }
 }
 
-func (s *selector) namespaceSelected(namespace string) func() tea.Msg {
+func (s *listSelector) namespaceSelected(namespace string) func() tea.Msg {
 	return func() tea.Msg { return kube.NamespaceSelected{NS: namespace} }
 }
 
-func (s *selector) resourceSelected(kind string) func() tea.Msg {
+func (s *listSelector) resourceSelected(kind string) func() tea.Msg {
 	r, _ := lo.Find(kube.SupportedResources,
 		func(item kube.Resource) bool {
 			switch item.Kind() {
@@ -147,11 +144,11 @@ func (s *selector) resourceSelected(kind string) func() tea.Msg {
 	return func() tea.Msg { return kube.ResourceSelected{R: r} }
 }
 
-func (s *selector) clientReady() func() tea.Msg {
+func (s *listSelector) clientReady() func() tea.Msg {
 	return func() tea.Msg { return s.client }
 }
 
-func (s *selector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cmd {
+func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cmd {
 	switch {
 
 	case key.Matches(msg, s.chooseKey):
@@ -191,7 +188,7 @@ func (s *selector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cmd {
 	return nil
 }
 
-func (s *selector) updateClientState() tea.Cmd {
+func (s *listSelector) updateClientState() tea.Cmd {
 	if s.context != "" && s.namespace != "" && s.resource != "" {
 		s.clientState = ready
 	}

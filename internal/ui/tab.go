@@ -21,53 +21,53 @@ type tabModel struct {
 	dimm       bool
 }
 
-func newTabUI() tabModel {
+func newTabModel() tabModel {
 	return tabModel{}
 }
 
-func (m CoreUI) updateTabUI(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updatetabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, m.tabKeys.Back):
-			m.state = showTable
+		case key.Matches(msg, m.tabKeyMap.Back):
+			m.viewState = showTable
 			return m.sync(nil)
 
-		case key.Matches(msg, m.tabKeys.Quit):
+		case key.Matches(msg, m.tabKeyMap.Quit):
 			return m, tea.Quit
-		case key.Matches(msg, m.tabKeys.NextTab):
-			m.tabUI.activeTab = min(m.tabUI.activeTab+1, len(m.tabUI.Tabs)-1)
+		case key.Matches(msg, m.tabKeyMap.NextTab):
+			m.tabModel.activeTab = min(m.tabModel.activeTab+1, len(m.tabModel.Tabs)-1)
 			return m, nil
-		case key.Matches(msg, m.tabKeys.PreviousTab):
-			m.tabUI.activeTab = max(m.tabUI.activeTab-1, 0)
+		case key.Matches(msg, m.tabKeyMap.PreviousTab):
+			m.tabModel.activeTab = max(m.tabModel.activeTab-1, 0)
 			return m, nil
 		}
 	}
 	return m, nil
 }
 
-func (m CoreUI) viewTabUI() string {
-	if m.tabUI.Tabs == nil {
+func (m CoreUI) viewtabModel() string {
+	if m.tabModel.Tabs == nil {
 		return lipgloss.NewStyle().Height(windowutil.
 			ComputePercentage(windowHeight, tabViewHiddenHeightPercentage)).Render("")
 	}
 
-	switch m.state {
+	switch m.viewState {
 	case showTable:
-		m.tabUI.dimm = true
+		m.tabModel.dimm = true
 	case showTab:
-		m.tabUI.dimm = false
+		m.tabModel.dimm = false
 	}
 
 	doc := strings.Builder{}
 
-	var activeStyle, inactiveStyle lipgloss.Style = uistyles.NewTabStyle(m.tabUI.dimm)
+	var activeStyle, inactiveStyle lipgloss.Style = uistyles.NewTabStyle(m.tabModel.dimm)
 	var renderedTabs []string
 
-	for i, t := range m.tabUI.Tabs {
+	for i, t := range m.tabModel.Tabs {
 		var style lipgloss.Style
 
-		isFirst, isLast, isActive := m.tabUI.getTabPositions(i)
+		isFirst, isLast, isActive := m.tabModel.getTabPositions(i)
 
 		if isActive {
 			style = activeStyle
@@ -90,7 +90,7 @@ func (m CoreUI) viewTabUI() string {
 
 	tabs := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
 
-	windowStyle := uistyles.NewWindowStyle(m.tabUI.dimm)
+	windowStyle := uistyles.NewWindowStyle(m.tabModel.dimm)
 
 	doc.WriteString(tabs)
 	doc.WriteString("\n")
@@ -102,7 +102,7 @@ func (m CoreUI) viewTabUI() string {
 			Width(
 				(lipgloss.Width(tabs) - windowStyle.GetHorizontalFrameSize())).
 			Render(
-				m.tabUI.TabContent[m.tabUI.activeTab]))
+				m.tabModel.TabContent[m.tabModel.activeTab]))
 
 	return uistyles.DocStyle.Render(doc.String())
 }

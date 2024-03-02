@@ -5,7 +5,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kibe/internal/logging"
+	"github.com/charmbracelet/lipgloss"
 )
 
 type syncState int
@@ -24,11 +24,9 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 	m.tableContent.client = m.client
 	m.tableContent.syncState = syncing
 
-	logging.Log.Info("syncing...")
-
-	m.tableUI, cmd = m.tableContent.fetchTableItems(m.tableUI)
+	m.tableModel, cmd = m.tableContent.fetchTableItems(m.tableModel)
 	m.tableContent.paginator, _ = m.tableContent.paginator.Update(msg)
-	m.tableUI = m.tableContent.fetchPageItems(m.tableUI)
+	m.tableModel = m.tableContent.fetchPageItems(m.tableModel)
 
 	return m, tea.Batch(cmd, func() tea.Msg {
 		return lastSync(time.Now())
@@ -39,17 +37,18 @@ func startSyncing(t time.Time) tea.Msg {
 	return unsynced
 }
 
-type syncIndicatorUI struct {
-	state   syncState
+type syncIndicatorModel struct {
 	spinner spinner.Model
 	text    string
 }
 
-func (m CoreUI) updateSyncIndicatorUI(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) viewsyncIndicatorModel() string {
+	switch m.tableContent.syncState {
+	case synced:
+		return lipgloss.NewStyle().
+			Border(lipgloss.BlockBorder(), true).
+			Background(lipgloss.Color("#ffffff")).Render("synced")
 
-	return m, nil
-}
-
-func (m CoreUI) viewSyncIndicatorUI() string {
+	}
 	return ""
 }

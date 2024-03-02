@@ -18,7 +18,7 @@ type headerUpdated struct {
 	itemCount string
 }
 
-func (c *content) updateHeader(title string, itemCount int) tea.Cmd {
+func (c *tableContent) updateHeader(title string, itemCount int) tea.Cmd {
 	return func() tea.Msg {
 		return headerUpdated{
 			text:      title,
@@ -26,7 +26,7 @@ func (c *content) updateHeader(title string, itemCount int) tea.Cmd {
 	}
 }
 
-func (t headerModel) viewHeaderUI(size int) string {
+func (t headerModel) viewheaderModel() string {
 	titleStyle := uistyles.
 		ViewTitleStyle.
 		Copy().

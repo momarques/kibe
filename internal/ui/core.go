@@ -18,36 +18,37 @@ var (
 	windowWidth, windowHeight = windowutil.GetWindowSize()
 )
 
-type coreState int
+type viewState int
 
 const (
-	showList coreState = iota
+	showList viewState = iota
 	showTable
 	showTab
 )
 
 type CoreUI struct {
-	state  coreState
+	viewState
 	height int
 
 	client *kube.ClientReady
 
 	// main UIs
-	listSelector *selector
-	listUI       list.Model
+	listModel list.Model
+	*listSelector
 
-	tableContent *content
-	tableKeys    tableKeyMap
-	tableUI      table.Model
+	tableModel table.Model
+	*tableContent
+	tableKeyMap
 
-	tabKeys tabKeyMap
-	tabUI   tabModel
+	tabModel tabModel
+	tabKeyMap
 
 	// utility UIs
-	helpUI    help.Model
-	headerUI  headerModel
-	spinner   spinner.Model
-	statusbar statusbar.Model
+	headerModel        headerModel
+	helpModel          help.Model
+	spinnerModel       spinner.Model
+	statusbarModel     statusbar.Model
+	syncIndicatorModel syncIndicatorModel
 }
 
 func NewUI() CoreUI {
@@ -56,32 +57,29 @@ func NewUI() CoreUI {
 	)
 	sp.Spinner = spinner.Dot
 
-	status := newStatusBar()
-	status.SetContent("Resource", "", "", "")
-
-	selector := newListSelector(sp, status)
+	selector := newListSelector(sp)
 	paginator := newPaginatorUI()
 
 	content := newTableContent(nil, paginator)
 
-	list := newListUI(selector)
+	list := newlistModel(selector)
 
 	return CoreUI{
-		state: showList,
+		viewState: showList,
 
 		listSelector: selector,
-		listUI:       list,
+		listModel:    list,
 
 		tableContent: content,
-		tableKeys:    tableShortcuts,
-		tableUI:      newTableUI(),
+		tableKeyMap:  tableShortcuts,
+		tableModel:   newTableModel(),
 
-		tabKeys: tabShortcuts,
-		tabUI:   newTabUI(),
+		tabKeyMap: tabShortcuts,
+		tabModel:  newTabModel(),
 
-		helpUI:    help.New(),
-		spinner:   sp,
-		statusbar: status,
+		helpModel:      help.New(),
+		spinnerModel:   sp,
+		statusbarModel: newStatusBarModel(),
 	}
 }
 
@@ -95,22 +93,22 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, tea.Quit
 	}
 
-	switch m.state {
+	switch m.viewState {
 	case showList:
-		return m.updateListUI(msg)
+		return m.updatelistModel(msg)
 	case showTable:
-		return m.updateTableUI(msg)
+		return m.updatetableModel(msg)
 	case showTab:
-		return m.updateTabUI(msg)
+		return m.updatetabModel(msg)
 	}
 	return nil, nil
 }
 
 func (m CoreUI) View() string {
-	switch m.state {
+	switch m.viewState {
 
 	case showList:
-		return m.viewListUI()
+		return m.viewlistModel()
 
 	case showTable, showTab:
 		return m.viewMainUI()
@@ -121,15 +119,15 @@ func (m CoreUI) View() string {
 func (m CoreUI) viewMainUI() string {
 	var helpBindingLines [][]key.Binding
 
-	switch m.state {
+	switch m.viewState {
 	case showTable:
 		helpBindingLines = append(helpBindingLines,
-			m.tableKeys.viewFirstLine(),
-			m.tableKeys.viewSecondLine())
+			m.tableKeyMap.viewFirstLine(),
+			m.tableKeyMap.viewSecondLine())
 
 	case showTab:
 		helpBindingLines = append(helpBindingLines,
-			m.tabKeys.viewFirstLine())
+			m.tabKeyMap.viewFirstLine())
 	}
 
 	helpView := lipgloss.JoinVertical(
@@ -138,15 +136,15 @@ func (m CoreUI) viewMainUI() string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.headerUI.viewHeaderUI(0),
-		m.viewTableUI(),
-		m.viewTabUI(),
+		m.headerModel.viewheaderModel(),
+		m.viewtableModel(),
+		m.viewtabModel(),
 		lipgloss.JoinHorizontal(
 			lipgloss.Left,
 			m.viewPaginatorUI(),
 			helpView,
 		),
-		m.statusbar.View())
+		m.statusbarModel.View())
 }
 
 func (m CoreUI) showHelp(helpBindingLines ...[]key.Binding) []string {
@@ -156,7 +154,7 @@ func (m CoreUI) showHelp(helpBindingLines ...[]key.Binding) []string {
 
 	for _, line := range helpBindingLines {
 		helpLines = append(helpLines, helpStyle.Render(
-			m.helpUI.ShortHelpView(line)))
+			m.helpModel.ShortHelpView(line)))
 	}
 	return helpLines
 }

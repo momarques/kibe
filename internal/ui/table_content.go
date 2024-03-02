@@ -19,7 +19,7 @@ const (
 	reload
 )
 
-type content struct {
+type tableContent struct {
 	syncState
 
 	client *kube.ClientReady
@@ -28,8 +28,8 @@ type content struct {
 	paginator paginator.Model
 }
 
-func newTableContent(c *kube.ClientReady, paginator paginator.Model) *content {
-	return &content{
+func newTableContent(c *kube.ClientReady, paginator paginator.Model) *tableContent {
+	return &tableContent{
 		syncState: unsynced,
 		client:    c,
 		paginator: paginator,
@@ -57,7 +57,7 @@ func FetchTableView(c *kube.ClientReady) ([]table.Column, []table.Row, string) {
 	return nil, nil, ""
 }
 
-func (c *content) fetchTableItems(m table.Model) (table.Model, tea.Cmd) {
+func (c *tableContent) fetchTableItems(m table.Model) (table.Model, tea.Cmd) {
 	columns, rows, title := FetchTableView(c.client)
 
 	m.SetColumns(columns)
@@ -67,7 +67,7 @@ func (c *content) fetchTableItems(m table.Model) (table.Model, tea.Cmd) {
 	return m, c.updateHeader(title, len(rows))
 }
 
-func (c *content) fetchPageItems(m table.Model) table.Model {
+func (c *tableContent) fetchPageItems(m table.Model) table.Model {
 	start, end := c.paginator.GetSliceBounds(len(c.rows))
 
 	rows := c.rows[start:end]

@@ -7,13 +7,12 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
-func newListUI(s *selector) list.Model {
+func newlistModel(s *listSelector) list.Model {
 	l := list.New(
 		[]list.Item{},
 		newItemDelegate(s), 0, 0)
@@ -28,7 +27,7 @@ func newListUI(s *selector) list.Model {
 	return l
 }
 
-func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updatelistModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
@@ -38,13 +37,13 @@ func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 			AppStyle.
 			Copy().
 			GetFrameSize()
-		m.listUI.SetSize(msg.Width-h, msg.Height-v)
+		m.listModel.SetSize(msg.Width-h, msg.Height-v)
 
 		m.height = msg.Height
-		m.statusbar.SetSize(msg.Width)
+		m.statusbarModel.SetSize(msg.Width)
 
 	case tea.KeyMsg:
-		if m.listUI.FilterState() == list.Filtering {
+		if m.listModel.FilterState() == list.Filtering {
 			break
 		}
 
@@ -53,40 +52,36 @@ func (m CoreUI) updateListUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 
 	case *kube.ClientReady:
-		m.state = showTable
+		m.viewState = showTable
 		m.client = msg
 		return m, nil
 
 	case statusBarUpdated:
-		var statusbar statusbar.Model
-
-		m.statusbar.SetContent(
+		m.statusbarModel.SetContent(
 			"Resource", m.listSelector.resource,
 			fmt.Sprintf("Context: %s", m.listSelector.context),
 			fmt.Sprintf("Namespace: %s", m.listSelector.namespace))
 
-		statusbar, cmd = m.statusbar.Update(msg)
-		m.statusbar = statusbar
-
+		m.statusbarModel, cmd = m.statusbarModel.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
-	m.listUI, cmd = m.listUI.Update(msg)
+	m.listModel, cmd = m.listModel.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
-func (m CoreUI) viewListUI() string {
+func (m CoreUI) viewlistModel() string {
 	if m.listSelector.spinnerState == showSpinner {
 		return lipgloss.JoinVertical(
 			lipgloss.Top,
 			fmt.Sprintf("%s%s",
 				m.spinner.View(),
-				m.listUI.View()),
-			m.statusbar.View())
+				m.listModel.View()),
+			m.statusbarModel.View())
 	}
 	return lipgloss.JoinVertical(
-		lipgloss.Top, m.listUI.View(),
-		m.statusbar.View())
+		lipgloss.Top, m.listModel.View(),
+		m.statusbarModel.View())
 }

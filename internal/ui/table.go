@@ -11,7 +11,7 @@ import (
 
 const tableViewHeightPercentage int = 30
 
-func newTableUI() table.Model {
+func newTableModel() table.Model {
 	t := table.New(
 		table.WithFocused(true),
 	)
@@ -23,7 +23,7 @@ func newTableUI() table.Model {
 	return t
 }
 
-func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updatetableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch m.tableContent.syncState {
@@ -31,32 +31,32 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
 
-			// m.tableUI.SetHeight(msg.Height - m.tableUI.Height())
-			// m.tableUI.SetWidth(msg.Width - m.tableUI.Width())
+			// m.tableModel.SetHeight(msg.Height - m.tableModel.Height())
+			// m.tableModel.SetWidth(msg.Width - m.tableModel.Width())
 			logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
-			m.helpUI.Width = 20
-			m.tableUI, cmd = m.tableUI.Update(msg)
+			m.helpModel.Width = 20
+			m.tableModel, cmd = m.tableModel.Update(msg)
 			return m, cmd
 
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msg, m.tableKeys.Quit):
+			case key.Matches(msg, m.tableKeyMap.Quit):
 				return m, tea.Quit
-			case key.Matches(msg, m.tableKeys.Describe):
-				selectedResource := m.tableUI.SelectedRow()
-				m.tabUI.Tabs, m.tabUI.TabContent = m.tabUI.describeResource(m.client, selectedResource[0])
+			case key.Matches(msg, m.tableKeyMap.Describe):
+				selectedResource := m.tableModel.SelectedRow()
+				m.tabModel.Tabs, m.tabModel.TabContent = m.tabModel.describeResource(m.client, selectedResource[0])
 
-				m.state = showTab
+				m.viewState = showTab
 				return m, nil
-			case key.Matches(msg, m.tableKeys.PreviousPage, m.tableKeys.NextPage):
+			case key.Matches(msg, m.tableKeyMap.PreviousPage, m.tableKeyMap.NextPage):
 				m.tableContent.paginator, _ = m.tableContent.paginator.Update(msg)
-				m.tableUI = m.tableContent.fetchPageItems(m.tableUI)
+				m.tableModel = m.tableContent.fetchPageItems(m.tableModel)
 
 				return m, cmd
 			}
 		case headerUpdated:
-			m.headerUI.text = msg.text
-			m.headerUI.itemCount = msg.itemCount
+			m.headerModel.text = msg.text
+			m.headerModel.itemCount = msg.itemCount
 			return m, nil
 		case lastSync:
 			m.tableContent.syncState = synced
@@ -73,18 +73,18 @@ func (m CoreUI) updateTableUI(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.sync(msg)
 	}
 
-	m.tableUI, cmd = m.tableUI.Update(msg)
+	m.tableModel, cmd = m.tableModel.Update(msg)
 	return m, cmd
 }
 
-func (m CoreUI) viewTableUI() string {
+func (m CoreUI) viewtableModel() string {
 	tableStyle := uistyles.TableStyle
 
-	if m.state == showTab {
+	if m.viewState == showTab {
 		tableStyle = uistyles.DimmedTableStyle
-		m.tableUI.SetStyles(uistyles.NewTableStyle(true))
+		m.tableModel.SetStyles(uistyles.NewTableStyle(true))
 		return tableStyle.
-			Render(m.tableUI.View())
+			Render(m.tableModel.View())
 	}
-	return tableStyle.Render(m.tableUI.View())
+	return tableStyle.Render(m.tableModel.View())
 }
