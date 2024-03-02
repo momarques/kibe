@@ -22,11 +22,11 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
 
 	m.tableContent.client = m.client
-	m.tableContent.syncState = syncing
+	m.syncState = syncing
 
-	m.tableModel, cmd = m.tableContent.fetchTableItems(m.tableModel)
-	m.tableContent.paginator, _ = m.tableContent.paginator.Update(msg)
-	m.tableModel = m.tableContent.fetchPageItems(m.tableModel)
+	m.tableModel, cmd = m.fetchTableItems(m.tableModel)
+	m.paginatorModel, _ = m.paginatorModel.Update(msg)
+	m.tableModel = m.fetchPageItems(m.tableModel)
 
 	return m, tea.Batch(cmd, func() tea.Msg {
 		return lastSync(time.Now())

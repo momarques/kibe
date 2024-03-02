@@ -34,7 +34,12 @@ type listSelector struct {
 	spinner spinner.Model
 }
 
-func newListSelector(spinner spinner.Model) *listSelector {
+func newListSelector() *listSelector {
+	sp := spinner.New(
+		spinner.WithStyle(uistyles.OKStatusMessage),
+	)
+	sp.Spinner = spinner.Dot
+
 	return &listSelector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,
@@ -43,7 +48,7 @@ func newListSelector(spinner spinner.Model) *listSelector {
 
 		chooseKey: bindings.New("choose", "enter"),
 
-		spinner: spinner,
+		spinner: sp,
 	}
 }
 

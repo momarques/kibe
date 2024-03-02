@@ -4,13 +4,11 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
@@ -32,7 +30,6 @@ type CoreUI struct {
 
 	client *kube.ClientReady
 
-	// main UIs
 	listModel list.Model
 	*listSelector
 
@@ -43,42 +40,29 @@ type CoreUI struct {
 	tabModel tabModel
 	tabKeyMap
 
-	// utility UIs
 	headerModel        headerModel
 	helpModel          help.Model
-	spinnerModel       spinner.Model
 	statusbarModel     statusbar.Model
 	syncIndicatorModel syncIndicatorModel
 }
 
 func NewUI() CoreUI {
-	sp := spinner.New(
-		spinner.WithStyle(uistyles.OKStatusMessage),
-	)
-	sp.Spinner = spinner.Dot
-
-	selector := newListSelector(sp)
-	paginator := newPaginatorUI()
-
-	content := newTableContent(nil, paginator)
-
-	list := newlistModel(selector)
+	selector := newListSelector()
 
 	return CoreUI{
 		viewState: showList,
 
 		listSelector: selector,
-		listModel:    list,
+		listModel:    newlistModel(selector),
 
-		tableContent: content,
-		tableKeyMap:  tableShortcuts,
+		tableContent: newTableContent(nil),
+		tableKeyMap:  newTableKeyMap(),
 		tableModel:   newTableModel(),
 
-		tabKeyMap: tabShortcuts,
+		tabKeyMap: newTabKeyMap(),
 		tabModel:  newTabModel(),
 
 		helpModel:      help.New(),
-		spinnerModel:   sp,
 		statusbarModel: newStatusBarModel(),
 	}
 }

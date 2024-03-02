@@ -28,16 +28,18 @@ func (k tableKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-var tableShortcuts = tableKeyMap{
-	Up:           bindings.New("move up", "up"),
-	Down:         bindings.New("move down", "down"),
-	PreviousPage: bindings.New("previous page", "left"),
-	NextPage:     bindings.New("next page", "right"),
-	Describe:     bindings.New("describe resource", "enter", "d"),
+func newTableKeyMap() tableKeyMap {
+	return tableKeyMap{
+		Up:           bindings.New("move up", "up"),
+		Down:         bindings.New("move down", "down"),
+		PreviousPage: bindings.New("previous page", "left"),
+		NextPage:     bindings.New("next page", "right"),
+		Describe:     bindings.New("describe resource", "enter", "d"),
 
-	Back: bindings.New("go back", "esc"),
-	Help: bindings.New("help", "?", "h"),
-	Quit: bindings.New("quit", "q", "ctrl+c"),
+		Back: bindings.New("go back", "esc"),
+		Help: bindings.New("help", "?", "h"),
+		Quit: bindings.New("quit", "q", "ctrl+c"),
+	}
 }
 
 func (k tableKeyMap) viewFirstLine() []key.Binding {

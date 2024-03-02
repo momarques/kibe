@@ -49,8 +49,8 @@ func (m CoreUI) updatetableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.viewState = showTab
 				return m, nil
 			case key.Matches(msg, m.tableKeyMap.PreviousPage, m.tableKeyMap.NextPage):
-				m.tableContent.paginator, _ = m.tableContent.paginator.Update(msg)
-				m.tableModel = m.tableContent.fetchPageItems(m.tableModel)
+				m.paginatorModel, _ = m.paginatorModel.Update(msg)
+				m.tableModel = m.fetchPageItems(m.tableModel)
 
 				return m, cmd
 			}

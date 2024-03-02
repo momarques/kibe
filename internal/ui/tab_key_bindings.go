@@ -20,13 +20,15 @@ func (k tabKeyMap) FullHelp() [][]key.Binding {
 	}
 }
 
-var tabShortcuts = tabKeyMap{
-	PreviousTab: bindings.New("previous tab", "left", "shift+tab"),
-	NextTab:     bindings.New("next tab", "right", "tab"),
+func newTabKeyMap() tabKeyMap {
+	return tabKeyMap{
+		PreviousTab: bindings.New("previous tab", "left", "shift+tab"),
+		NextTab:     bindings.New("next tab", "right", "tab"),
 
-	Back: bindings.New("go back", "esc"),
-	Help: bindings.New("help", "?", "h"),
-	Quit: bindings.New("quit", "q", "ctrl+c"),
+		Back: bindings.New("go back", "esc"),
+		Help: bindings.New("help", "?", "h"),
+		Quit: bindings.New("quit", "q", "ctrl+c"),
+	}
 }
 
 func (k tabKeyMap) viewFirstLine() []key.Binding {

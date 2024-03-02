@@ -11,28 +11,20 @@ import (
 
 var loadInterval = 2 * time.Second
 
-type contentState int
-
-const (
-	loaded contentState = iota
-	notLoaded
-	reload
-)
-
 type tableContent struct {
 	syncState
 
 	client *kube.ClientReady
 
-	rows      []table.Row
-	paginator paginator.Model
+	rows           []table.Row
+	paginatorModel paginator.Model
 }
 
-func newTableContent(c *kube.ClientReady, paginator paginator.Model) *tableContent {
+func newTableContent(c *kube.ClientReady) *tableContent {
 	return &tableContent{
-		syncState: unsynced,
-		client:    c,
-		paginator: paginator,
+		syncState:      unsynced,
+		client:         c,
+		paginatorModel: newPaginatorUI(),
 	}
 }
 
@@ -62,13 +54,13 @@ func (c *tableContent) fetchTableItems(m table.Model) (table.Model, tea.Cmd) {
 
 	m.SetColumns(columns)
 
-	c.paginator.SetTotalPages(len(rows))
+	c.paginatorModel.SetTotalPages(len(rows))
 	c.rows = rows
 	return m, c.updateHeader(title, len(rows))
 }
 
 func (c *tableContent) fetchPageItems(m table.Model) table.Model {
-	start, end := c.paginator.GetSliceBounds(len(c.rows))
+	start, end := c.paginatorModel.GetSliceBounds(len(c.rows))
 
 	rows := c.rows[start:end]
 	m.SetRows(rows)
