@@ -131,7 +131,7 @@ func (s *listSelector) namespaceSelected(namespace string) func() tea.Msg {
 	return func() tea.Msg { return kube.NamespaceSelected{NS: namespace} }
 }
 
-func (s *listSelector) resourceSelected(kind string) func() tea.Msg {
+func (s *listSelector) resourceSelected() func() tea.Msg {
 	r, _ := lo.Find(kube.SupportedResources,
 		func(item kube.Resource) bool {
 			switch item.Kind() {
@@ -181,7 +181,7 @@ func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cm
 			return tea.Batch(
 				m.NewStatusMessage(uistyles.StatusMessageStyle(
 					"Showing", s.resource+"s")),
-				s.resourceSelected(s.resource),
+				s.resourceSelected(),
 				s.spinner.Tick)
 		}
 	}
