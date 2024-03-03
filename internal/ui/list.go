@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
+	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
@@ -50,6 +51,11 @@ func (m CoreUI) updatelistModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case spinner.TickMsg:
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
+
+	case headerTitleUpdated:
+		logging.Log.Info("title ->> ", m.headerModel)
+		m.headerModel.text = msg
+		return m, nil
 
 	case *kube.ClientReady:
 		m.viewState = showTable

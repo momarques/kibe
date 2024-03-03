@@ -57,10 +57,9 @@ func (m CoreUI) updatetableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				return m, cmd
 			}
-		case headerTitleUpdated:
-			m.headerModel.text = msg
-			return m, nil
+
 		case headerItemCountUpdated:
+			logging.Log.Info("item count ->> ", m.headerModel)
 			m.headerModel.itemCount = msg
 			return m, nil
 
