@@ -14,12 +14,6 @@ type tabKeyMap struct {
 	Help key.Binding
 }
 
-func (k tabKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{k.Back, k.PreviousTab, k.NextTab, k.Help, k.Quit},
-	}
-}
-
 func newTabKeyMap() tabKeyMap {
 	return tabKeyMap{
 		PreviousTab: bindings.New("previous tab", "left", "shift+tab"),
@@ -28,6 +22,12 @@ func newTabKeyMap() tabKeyMap {
 		Back: bindings.New("go back", "esc"),
 		Help: bindings.New("help", "?", "h"),
 		Quit: bindings.New("quit", "q", "ctrl+c"),
+	}
+}
+
+func (k tabKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.Back, k.PreviousTab, k.NextTab, k.Help, k.Quit},
 	}
 }
 

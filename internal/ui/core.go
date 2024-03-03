@@ -104,6 +104,18 @@ func (m CoreUI) View() string {
 	return m.View()
 }
 
+func (m CoreUI) showHelpLines(helpBindingLines ...[]key.Binding) []string {
+	var helpLines []string
+
+	helpStyle := lipgloss.NewStyle().MarginBottom(1)
+
+	for _, line := range helpBindingLines {
+		helpLines = append(helpLines, helpStyle.Render(
+			m.helpModel.ShortHelpView(line)))
+	}
+	return helpLines
+}
+
 func (m CoreUI) composedView() string {
 	var helpBindingLines [][]key.Binding
 
@@ -139,16 +151,4 @@ func (m CoreUI) composedView() string {
 			helpView,
 		),
 		m.statusbarModel.View())
-}
-
-func (m CoreUI) showHelpLines(helpBindingLines ...[]key.Binding) []string {
-	var helpLines []string
-
-	helpStyle := lipgloss.NewStyle().MarginBottom(1)
-
-	for _, line := range helpBindingLines {
-		helpLines = append(helpLines, helpStyle.Render(
-			m.helpModel.ShortHelpView(line)))
-	}
-	return helpLines
 }
