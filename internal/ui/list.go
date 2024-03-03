@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
@@ -53,7 +52,6 @@ func (m CoreUI) updatelistModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 
 	case headerTitleUpdated:
-		logging.Log.Info("title ->> ", m.headerModel)
 		m.headerModel.text = msg
 		return m, nil
 
@@ -78,7 +76,7 @@ func (m CoreUI) updatelistModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m CoreUI) viewlistModel() string {
+func (m CoreUI) listModelView() string {
 	if m.listSelector.spinnerState == showSpinner {
 		return lipgloss.JoinVertical(
 			lipgloss.Top,

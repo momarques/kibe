@@ -66,7 +66,7 @@ func NewUI() CoreUI {
 		headerModel:    headerModel{},
 		helpModel:      help.New(),
 		statusbarModel: newStatusBarModel(),
-		syncBarModel:   syncBarModel{},
+		syncBarModel:   newSyncBarModel(),
 		syncChannel:    make(chan tea.Cmd),
 	}
 }
@@ -96,42 +96,43 @@ func (m CoreUI) View() string {
 	switch m.viewState {
 
 	case showList:
-		return m.viewlistModel()
+		return m.listModelView()
 
 	case showTable, showTab:
-		return m.viewMainUI()
+		return m.composedView()
 	}
 	return m.View()
 }
 
-func (m CoreUI) viewMainUI() string {
+func (m CoreUI) composedView() string {
 	var helpBindingLines [][]key.Binding
 
 	switch m.viewState {
 	case showTable:
 		helpBindingLines = append(helpBindingLines,
-			m.tableKeyMap.viewFirstLine(),
-			m.tableKeyMap.viewSecondLine())
+			m.tableKeyMap.firstHelpLineView(),
+			m.tableKeyMap.secondHelpLineView())
 
 	case showTab:
 		helpBindingLines = append(helpBindingLines,
-			m.tabKeyMap.viewFirstLine())
+			m.tabKeyMap.firstHelpLineView())
 	}
 
 	helpView := lipgloss.JoinVertical(
 		lipgloss.Center,
-		m.showHelp(helpBindingLines...)...)
+		m.showHelpLines(helpBindingLines...)...)
 
-	leftUtilityPanel := lipgloss.JoinVertical(lipgloss.Left,
-		m.viewPaginatorModel(),
-		m.viewSyncBarModel(),
+	leftUtilityPanel := lipgloss.JoinVertical(
+		lipgloss.Left,
+		m.paginatorModelView(),
+		m.syncBarModelView(),
 	)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.headerModel.viewHeaderModel(),
-		m.viewTableModel(),
-		m.viewTabModel(),
+		m.headerModelView(),
+		m.tableModelView(),
+		m.tabModelView(),
 		lipgloss.JoinHorizontal(
 			lipgloss.Left,
 			leftUtilityPanel,
@@ -140,7 +141,7 @@ func (m CoreUI) viewMainUI() string {
 		m.statusbarModel.View())
 }
 
-func (m CoreUI) showHelp(helpBindingLines ...[]key.Binding) []string {
+func (m CoreUI) showHelpLines(helpBindingLines ...[]key.Binding) []string {
 	var helpLines []string
 
 	helpStyle := lipgloss.NewStyle().MarginBottom(1)

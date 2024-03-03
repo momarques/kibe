@@ -31,6 +31,6 @@ func newTabKeyMap() tabKeyMap {
 	}
 }
 
-func (k tabKeyMap) viewFirstLine() []key.Binding {
+func (k tabKeyMap) firstHelpLineView() []key.Binding {
 	return []key.Binding{k.Back, k.PreviousTab, k.NextTab, k.Help, k.Quit}
 }

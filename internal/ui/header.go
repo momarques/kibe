@@ -30,7 +30,7 @@ func (s *listSelector) updateHeader(title string) tea.Cmd {
 
 // itemCount: fmt.Sprintf("%d items", itemCount)}
 
-func (t headerModel) viewHeaderModel() string {
+func (m CoreUI) headerModelView() string {
 	titleStyle := uistyles.
 		ViewTitleStyle.
 		Copy().
@@ -45,7 +45,7 @@ func (t headerModel) viewHeaderModel() string {
 		MarginBottom(2)
 
 	return lipgloss.JoinVertical(lipgloss.Left,
-		titleStyle.Render(string(t.text)),
-		itemCountStyle.Render(fmt.Sprintf("%d items", t.itemCount)),
+		titleStyle.Render(string(m.headerModel.text)),
+		itemCountStyle.Render(fmt.Sprintf("%d items", m.headerModel.itemCount)),
 	)
 }

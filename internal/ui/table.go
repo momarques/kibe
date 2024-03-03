@@ -59,7 +59,6 @@ func (m CoreUI) updatetableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case headerItemCountUpdated:
-			logging.Log.Info("item count ->> ", m.headerModel)
 			m.headerModel.itemCount = msg
 			return m, nil
 
@@ -85,7 +84,7 @@ func (m CoreUI) updatetableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m CoreUI) viewTableModel() string {
+func (m CoreUI) tableModelView() string {
 	tableStyle := uistyles.TableStyle
 
 	if m.viewState == showTab {

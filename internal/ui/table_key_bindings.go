@@ -42,10 +42,10 @@ func newTableKeyMap() tableKeyMap {
 	}
 }
 
-func (k tableKeyMap) viewFirstLine() []key.Binding {
+func (k tableKeyMap) firstHelpLineView() []key.Binding {
 	return []key.Binding{k.Up, k.Down, k.PreviousPage, k.NextPage}
 }
 
-func (k tableKeyMap) viewSecondLine() []key.Binding {
+func (k tableKeyMap) secondHelpLineView() []key.Binding {
 	return []key.Binding{k.Back, k.Describe, k.Help, k.Quit}
 }
