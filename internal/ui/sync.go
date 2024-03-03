@@ -30,7 +30,6 @@ type lastSync time.Time
 func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
 
-	m.tableContent.client = m.client
 	m.syncState = syncing
 	m.syncBarModel = m.changeSyncState()
 

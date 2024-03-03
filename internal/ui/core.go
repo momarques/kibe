@@ -55,7 +55,7 @@ func NewUI() CoreUI {
 		listSelector: selector,
 		listModel:    newlistModel(selector),
 
-		tableContent: newTableContent(nil),
+		tableContent: newTableContent(),
 		tableKeyMap:  newTableKeyMap(),
 		tableModel:   newTableModel(),
 

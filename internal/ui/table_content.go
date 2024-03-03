@@ -4,23 +4,19 @@ import (
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kibe/internal/kube"
 )
 
 type tableContent struct {
 	syncState
-
-	client *kube.ClientReady
 
 	columns        []table.Column
 	rows           []table.Row
 	paginatorModel paginator.Model
 }
 
-func newTableContent(c *kube.ClientReady) *tableContent {
+func newTableContent() *tableContent {
 	return &tableContent{
 		syncState:      unsynced,
-		client:         c,
 		paginatorModel: newPaginatorModel(),
 	}
 }

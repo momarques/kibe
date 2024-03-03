@@ -61,8 +61,6 @@ type ClientReady struct {
 
 	*ContextSelected
 	*ResourceSelected
-
-	RequestState
 }
 
 func NewClientReady(context string) *ClientReady {
@@ -71,7 +69,6 @@ func NewClientReady(context string) *ClientReady {
 		ContextSelected: &ContextSelected{
 			C: context,
 		},
-		RequestState: make(RequestState),
 	}
 }
 
