@@ -9,11 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
-	windowutil "github.com/momarques/kibe/internal/ui/window_util"
-)
-
-var (
-	windowWidth, windowHeight = windowutil.GetWindowSize()
 )
 
 type viewState int

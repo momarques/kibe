@@ -13,7 +13,7 @@ func Test_ComputeWidthPercentage(t *testing.T) {
 	var windowSize int = 120
 
 	for _, w := range testCasesWidth {
-		width := ComputePercentage(windowSize, w)
+		width := ComputeWidthPercentage(w)
 		t.Logf(fmt.Sprintf("%d per cent of %d is equal to %d", w, windowSize, width))
 	}
 	t.Fail()
