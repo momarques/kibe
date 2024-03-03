@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
@@ -42,29 +43,37 @@ func (m CoreUI) updatetableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			case key.Matches(msg, m.tableKeyMap.Quit):
 				return m, tea.Quit
+
 			case key.Matches(msg, m.tableKeyMap.Describe):
 				selectedResource := m.tableModel.SelectedRow()
-				m.tabModel.Tabs, m.tabModel.TabContent = m.tabModel.describeResource(m.client, selectedResource[0])
 
+				m.tabModel.Tabs, m.tabModel.TabContent = m.tabModel.describeResource(m.client, selectedResource[0])
 				m.viewState = showTab
 				return m, nil
+
 			case key.Matches(msg, m.tableKeyMap.PreviousPage, m.tableKeyMap.NextPage):
 				m.paginatorModel, _ = m.paginatorModel.Update(msg)
-				m.tableModel = m.fetchPageItems(m.tableModel)
+				m.tableModel, cmd = m.applyTableItems(m.tableModel)
 
 				return m, cmd
 			}
-		case headerUpdated:
-			m.headerModel.text = msg.text
-			m.headerModel.itemCount = msg.itemCount
+		case headerTitleUpdated:
+			m.headerModel.text = msg
 			return m, nil
+		case headerItemCountUpdated:
+			m.headerModel.itemCount = msg
+			return m, nil
+
 		case lastSync:
 			m.tableContent.syncState = synced
+			m.syncBarModel = m.changeSyncState()
 
-			return m, tea.Batch(tea.Tick(loadInterval, startSyncing))
+			return m, tea.Batch(tea.Tick(kube.ResquestTimeout, startSyncing))
+
 		case syncState:
 			if msg == unsynced {
-				m.tableContent.syncState = unsynced
+				m.tableContent.syncState = msg
+				m.syncBarModel = m.changeSyncState()
 				return m.sync(nil)
 			}
 		}
@@ -77,7 +86,7 @@ func (m CoreUI) updatetableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m CoreUI) viewtableModel() string {
+func (m CoreUI) viewTableModel() string {
 	tableStyle := uistyles.TableStyle
 
 	if m.viewState == showTab {

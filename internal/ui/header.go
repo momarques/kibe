@@ -8,25 +8,29 @@ import (
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
+type headerTitleUpdated string
+type headerItemCountUpdated int
+
 type headerModel struct {
-	text      string
-	itemCount string
+	text      headerTitleUpdated
+	itemCount headerItemCountUpdated
 }
 
-type headerUpdated struct {
-	text      string
-	itemCount string
-}
-
-func (c *tableContent) updateHeader(title string, itemCount int) tea.Cmd {
+func (c *tableContent) updateHeader(itemCount int) tea.Cmd {
 	return func() tea.Msg {
-		return headerUpdated{
-			text:      title,
-			itemCount: fmt.Sprintf("%d items", itemCount)}
+		return headerItemCountUpdated(itemCount)
 	}
 }
 
-func (t headerModel) viewheaderModel() string {
+func (s *listSelector) updateHeader(title string) tea.Cmd {
+	return func() tea.Msg {
+		return headerTitleUpdated(title)
+	}
+}
+
+// itemCount: fmt.Sprintf("%d items", itemCount)}
+
+func (t headerModel) viewHeaderModel() string {
 	titleStyle := uistyles.
 		ViewTitleStyle.
 		Copy().
@@ -41,7 +45,7 @@ func (t headerModel) viewheaderModel() string {
 		MarginBottom(2)
 
 	return lipgloss.JoinVertical(lipgloss.Left,
-		titleStyle.Render(t.text),
-		itemCountStyle.Render(t.itemCount),
+		titleStyle.Render(string(t.text)),
+		itemCountStyle.Render(fmt.Sprintf("%d items", t.itemCount)),
 	)
 }

@@ -40,10 +40,11 @@ type CoreUI struct {
 	tabModel tabModel
 	tabKeyMap
 
-	headerModel        headerModel
-	helpModel          help.Model
-	statusbarModel     statusbar.Model
-	syncIndicatorModel syncIndicatorModel
+	headerModel    headerModel
+	helpModel      help.Model
+	statusbarModel statusbar.Model
+	syncBarModel   syncBarModel
+	syncChannel    chan tea.Cmd
 }
 
 func NewUI() CoreUI {
@@ -62,8 +63,11 @@ func NewUI() CoreUI {
 		tabKeyMap: newTabKeyMap(),
 		tabModel:  newTabModel(),
 
+		headerModel:    headerModel{},
 		helpModel:      help.New(),
 		statusbarModel: newStatusBarModel(),
+		syncBarModel:   syncBarModel{},
+		syncChannel:    make(chan tea.Cmd),
 	}
 }
 
@@ -85,7 +89,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case showTab:
 		return m.updatetabModel(msg)
 	}
-	return nil, nil
+	return m, nil
 }
 
 func (m CoreUI) View() string {
@@ -118,14 +122,19 @@ func (m CoreUI) viewMainUI() string {
 		lipgloss.Center,
 		m.showHelp(helpBindingLines...)...)
 
+	leftUtilityPanel := lipgloss.JoinVertical(lipgloss.Left,
+		m.viewPaginatorModel(),
+		m.viewSyncBarModel(),
+	)
+
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.headerModel.viewheaderModel(),
-		m.viewtableModel(),
-		m.viewtabModel(),
+		m.headerModel.viewHeaderModel(),
+		m.viewTableModel(),
+		m.viewTabModel(),
 		lipgloss.JoinHorizontal(
 			lipgloss.Left,
-			m.viewPaginatorUI(),
+			leftUtilityPanel,
 			helpView,
 		),
 		m.statusbarModel.View())
