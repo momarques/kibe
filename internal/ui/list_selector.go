@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -117,7 +119,9 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		m.ResetFilter()
 
 		s.client = s.client.WithResource(msg.R)
-		return s.updateStatusBar()
+		return tea.Batch(
+			s.updateStatusBar(),
+			s.updateHeader(fmt.Sprintf("%s interaction", msg.R.Kind())))
 
 	case tea.KeyMsg:
 		return s.updateWithKeyStroke(msg, m)

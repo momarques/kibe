@@ -2,13 +2,17 @@ package kube
 
 import (
 	"path/filepath"
+	"time"
 
+	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/client-go/util/homedir"
 )
+
+var ResquestTimeout = 5 * time.Second
 
 func RetrieveKubeConfigFilePath() string {
 	if home := homedir.HomeDir(); home != "" {
@@ -42,12 +46,15 @@ func NewKubeClient(context string) *kubernetes.Clientset {
 		logging.Log.Error(err)
 	}
 
+	clientConfig.Timeout = ResquestTimeout
 	client, err := kubernetes.NewForConfig(clientConfig)
 	if err != nil {
 		logging.Log.Error(err)
 	}
 	return client
 }
+
+type RequestState chan error
 
 type ClientReady struct {
 	Client *kubernetes.Clientset
@@ -76,4 +83,25 @@ func (c *ClientReady) WithNamespace(namespace string) *ClientReady {
 func (c *ClientReady) WithResource(r Resource) *ClientReady {
 	c.ResourceSelected = &ResourceSelected{r}
 	return c
+}
+
+func (c *ClientReady) FetchTableView(windowWidth int) ([]table.Column, []table.Row) {
+	switch c.ResourceSelected.R.(type) {
+	case *Pod:
+		pods := ListPods(c)
+		podColumns := ListPodColumns(pods, windowWidth)
+
+		return podColumns, RetrievePodListAsTableRows(pods)
+	case *Namespace:
+		ns := ListNamespaces(c)
+		nsColumns := ListNamespaceColumns(ns)
+
+		return nsColumns, RetrieveNamespaceListAsTableRows(ns)
+	case *Service:
+		svc := ListServices(c)
+		svcColumns := ListServiceColumns(svc)
+
+		return svcColumns, RetrieveServiceListAsTableRows(svc)
+	}
+	return nil, nil
 }

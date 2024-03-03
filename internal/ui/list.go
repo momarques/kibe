@@ -51,6 +51,10 @@ func (m CoreUI) updatelistModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.spinner, cmd = m.spinner.Update(msg)
 		return m, cmd
 
+	case headerTitleUpdated:
+		m.headerModel.text = msg
+		return m, nil
+
 	case *kube.ClientReady:
 		m.viewState = showTable
 		m.client = msg
@@ -72,7 +76,7 @@ func (m CoreUI) updatelistModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m CoreUI) viewlistModel() string {
+func (m CoreUI) listModelView() string {
 	if m.listSelector.spinnerState == showSpinner {
 		return lipgloss.JoinVertical(
 			lipgloss.Top,

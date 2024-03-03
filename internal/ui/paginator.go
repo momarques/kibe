@@ -6,7 +6,7 @@ import (
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
-func newPaginatorUI() paginator.Model {
+func newPaginatorModel() paginator.Model {
 
 	p := paginator.New()
 	p.Type = paginator.Dots
@@ -21,7 +21,7 @@ func newPaginatorUI() paginator.Model {
 	return p
 }
 
-func (m CoreUI) viewPaginatorUI() string {
+func (m CoreUI) paginatorModelView() string {
 	return uistyles.PaginatorStyle.
 		Copy().
 		MarginRight(35).

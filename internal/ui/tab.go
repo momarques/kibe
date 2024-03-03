@@ -46,7 +46,7 @@ func (m CoreUI) updatetabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m CoreUI) viewtabModel() string {
+func (m CoreUI) tabModelView() string {
 	if m.tabModel.Tabs == nil {
 		return lipgloss.NewStyle().Height(windowutil.
 			ComputePercentage(windowHeight, tabViewHiddenHeightPercentage)).Render("")

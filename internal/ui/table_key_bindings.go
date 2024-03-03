@@ -21,13 +21,6 @@ type tableKeyMap struct {
 	Help key.Binding
 }
 
-func (k tableKeyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{k.Up, k.Down, k.PreviousPage, k.NextPage},
-		{k.Back, k.Describe, k.Help, k.Quit},
-	}
-}
-
 func newTableKeyMap() tableKeyMap {
 	return tableKeyMap{
 		Up:           bindings.New("move up", "up"),
@@ -42,10 +35,17 @@ func newTableKeyMap() tableKeyMap {
 	}
 }
 
-func (k tableKeyMap) viewFirstLine() []key.Binding {
+func (k tableKeyMap) FullHelp() [][]key.Binding {
+	return [][]key.Binding{
+		{k.Up, k.Down, k.PreviousPage, k.NextPage},
+		{k.Back, k.Describe, k.Help, k.Quit},
+	}
+}
+
+func (k tableKeyMap) firstHelpLineView() []key.Binding {
 	return []key.Binding{k.Up, k.Down, k.PreviousPage, k.NextPage}
 }
 
-func (k tableKeyMap) viewSecondLine() []key.Binding {
+func (k tableKeyMap) secondHelpLineView() []key.Binding {
 	return []key.Binding{k.Back, k.Describe, k.Help, k.Quit}
 }
