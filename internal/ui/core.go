@@ -44,7 +44,6 @@ type CoreUI struct {
 	helpModel      help.Model
 	statusbarModel statusbar.Model
 	syncBarModel   syncBarModel
-	syncChannel    chan tea.Cmd
 }
 
 func NewUI() CoreUI {
@@ -67,7 +66,6 @@ func NewUI() CoreUI {
 		helpModel:      help.New(),
 		statusbarModel: newStatusBarModel(),
 		syncBarModel:   newSyncBarModel(),
-		syncChannel:    make(chan tea.Cmd),
 	}
 }
 
