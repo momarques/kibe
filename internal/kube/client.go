@@ -85,11 +85,11 @@ func (c *ClientReady) WithResource(r Resource) *ClientReady {
 	return c
 }
 
-func (c *ClientReady) FetchTableView(windowWidth int) ([]table.Column, []table.Row) {
+func (c *ClientReady) FetchTableView() ([]table.Column, []table.Row) {
 	switch c.ResourceSelected.R.(type) {
 	case *Pod:
 		pods := ListPods(c)
-		podColumns := ListPodColumns(pods, windowWidth)
+		podColumns := ListPodColumns(pods)
 
 		return podColumns, RetrievePodListAsTableRows(pods)
 	case *Namespace:

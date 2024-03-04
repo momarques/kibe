@@ -33,7 +33,7 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 	m.syncState = syncing
 	m.syncBarModel = m.changeSyncState()
 
-	m.tableContent.columns, m.tableContent.rows = m.client.FetchTableView(windowWidth)
+	m.tableContent.columns, m.tableContent.rows = m.client.FetchTableView()
 	m.tableContent.paginatorModel.SetTotalPages(len(m.tableContent.rows))
 
 	m.paginatorModel, _ = m.paginatorModel.Update(msg)
@@ -84,9 +84,7 @@ func (m CoreUI) changeSyncState() syncBarModel {
 
 func (m CoreUI) syncBarModelView() string {
 	syncStyle := uistyles.ViewTitleStyle.
-		Copy().
-		MarginTop(1).
-		MarginBottom(1)
+		Copy()
 
 	if m.spinnerState == showSpinner {
 		return syncStyle.

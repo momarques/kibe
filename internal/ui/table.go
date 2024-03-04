@@ -19,8 +19,7 @@ func newTableModel() table.Model {
 
 	t.SetStyles(uistyles.NewTableStyle(false))
 	t.SetHeight(
-		windowutil.ComputePercentage(
-			windowHeight, tableViewHeightPercentage))
+		windowutil.ComputeHeightPercentage(tableViewHeightPercentage))
 	return t
 }
 

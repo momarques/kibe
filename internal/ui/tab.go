@@ -48,8 +48,9 @@ func (m CoreUI) updatetabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m CoreUI) tabModelView() string {
 	if m.tabModel.Tabs == nil {
-		return lipgloss.NewStyle().Height(windowutil.
-			ComputePercentage(windowHeight, tabViewHiddenHeightPercentage)).Render("")
+		return lipgloss.NewStyle().
+			Height(windowutil.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
+			Render("")
 	}
 
 	switch m.viewState {
@@ -97,8 +98,7 @@ func (m CoreUI) tabModelView() string {
 	doc.WriteString(
 		windowStyle.
 			Copy().
-			Height(windowutil.
-				ComputePercentage(windowHeight, tabViewShowedHeightPercentage)).
+			Height(windowutil.ComputeHeightPercentage(tabViewShowedHeightPercentage)).
 			Width(
 				(lipgloss.Width(tabs) - windowStyle.GetHorizontalFrameSize())).
 			Render(

@@ -6,8 +6,18 @@ import (
 	"golang.org/x/term"
 )
 
-func ComputePercentage(target, percentage int) int {
-	return target * percentage / 100
+var (
+	WindowWidth, WindowHeight = GetWindowSize()
+)
+
+func ComputeHeightPercentage(percentage int) int {
+	_, h := GetWindowSize()
+	return h * percentage / 100
+}
+
+func ComputeWidthPercentage(percentage int) int {
+	w, _ := GetWindowSize()
+	return w * percentage / 100
 }
 
 func GetWindowSize() (int, int) {

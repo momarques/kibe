@@ -14,12 +14,12 @@ import (
 )
 
 const (
-	nameColumnWidthPercentage     = 39
-	readyColumnWidthPercentage    = 5
-	statusColumnWidthPercentage   = 11
-	restartsColumnWidthPercentage = 6
-	nodeColumnWidthPercentage     = 29
-	ageColumnWidthPercentage      = 8
+	nameColumnWidthPercentage     int = 39
+	readyColumnWidthPercentage    int = 5
+	statusColumnWidthPercentage   int = 11
+	restartsColumnWidthPercentage int = 6
+	nodeColumnWidthPercentage     int = 29
+	ageColumnWidthPercentage      int = 8
 )
 
 type Pod struct{ kind string }
@@ -38,21 +38,23 @@ func ListPods(c *ClientReady) []corev1.Pod {
 	return pods.Items
 }
 
-func ListPodColumns(pods []corev1.Pod, width int) (podAttributes []table.Column) {
+func ListPodColumns(pods []corev1.Pod) (podAttributes []table.Column) {
+	var (
+		nameColumnWidth     int = windowutil.ComputeWidthPercentage(nameColumnWidthPercentage)
+		readyColumnWidth    int = windowutil.ComputeWidthPercentage(readyColumnWidthPercentage)
+		statusColumnWidth   int = windowutil.ComputeWidthPercentage(statusColumnWidthPercentage)
+		restartsColumnWidth int = windowutil.ComputeWidthPercentage(restartsColumnWidthPercentage)
+		nodeColumnWidth     int = windowutil.ComputeWidthPercentage(nodeColumnWidthPercentage)
+		ageColumnWidth      int = windowutil.ComputeWidthPercentage(ageColumnWidthPercentage)
+	)
 
 	return append(podAttributes,
-		table.Column{Title: "Name", Width: windowutil.ComputePercentage(
-			width, nameColumnWidthPercentage)},
-		table.Column{Title: "Ready", Width: windowutil.ComputePercentage(
-			width, readyColumnWidthPercentage)},
-		table.Column{Title: "Status", Width: windowutil.ComputePercentage(
-			width, statusColumnWidthPercentage)},
-		table.Column{Title: "Restarts", Width: windowutil.ComputePercentage(
-			width, restartsColumnWidthPercentage)},
-		table.Column{Title: "Node", Width: windowutil.ComputePercentage(
-			width, nodeColumnWidthPercentage)},
-		table.Column{Title: "Age", Width: windowutil.ComputePercentage(
-			width, ageColumnWidthPercentage)},
+		table.Column{Title: "Name", Width: nameColumnWidth},
+		table.Column{Title: "Ready", Width: readyColumnWidth},
+		table.Column{Title: "Status", Width: statusColumnWidth},
+		table.Column{Title: "Restarts", Width: restartsColumnWidth},
+		table.Column{Title: "Node", Width: nodeColumnWidth},
+		table.Column{Title: "Age", Width: ageColumnWidth},
 	)
 }
 

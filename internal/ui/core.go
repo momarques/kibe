@@ -9,11 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
-	windowutil "github.com/momarques/kibe/internal/ui/window_util"
-)
-
-var (
-	windowWidth, windowHeight = windowutil.GetWindowSize()
 )
 
 type viewState int
@@ -125,7 +120,8 @@ func (m CoreUI) composedView() string {
 
 	case showTab:
 		helpBindingLines = append(helpBindingLines,
-			m.tabKeyMap.firstHelpLineView())
+			m.tabKeyMap.firstHelpLineView(),
+			m.tabKeyMap.secondHelpLineView())
 	}
 
 	helpView := lipgloss.JoinVertical(
