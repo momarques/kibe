@@ -48,14 +48,6 @@ func ListPodColumns(pods []corev1.Pod) (podAttributes []table.Column) {
 		ageColumnWidth      int = windowutil.ComputeWidthPercentage(ageColumnWidthPercentage)
 	)
 
-	logging.Log.Info(
-		nameColumnWidth,
-		readyColumnWidth,
-		statusColumnWidth,
-		restartsColumnWidth,
-		nodeColumnWidth,
-		ageColumnWidth,
-	)
 	return append(podAttributes,
 		table.Column{Title: "Name", Width: nameColumnWidth},
 		table.Column{Title: "Ready", Width: readyColumnWidth},

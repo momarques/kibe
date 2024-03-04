@@ -84,9 +84,7 @@ func (m CoreUI) changeSyncState() syncBarModel {
 
 func (m CoreUI) syncBarModelView() string {
 	syncStyle := uistyles.ViewTitleStyle.
-		Copy().
-		MarginTop(1).
-		MarginBottom(1)
+		Copy()
 
 	if m.spinnerState == showSpinner {
 		return syncStyle.

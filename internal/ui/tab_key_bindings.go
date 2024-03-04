@@ -34,3 +34,7 @@ func (k tabKeyMap) FullHelp() [][]key.Binding {
 func (k tabKeyMap) firstHelpLineView() []key.Binding {
 	return []key.Binding{k.Back, k.PreviousTab, k.NextTab, k.Help, k.Quit}
 }
+
+func (k tabKeyMap) secondHelpLineView() []key.Binding {
+	return []key.Binding{}
+}

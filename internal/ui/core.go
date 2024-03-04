@@ -120,7 +120,8 @@ func (m CoreUI) composedView() string {
 
 	case showTab:
 		helpBindingLines = append(helpBindingLines,
-			m.tabKeyMap.firstHelpLineView())
+			m.tabKeyMap.firstHelpLineView(),
+			m.tabKeyMap.secondHelpLineView())
 	}
 
 	helpView := lipgloss.JoinVertical(
