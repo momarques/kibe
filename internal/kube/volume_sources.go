@@ -30,6 +30,7 @@ func printAzureDisk(v *corev1.AzureDiskVolumeSource) string {
 		v.DiskName, v.DataDiskURI, v.CachingMode, v.Kind, v.ReadOnly)
 	return vs
 }
+
 func printCSI(v *corev1.CSIVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tCSI\n"+
 		"	Driver: \t%v\n"+
@@ -41,6 +42,7 @@ func printCSI(v *corev1.CSIVolumeSource) string {
 		v.Driver, v.ReadOnly, v.VolumeAttributes, v.NodePublishSecretRef, v.FSType, v.ReadOnly)
 	return vs
 }
+
 func printCephFS(v *corev1.CephFSVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tCephFS\n"+
 		"	Monitors: \t%v\n"+
@@ -52,6 +54,7 @@ func printCephFS(v *corev1.CephFSVolumeSource) string {
 		v.Monitors, v.Path, v.User, v.SecretFile, v.SecretRef, v.ReadOnly)
 	return vs
 }
+
 func printCinder(v *corev1.CinderVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tCinder\n"+
 		"	VolumeID: \t%v\n"+
@@ -83,6 +86,7 @@ func printDownwardAPI(v *corev1.DownwardAPIVolumeSource) string {
 		v.Items, v.DefaultMode)
 	return vs
 }
+
 func printEmptyDir(v *corev1.EmptyDirVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tEmptyDir\n"+
 		"	Medium: \t%v\n"+
@@ -90,12 +94,14 @@ func printEmptyDir(v *corev1.EmptyDirVolumeSource) string {
 		v.Medium, v.SizeLimit)
 	return vs
 }
+
 func printEphemeral(v *corev1.EphemeralVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tEphemeral\n"+
 		"	VolumeClaimTemplate: \t%v\n",
 		v.VolumeClaimTemplate)
 	return vs
 }
+
 func printFC(v *corev1.FCVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tFC\n"+
 		"	TargetWWNs: \t%v\n"+
@@ -104,6 +110,7 @@ func printFC(v *corev1.FCVolumeSource) string {
 		v.TargetWWNs, v.Lun, v.ReadOnly)
 	return vs
 }
+
 func printFlexVolume(v *corev1.FlexVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tFlexVolume\n"+
 		"	Driver: \t%v\n"+
@@ -114,12 +121,14 @@ func printFlexVolume(v *corev1.FlexVolumeSource) string {
 		v.Driver, v.FSType, v.SecretRef, v.ReadOnly, v.Options)
 	return vs
 }
+
 func printFlocker(v *corev1.FlockerVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tFlocker\n"+
 		"	DatasetName: \t%v\n",
 		v.DatasetName)
 	return vs
 }
+
 func printGCEPersistentDisk(v *corev1.GCEPersistentDiskVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tGCEPersistentDisk\n"+
 		"	PDName: \t%v\n"+
@@ -129,6 +138,7 @@ func printGCEPersistentDisk(v *corev1.GCEPersistentDiskVolumeSource) string {
 		v.PDName, v.FSType, v.Partition, v.ReadOnly)
 	return vs
 }
+
 func printGitRepo(v *corev1.GitRepoVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tGitRepo\n"+
 		"	Repository: \t%v\n"+
@@ -137,6 +147,7 @@ func printGitRepo(v *corev1.GitRepoVolumeSource) string {
 		v.Repository, v.Revision, v.Directory)
 	return vs
 }
+
 func printGlusterfs(v *corev1.GlusterfsVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tGlusterfs\n"+
 		"	EndpointsName: \t%v\n"+
@@ -145,6 +156,7 @@ func printGlusterfs(v *corev1.GlusterfsVolumeSource) string {
 		v.EndpointsName, v.Path, v.ReadOnly)
 	return vs
 }
+
 func printHostPath(v *corev1.HostPathVolumeSource) string {
 	vs := fmt.Sprintf("  Type: \tHostPath\n"+
 		"	Path: \t%v\n"+
@@ -152,6 +164,7 @@ func printHostPath(v *corev1.HostPathVolumeSource) string {
 		v.Path, *v.Type)
 	return vs
 }
+
 func printNFS(v *corev1.NFSVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tNFS\n"+
 		"	Server: \t%v\n"+
@@ -160,6 +173,7 @@ func printNFS(v *corev1.NFSVolumeSource) string {
 		v.Server, v.Path, v.ReadOnly)
 	return vs
 }
+
 func printPersistentVolumeClaim(v *corev1.PersistentVolumeClaimVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tPersistentVolumeClaim\n"+
 		"	ClaimName: \t%v\n"+
@@ -167,6 +181,7 @@ func printPersistentVolumeClaim(v *corev1.PersistentVolumeClaimVolumeSource) str
 		v.ClaimName, v.ReadOnly)
 	return vs
 }
+
 func printPhotonPersistentDisk(v *corev1.PhotonPersistentDiskVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tPhotonPersistentDisk\n"+
 		"	PdID: \t%v\n"+
@@ -174,6 +189,7 @@ func printPhotonPersistentDisk(v *corev1.PhotonPersistentDiskVolumeSource) strin
 		v.PdID, v.FSType)
 	return vs
 }
+
 func printPortworxVolume(v *corev1.PortworxVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tPortworxVolume\n"+
 		"	VolumeID: \t%v\n"+
@@ -213,6 +229,7 @@ func printProjected(v *corev1.ProjectedVolumeSource) string {
 
 	return vs
 }
+
 func printQuobyte(v *corev1.QuobyteVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tQuobyte\n"+
 		"	Registry: \t%v\n"+
@@ -224,6 +241,7 @@ func printQuobyte(v *corev1.QuobyteVolumeSource) string {
 		v.Registry, v.Volume, v.ReadOnly, v.User, v.Group, v.Tenant)
 	return vs
 }
+
 func printRBD(v *corev1.RBDVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tRBD\n"+
 		"	CephMonitors: \t%v\n"+
@@ -238,6 +256,7 @@ func printRBD(v *corev1.RBDVolumeSource) string {
 		v.CephMonitors, v.RBDImage, v.FSType, v.RBDPool, v.Keyring, v.RadosUser, v.Keyring, v.SecretRef, v.ReadOnly)
 	return vs
 }
+
 func printScaleIO(v *corev1.ScaleIOVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tScaleIO\n"+
 		"	Gateway: \t%v\n"+
@@ -252,6 +271,7 @@ func printScaleIO(v *corev1.ScaleIOVolumeSource) string {
 		v.Gateway, v.System, v.SecretRef, v.SSLEnabled, v.ProtectionDomain, v.StoragePool, v.VolumeName, v.FSType, v.ReadOnly)
 	return vs
 }
+
 func printSecret(v *corev1.SecretVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tSecret\n"+
 		"	SecretName: \t%v\n"+
@@ -261,6 +281,7 @@ func printSecret(v *corev1.SecretVolumeSource) string {
 		v.SecretName, v.Items, *v.DefaultMode, v.Optional)
 	return vs
 }
+
 func printStorageOS(v *corev1.StorageOSVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tStorageOS\n"+
 		"	VolumeName: \t%v\n"+
@@ -272,6 +293,7 @@ func printStorageOS(v *corev1.StorageOSVolumeSource) string {
 		v.VolumeName, v.VolumeNamespace, v.FSType, v.ReadOnly, v.SecretRef, v.SecretRef.Name)
 	return vs
 }
+
 func printVsphereVolume(v *corev1.VsphereVirtualDiskVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tVsphereVolume\n"+
 		"	VolumePath: \t%v\n"+
