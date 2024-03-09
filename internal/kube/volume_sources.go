@@ -11,7 +11,7 @@ import (
 )
 
 func printAWSElasticBlockStore(v *corev1.AWSElasticBlockStoreVolumeSource) string {
-	vs := fmt.Sprintf("  Type: \tAWSElasticBlockStoreVolumeSource\n"+
+	vs := fmt.Sprintf("Type: \tAWSElasticBlockStoreVolumeSource\n"+
 		"	VolumeID: \t%v\n"+
 		"	FSType: \t%v\n"+
 		"	Partition: \t%v\n"+
@@ -158,7 +158,7 @@ func printGlusterfs(v *corev1.GlusterfsVolumeSource) string {
 }
 
 func printHostPath(v *corev1.HostPathVolumeSource) string {
-	vs := fmt.Sprintf("  Type: \tHostPath\n"+
+	vs := fmt.Sprintf("Type: \tHostPath\n"+
 		"	Path: \t%v\n"+
 		"	HostPathType: \t%v\n",
 		v.Path, *v.Type)
@@ -380,7 +380,7 @@ func (pv PodVolumes) TabContent() string {
 	volumeDetails := lo.Entries(volumes[0])[0]
 
 	renderer, err := glamour.NewTermRenderer(
-		glamour.WithWordWrap(100),
+		glamour.WithWordWrap(60),
 		glamour.WithStyles(glamour.DarkStyleConfig),
 	)
 	if err != nil {
@@ -400,50 +400,3 @@ type VolumeDetails struct {
 	Source  string
 	Details interface{}
 }
-
-// func (pv PodVolumes) volumeSourceSliceToMap() map[string]string {
-// 	return lo.SliceToMap(pv, func(item corev1.Volume) (string, string) {
-// 		marshaled, err := json.Marshal(item.VolumeSource)
-// 		if err != nil {
-// 			logging.Log.Error(err)
-// 		}
-// 		return item.Name, string(marshaled)
-// 	})
-// }
-
-// func removeNilSources(item map[string]interface{}, _ int) VolumeDetails {
-// 	volume := lo.Entries(item)[0]
-// 	logging.Log.Info("key ->> ", volume.Key)
-// 	logging.Log.Info("value ->> ", volume.Value)
-
-// 	var withoutNilSources = map[string]interface{}{}
-
-// 	for k, v := range item {
-// 		logging.Log.Info(k, "  ", v)
-
-// 		withoutNilSource, ok := v.(map[string]interface{})
-// 		if ok {
-// 			withoutNilSources[k] = withoutNilSource
-// 		}
-// 	}
-
-// 	volumeSource := lo.Entries(withoutNilSources)[0]
-// 	return VolumeDetails{
-// 		Name:    volume.Key,
-// 		Source:  volumeSource.Key,
-// 		Details: volumeSource.Value,
-// 	}
-// }
-
-// func (pv PodVolumes) extractVolumeDetails() []VolumeDetails {
-// 	return lo.Map(pv.volumeSourceSliceToMap(), removeNilSources)
-// }
-
-// func (pv PodVolumes) podVolumesToTableRowMap() map[string]string {
-// 	volumeDetails := pv.extractVolumeDetails()
-
-// 	return lo.SliceToMap(volumeDetails,
-// 		func(item VolumeDetails) (string, string) {
-// 			return item.Name, fmt.Sprintf("%s :: %v", item.Source, item.Details)
-// 		})
-// }

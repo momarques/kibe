@@ -71,9 +71,9 @@ func (m CoreUI) tabModelView() string {
 		isFirst, isLast, isActive := m.tabModel.getTabPositions(i)
 
 		if isActive {
-			style = activeStyle
+			style = activeStyle.Copy()
 		} else {
-			style = inactiveStyle
+			style = inactiveStyle.Copy()
 		}
 		border, _, _, _, _ := style.GetBorder()
 		if isFirst && isActive {

@@ -9,8 +9,6 @@ var (
 	WindowWidth, WindowHeight = windowutil.GetWindowSize()
 )
 
-const tabViewProportionPercentage int = 10
-
 var (
 	resourceSectionDescriptionStyle = lipgloss.NewStyle()
 
@@ -27,8 +25,9 @@ var (
 			Background(lipgloss.Color("#ffb1b5")).
 			Foreground(lipgloss.Color("#322223"))
 
-	dimmedInactiveTabStyle = inactiveTabStyle.
-				Copy().
+	dimmedInactiveTabStyle = lipgloss.NewStyle().
+				Border(inactiveTabBorder, true).
+				Padding(0, 1).
 				BorderForeground(dimmHighlightColor).
 				Foreground(dimmHighlightColor)
 
@@ -47,6 +46,7 @@ var (
 			Width(WindowWidth)
 	windowStyle = lipgloss.NewStyle().
 			BorderForeground(highlightColor).
+			Padding(2, 0).
 			Align(lipgloss.Center, lipgloss.Center).
 			Border(lipgloss.NormalBorder()).
 			UnsetBorderTop()
