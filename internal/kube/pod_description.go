@@ -2,7 +2,6 @@ package kube
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"net"
 	"reflect"
@@ -53,10 +52,10 @@ func NewPodDescription(c *ClientReady, podID string) PodDescription {
 		Status:        newPodStatus(pod),
 		Labels:        ResourceLabels(pod.Labels),
 		Annotations:   ResourceAnnotations(pod.Annotations),
-		Volumes:       newPodVolumes(pod),
-		Containers:    newPodContainers(pod),
-		NodeSelectors: newPodNodeSelector(pod),
-		Tolerations:   newPodTolerations(pod),
+		Volumes:       PodVolumes(pod.Spec.Volumes),
+		Containers:    PodContainers(pod.Spec.Containers),
+		NodeSelectors: PodNodeSelector(pod.Spec.NodeSelector),
+		Tolerations:   PodTolerations(pod.Spec.Tolerations),
 	}
 }
 
@@ -163,79 +162,7 @@ func (ps PodStatus) TabContent() string {
 	return t.Render()
 }
 
-type PodVolumes []corev1.Volume
-
-func newPodVolumes(pod *corev1.Pod) PodVolumes {
-	return PodVolumes(pod.Spec.Volumes)
-}
-
-func (pv PodVolumes) TabContent() string {
-	t := table.New()
-	t.Rows(mapToTableRows(
-		pv.volumeSourceSliceToMap())...)
-	t.StyleFunc(uistyles.ColorizeTabKey)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
-}
-
-type VolumeDetails struct {
-	Name    string
-	Source  string
-	Details interface{}
-}
-
-func (pv PodVolumes) volumeSourceSliceToMap() map[string]string {
-	return lo.SliceToMap(pv, func(item corev1.Volume) (string, string) {
-		marshaled, err := json.Marshal(item.VolumeSource)
-		if err != nil {
-			logging.Log.Error(err)
-		}
-		return item.Name, string(marshaled)
-	})
-}
-
-// func removeNilSources(item map[string]interface{}, _ int) VolumeDetails {
-// 	volume := lo.Entries(item)[0]
-// 	logging.Log.Info("key ->> ", volume.Key)
-// 	logging.Log.Info("value ->> ", volume.Value)
-
-// 	var withoutNilSources = map[string]interface{}{}
-
-// 	for k, v := range item {
-// 		logging.Log.Info(k, "  ", v)
-
-// 		withoutNilSource, ok := v.(map[string]interface{})
-// 		if ok {
-// 			withoutNilSources[k] = withoutNilSource
-// 		}
-// 	}
-
-// 	volumeSource := lo.Entries(withoutNilSources)[0]
-// 	return VolumeDetails{
-// 		Name:    volume.Key,
-// 		Source:  volumeSource.Key,
-// 		Details: volumeSource.Value,
-// 	}
-// }
-
-// func (pv PodVolumes) extractVolumeDetails() []VolumeDetails {
-// 	return lo.Map(pv.volumeSourceSliceToMap(), removeNilSources)
-// }
-
-// func (pv PodVolumes) podVolumesToTableRowMap() map[string]string {
-// 	volumeDetails := pv.extractVolumeDetails()
-
-// 	return lo.SliceToMap(volumeDetails,
-// 		func(item VolumeDetails) (string, string) {
-// 			return item.Name, fmt.Sprintf("%s :: %v", item.Source, item.Details)
-// 		})
-// }
-
 type PodContainers []corev1.Container
-
-func newPodContainers(pod *corev1.Pod) PodContainers {
-	return PodContainers(pod.Spec.Containers)
-}
 
 func (pc PodContainers) TabContent() string {
 	t := table.New()
@@ -254,10 +181,6 @@ func (pc PodContainers) podContainerToTableRows() [][]string {
 
 type PodNodeSelector map[string]string
 
-func newPodNodeSelector(pod *corev1.Pod) PodNodeSelector {
-	return PodNodeSelector(pod.Spec.NodeSelector)
-}
-
 func (pn PodNodeSelector) TabContent() string {
 	t := table.New()
 
@@ -268,10 +191,6 @@ func (pn PodNodeSelector) TabContent() string {
 }
 
 type PodTolerations []corev1.Toleration
-
-func newPodTolerations(pod *corev1.Pod) PodTolerations {
-	return PodTolerations(pod.Spec.Tolerations)
-}
 
 func (pt PodTolerations) podTolerationsToTableRows() [][]string {
 	return lo.Map(pt,
