@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/client-go/util/homedir"
@@ -29,7 +30,7 @@ func FetchKubeConfig() *api.Config {
 	return config
 }
 
-func NewKubeClient(context string) *kubernetes.Clientset {
+func NewKubeRestConfig(context string) *rest.Config {
 	var overrides *clientcmd.ConfigOverrides
 
 	if context != "" {
@@ -45,6 +46,11 @@ func NewKubeClient(context string) *kubernetes.Clientset {
 	if err != nil {
 		logging.Log.Error(err)
 	}
+	return clientConfig
+}
+
+func NewKubeClient(context string) *kubernetes.Clientset {
+	clientConfig := NewKubeRestConfig(context)
 
 	clientConfig.Timeout = ResquestTimeout
 	client, err := kubernetes.NewForConfig(clientConfig)
