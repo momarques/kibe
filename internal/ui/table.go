@@ -10,7 +10,7 @@ import (
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
-const tableViewHeightPercentage int = 30
+const tableViewHeightPercentage int = 32
 
 func newTableModel() table.Model {
 	t := table.New(

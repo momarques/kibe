@@ -25,5 +25,6 @@ func (m CoreUI) paginatorModelView() string {
 	return uistyles.PaginatorStyle.
 		Copy().
 		MarginRight(35).
+		MarginBottom(1).
 		Render(m.paginatorModel.View())
 }

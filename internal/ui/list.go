@@ -23,7 +23,6 @@ func newlistModel(s *listSelector) list.Model {
 	l.Styles.FilterCursor = uistyles.ListFilterCursorStyle.Copy()
 	l.InfiniteScrolling = false
 	l.KeyMap.Quit = bindings.New("quit", "q", "ctrl+c")
-
 	return l
 }
 

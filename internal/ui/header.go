@@ -28,8 +28,6 @@ func (s *listSelector) updateHeader(title string) tea.Cmd {
 	}
 }
 
-// itemCount: fmt.Sprintf("%d items", itemCount)}
-
 func (m CoreUI) headerModelView() string {
 	titleStyle := uistyles.
 		ViewTitleStyle.
@@ -42,7 +40,7 @@ func (m CoreUI) headerModelView() string {
 		Foreground(lipgloss.Color("#685e59")).
 		MarginTop(1).
 		MarginLeft(2).
-		MarginBottom(2)
+		MarginBottom(1)
 
 	return lipgloss.JoinVertical(lipgloss.Left,
 		titleStyle.Render(string(m.headerModel.text)),
