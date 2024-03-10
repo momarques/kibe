@@ -7,6 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"github.com/samber/lo"
 	"github.com/wesovilabs/koazee"
 	"github.com/wesovilabs/koazee/stream"
@@ -17,8 +18,9 @@ type statusLogModel struct {
 }
 
 type statusLogMessage struct {
-	text     string
-	duration time.Duration
+	duration  time.Duration
+	text      string
+	timestamp time.Time
 }
 
 func newStatusLogModel() statusLogModel {
@@ -33,8 +35,9 @@ func newStatusLogModel() statusLogModel {
 func (m CoreUI) logProcess(text string, duration time.Duration) tea.Cmd {
 	return func() tea.Msg {
 		return statusLogMessage{
-			text:     text,
-			duration: duration,
+			duration:  duration,
+			text:      text,
+			timestamp: time.Now(),
 		}
 	}
 }
@@ -53,14 +56,18 @@ func (m CoreUI) updateStatusLog(msg tea.Msg) tea.Model {
 func (s statusLogModel) String() []string {
 	logStream := s.logMsgStream.Out().Val().([]statusLogMessage)
 
-	return lo.Map(logStream, func(item statusLogMessage, _ int) string {
-		var text = item.text
+	return lo.Map(logStream, func(item statusLogMessage, index int) string {
 		var duration string
+		var text string = item.text
+		var timestamp string
 
 		if item.duration > 0 {
+			timestamp = item.timestamp.Format(time.DateTime)
 			duration = fmt.Sprintf(" %dms", item.duration.Milliseconds())
 		}
-		return text + duration
+		return lipgloss.NewStyle().
+			Foreground(uistyles.StatusLogMessages[index]).
+			Render(timestamp + " " + text + duration)
 	})
 }
 

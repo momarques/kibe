@@ -46,7 +46,8 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, m.tableKeyMap.Describe):
 				selectedResource := m.tableModel.SelectedRow()
 
-				m.tabModel.Tabs, m.tabModel.TabContent = m.tabModel.describeResource(m.client, selectedResource[0])
+				m.tabModel.Tabs, m.tabModel.TabContent = m.tabModel.
+					describeResource(m.client, selectedResource[0])
 				m.viewState = showTab
 				return m, nil
 
@@ -89,8 +90,7 @@ func (m CoreUI) tableModelView() string {
 	if m.viewState == showTab {
 		tableStyle = uistyles.DimmedTableStyle
 		m.tableModel.SetStyles(uistyles.NewTableStyle(true))
-		return tableStyle.
-			Render(m.tableModel.View())
+		return tableStyle.Render(m.tableModel.View())
 	}
 	return tableStyle.Render(m.tableModel.View())
 }
