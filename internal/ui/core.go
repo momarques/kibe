@@ -39,6 +39,7 @@ type CoreUI struct {
 	helpModel      help.Model
 	statusbarModel statusbar.Model
 	syncBarModel   syncBarModel
+	statusLogModel
 }
 
 func NewUI() CoreUI {
@@ -60,6 +61,7 @@ func NewUI() CoreUI {
 		headerModel:    headerModel{},
 		helpModel:      help.New(),
 		statusbarModel: newStatusBarModel(),
+		statusLogModel: newStatusLogModel(),
 		syncBarModel:   newSyncBarModel(),
 	}
 }
@@ -72,15 +74,17 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg.(type) {
 	case tea.QuitMsg:
 		return m, tea.Quit
+	case statusLogMessage:
+		return m.updateStatusLog(msg), nil
 	}
 
 	switch m.viewState {
 	case showList:
-		return m.updatelistModel(msg)
+		return m.updateListModel(msg)
 	case showTable:
-		return m.updatetableModel(msg)
+		return m.updateTableModel(msg)
 	case showTab:
-		return m.updatetabModel(msg)
+		return m.updateTabModel(msg)
 	}
 	return m, nil
 }
@@ -133,16 +137,20 @@ func (m CoreUI) composedView() string {
 		m.paginatorModelView(),
 		m.syncBarModelView(),
 	)
-
-	return lipgloss.JoinVertical(
-		lipgloss.Left,
-		m.headerModelView(),
-		m.tableModelView(),
+	bottomPanel := lipgloss.JoinVertical(lipgloss.Left,
 		m.tabModelView(),
 		lipgloss.JoinHorizontal(
 			lipgloss.Left,
 			leftUtilityPanel,
 			helpView,
-		),
+		))
+
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		m.headerModelView(),
+		m.tableModelView(),
+		lipgloss.JoinHorizontal(lipgloss.Center,
+			bottomPanel,
+			m.statusLogModelView()),
 		m.statusbarModel.View())
 }

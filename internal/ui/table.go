@@ -23,7 +23,7 @@ func newTableModel() table.Model {
 	return t
 }
 
-func (m CoreUI) updatetableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch m.tableContent.syncState {

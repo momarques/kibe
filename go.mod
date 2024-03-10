@@ -73,6 +73,7 @@ require (
 	github.com/rivo/uniseg v0.4.6 // indirect
 	github.com/sahilm/fuzzy v0.1.1-0.20230530133925-c48e322e2a8f // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/wesovilabs/koazee v0.0.5 // indirect
 	github.com/xlab/treeprint v1.2.0 // indirect
 	github.com/yuin/goldmark v1.5.6 // indirect
 	github.com/yuin/goldmark-emoji v1.0.2 // indirect

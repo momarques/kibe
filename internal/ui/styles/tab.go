@@ -42,14 +42,15 @@ var (
 
 	DocStyle = lipgloss.NewStyle().
 			Padding(0).
-			MarginLeft(2).
-			Width(WindowWidth)
+			MarginLeft(2)
+		// MarginRight(20).
+		// Width(WindowWidth - 60)
 	windowStyle = lipgloss.NewStyle().
 			BorderForeground(highlightColor).
 			Padding(2, 0).
-			Align(lipgloss.Center, lipgloss.Center).
-			Border(lipgloss.NormalBorder()).
-			UnsetBorderTop()
+		// Align(lipgloss.Center, lipgloss.Center).
+		Border(lipgloss.NormalBorder()).
+		UnsetBorderTop()
 )
 
 func tabBorderWithBottom(left, middle, right string) lipgloss.Border {

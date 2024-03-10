@@ -8,6 +8,7 @@ import (
 	"github.com/momarques/kibe/internal/logging"
 	core "github.com/momarques/kibe/internal/ui"
 	"github.com/spf13/cobra"
+	"github.com/wesovilabs/koazee"
 )
 
 var RootCmd = &cobra.Command{
@@ -47,7 +48,14 @@ var testCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Used for testing layouts without needing to execute the whole program",
 	Run: func(cmd *cobra.Command, args []string) {
+		var t = []string{"teste 1", "teste 2", "teste 3", "teste 4", "teste 5", "teste 6"}
 
+		stream := koazee.StreamOf(t)
+		fmt.Println(stream.Out().Val())
+
+		stream = stream.Add("teste 7")
+		_, stream = stream.Pop()
+		fmt.Println(stream.Do().Out().Val())
 	},
 }
 

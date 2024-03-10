@@ -13,6 +13,7 @@ import (
 
 const tabViewShowedHeightPercentage int = 36
 const tabViewHiddenHeightPercentage int = 44
+const tabViewHiddenWidthPercentage int = 65
 
 type tabModel struct {
 	Tabs       []string
@@ -25,7 +26,7 @@ func newTabModel() tabModel {
 	return tabModel{}
 }
 
-func (m CoreUI) updatetabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updateTabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
@@ -50,6 +51,7 @@ func (m CoreUI) tabModelView() string {
 	if m.tabModel.Tabs == nil {
 		return lipgloss.NewStyle().
 			Height(windowutil.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
+			Width(windowutil.ComputeWidthPercentage(tabViewHiddenWidthPercentage)).
 			Render("")
 	}
 

@@ -29,19 +29,31 @@ type lastSync time.Time
 
 func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
+	var logMsg string
+	var fetchDuration time.Duration
 
 	m.syncState = syncing
 	m.syncBarModel = m.changeSyncState()
 
-	m.tableContent.columns, m.tableContent.rows = m.client.FetchTableView()
-	m.tableContent.paginatorModel.SetTotalPages(len(m.tableContent.rows))
+	now := time.Now()
+	fetchDuration = func() time.Duration {
 
-	m.paginatorModel, _ = m.paginatorModel.Update(msg)
-	m.tableModel, cmd = m.applyTableItems(m.tableModel)
+		m.tableContent.columns, m.tableContent.rows, logMsg = m.client.FetchTableView()
+		m.tableContent.paginatorModel.SetTotalPages(len(m.tableContent.rows))
 
-	return m, tea.Batch(cmd, m.syncBarModel.spinner.Tick, func() tea.Msg {
-		return lastSync(time.Now())
-	})
+		m.paginatorModel, _ = m.paginatorModel.Update(msg)
+		m.tableModel, cmd = m.applyTableItems(m.tableModel)
+
+		return time.Since(now)
+	}()
+
+	return m, tea.Batch(
+		cmd,
+		m.syncBarModel.spinner.Tick,
+		m.logProcess(logMsg, fetchDuration),
+		func() tea.Msg {
+			return lastSync(time.Now())
+		})
 }
 
 func startSyncing(t time.Time) tea.Msg {

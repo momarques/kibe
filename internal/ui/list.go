@@ -26,7 +26,7 @@ func newlistModel(s *listSelector) list.Model {
 	return l
 }
 
-func (m CoreUI) updatelistModel(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
