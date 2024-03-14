@@ -28,6 +28,8 @@ type CoreUI struct {
 	listModel list.Model
 	*listSelector
 
+	enabledKeys
+
 	tableModel table.Model
 	*tableContent
 	tableKeyMap
@@ -45,17 +47,22 @@ type CoreUI struct {
 func NewUI() CoreUI {
 	selector := newListSelector()
 
+	tableKeyMap := newTableKeyMap()
+	tabKeyMap := newTabKeyMap()
+
 	return CoreUI{
 		viewState: showList,
 
 		listSelector: selector,
 		listModel:    newlistModel(selector),
 
+		enabledKeys: setKeys(tableKeyMap, tabKeyMap),
+
 		tableContent: newTableContent(),
-		tableKeyMap:  newTableKeyMap(),
+		tableKeyMap:  tableKeyMap,
 		tableModel:   newTableModel(),
 
-		tabKeyMap: newTabKeyMap(),
+		tabKeyMap: tabKeyMap,
 		tabModel:  newTabModel(),
 
 		headerModel:    headerModel{},
@@ -82,8 +89,15 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case showList:
 		return m.updateListModel(msg)
 	case showTable:
+		m.enabledKeys = m.setEnabled(m.tableKeyMap.fullHelp()...)
 		return m.updateTableModel(msg)
 	case showTab:
+		switch m.tabModel.tabViewState {
+		case contentSelected:
+			m.enabledKeys = m.setEnabled(m.tabKeyMap.fullHelp()...)
+		case noContentSelected:
+			m.enabledKeys = m.setEnabled(m.tabKeyMap.fullHelpWithContentSelected()...)
+		}
 		return m.updateTabModel(msg)
 	}
 	return m, nil
@@ -118,14 +132,24 @@ func (m CoreUI) composedView() string {
 
 	switch m.viewState {
 	case showTable:
-		helpBindingLines = append(helpBindingLines,
+		helpBindingLines = [][]key.Binding{
 			m.tableKeyMap.firstHelpLineView(),
-			m.tableKeyMap.secondHelpLineView())
+			m.tableKeyMap.secondHelpLineView(),
+		}
 
 	case showTab:
-		helpBindingLines = append(helpBindingLines,
-			m.tabKeyMap.firstHelpLineView(),
-			m.tabKeyMap.secondHelpLineView())
+		switch m.tabModel.tabViewState {
+		case noContentSelected:
+			helpBindingLines = [][]key.Binding{
+				m.tabKeyMap.firstHelpLineView(),
+				m.tabKeyMap.secondHelpLineView(),
+			}
+		case contentSelected:
+			helpBindingLines = [][]key.Binding{
+				m.tabKeyMap.firstHelpLineViewWithContentSelected(),
+				m.tabKeyMap.secondHelpLineView(),
+			}
+		}
 	}
 
 	helpView := lipgloss.JoinVertical(
@@ -137,6 +161,7 @@ func (m CoreUI) composedView() string {
 		m.paginatorModelView(),
 		m.syncBarModelView(),
 	)
+
 	bottomPanel := lipgloss.JoinVertical(lipgloss.Left,
 		m.tabModelView(),
 		lipgloss.JoinHorizontal(

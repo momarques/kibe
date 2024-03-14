@@ -17,7 +17,7 @@ type tableContent struct {
 func newTableContent() *tableContent {
 	return &tableContent{
 		syncState:      unsynced,
-		paginatorModel: newPaginatorModel(),
+		paginatorModel: newPaginatorModel(15),
 	}
 }
 

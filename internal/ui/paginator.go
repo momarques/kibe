@@ -6,11 +6,11 @@ import (
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
-func newPaginatorModel() paginator.Model {
+func newPaginatorModel(itemsPerPage int) paginator.Model {
 
 	p := paginator.New()
 	p.Type = paginator.Dots
-	p.PerPage = 16
+	p.PerPage = itemsPerPage
 	p.ActiveDot = lipgloss.NewStyle().
 		Foreground(lipgloss.AdaptiveColor{Light: "235", Dark: "#ffb1b5"}).
 		Render("•")

@@ -46,10 +46,8 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, m.tableKeyMap.Describe):
 				selectedResource := m.tableModel.SelectedRow()
 
-				m.tabModel.Tabs, m.tabModel.TabContent = m.tabModel.
-					describeResource(m.client, selectedResource[0])
-				m.viewState = showTab
-				return m, nil
+				m.tabModel, cmd = m.tabModel.describeResource(m.client, selectedResource[0])
+				return m, cmd
 
 			case key.Matches(msg, m.tableKeyMap.PreviousPage, m.tableKeyMap.NextPage):
 				m.paginatorModel, _ = m.paginatorModel.Update(msg)
@@ -57,6 +55,11 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 				return m, cmd
 			}
+
+		case descriptionReady:
+			m.viewState = showTab
+			m.tabModel.Tabs, m.tabModel.TabContent = msg.tabNames, msg.tabContent
+			return m, nil
 
 		case headerItemCountUpdated:
 			m.headerModel.itemCount = msg
