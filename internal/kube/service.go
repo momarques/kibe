@@ -12,7 +12,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type Service struct{ kind string }
+type Service struct{ id, kind string }
 
 func NewServiceResource() *Service { return &Service{kind: "Service"} }
 func (s *Service) Kind() string    { return s.kind }

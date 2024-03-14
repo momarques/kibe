@@ -44,7 +44,7 @@ type PodDescription struct {
 	Events        []string            `kibedescription:"Events"`
 }
 
-func NewPodDescription(c *ClientReady, podID string) PodDescription {
+func (p Pod) FetchDescription(c *ClientReady, podID string) ResourceDescription {
 	pod := DescribePod(c, podID)
 
 	return PodDescription{
@@ -61,6 +61,20 @@ func NewPodDescription(c *ClientReady, podID string) PodDescription {
 
 func (pd PodDescription) TabNames() []string {
 	return LookupStructFieldNames(reflect.TypeOf(pd))
+}
+
+func (pd PodDescription) TabContent() []string {
+	return []string{
+		pd.Overview.TabContent(),
+		pd.Status.TabContent(),
+		pd.Labels.TabContent(),
+		pd.Annotations.TabContent(),
+		pd.Volumes.TabContent(),
+		pd.Containers.TabContent(),
+		pd.NodeSelectors.TabContent(),
+		pd.Tolerations.TabContent(),
+		"",
+	}
 }
 
 // PodOverview provides basic information about the pod

@@ -19,10 +19,14 @@ var SupportedResources = []Resource{
 	NewServiceResource(),
 }
 
-type Resource interface{ Kind() string }
+type Resource interface {
+	FetchDescription(*ClientReady, string) ResourceDescription
+	Kind() string
+}
 
-type ResourceSectionDescription interface {
+type ResourceDescription interface {
 	TabNames() []string
+	TabContent() []string
 }
 
 type SelectResource struct{ Resources []list.Item }

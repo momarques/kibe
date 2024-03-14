@@ -22,7 +22,7 @@ const (
 	ageColumnWidthPercentage      int = 8
 )
 
-type Pod struct{ kind string }
+type Pod struct{ id, kind string }
 
 func NewPodResource() *Pod  { return &Pod{kind: "Pod"} }
 func (p *Pod) Kind() string { return p.kind }
