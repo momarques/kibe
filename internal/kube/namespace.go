@@ -12,12 +12,15 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type Namespace struct{ kind string }
+type Namespace struct {
+	kind       string
+	namespaces []corev1.Namespace
+}
 
-func NewNamespaceResource() *Namespace { return &Namespace{kind: "Namespace"} }
-func (n *Namespace) Kind() string      { return n.kind }
+func NewNamespaceResource() Namespace { return Namespace{kind: "Namespace"} }
+func (n Namespace) Kind() string      { return n.kind }
 
-func ListNamespaces(c *ClientReady) []corev1.Namespace {
+func (n Namespace) List(c *ClientReady) Resource {
 	namespaces, err := c.Client.
 		CoreV1().
 		Namespaces().
@@ -25,18 +28,19 @@ func ListNamespaces(c *ClientReady) []corev1.Namespace {
 	if err != nil {
 		logging.Log.Error(err)
 	}
-	return namespaces.Items
+	n.namespaces = namespaces.Items
+	return n
 }
 
-func ListNamespaceColumns(namespaces []corev1.Namespace) (namespaceAttributes []table.Column) {
+func (n Namespace) Columns() (namespaceAttributes []table.Column) {
 	return append(namespaceAttributes,
-		table.Column{Title: "Name", Width: namespaceFieldWidth(namespaces)},
+		table.Column{Title: "Name", Width: n.namespaceFieldWidth()},
 		table.Column{Title: "Age", Width: 20},
 	)
 }
 
-func RetrieveNamespaceListAsTableRows(namespaces []corev1.Namespace) (namespaceRows []table.Row) {
-	for _, ns := range namespaces {
+func (n Namespace) Rows() (namespaceRows []table.Row) {
+	for _, ns := range n.namespaces {
 		namespaceRows = append(namespaceRows,
 			table.Row{
 				ns.Name,
@@ -48,8 +52,8 @@ func RetrieveNamespaceListAsTableRows(namespaces []corev1.Namespace) (namespaceR
 	return namespaceRows
 }
 
-func namespaceFieldWidth(namespaces []corev1.Namespace) int {
-	return lo.Reduce(namespaces,
+func (n Namespace) namespaceFieldWidth() int {
+	return lo.Reduce(n.namespaces,
 		func(width int, ns corev1.Namespace, _ int) int {
 			if len(ns.Name) > width {
 				return len(ns.Name)
@@ -62,9 +66,10 @@ type SelectNamespace struct{ Namespaces []list.Item }
 type NamespaceSelected struct{ NS string }
 
 func NewSelectNamespace(c *ClientReady) func() tea.Msg {
+	n := Namespace{}.List(c)
 	return func() tea.Msg {
 		return SelectNamespace{
-			Namespaces: newNamespaceList(c)}
+			Namespaces: n.(Namespace).newNamespaceList(c)}
 	}
 }
 
@@ -74,19 +79,13 @@ func (ni NamespaceItem) Title() string       { return "Namespace: " + ni.name }
 func (ni NamespaceItem) FilterValue() string { return ni.name }
 func (ni NamespaceItem) Description() string { return "" }
 
-func newNamespaceList(c *ClientReady) []list.Item {
-	namespaces := ListNamespaces(c)
-
+func (n Namespace) newNamespaceList(c *ClientReady) []list.Item {
 	namespaceList := []list.Item{}
 
-	for _, ns := range namespaces {
+	for _, ns := range n.namespaces {
 		namespaceList = append(namespaceList, NamespaceItem{
 			name: ns.Name,
 		})
 	}
 	return namespaceList
-}
-
-func NamespacesAsList(c *ClientReady) ([]list.Item, error) {
-	return newNamespaceList(c), nil
 }

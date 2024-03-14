@@ -12,12 +12,15 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type Service struct{ id, kind string }
+type Service struct {
+	kind     string
+	services []corev1.Service
+}
 
-func NewServiceResource() *Service { return &Service{kind: "Service"} }
-func (s *Service) Kind() string    { return s.kind }
+func NewServiceResource() Service { return Service{kind: "Service"} }
+func (s Service) Kind() string    { return s.kind }
 
-func ListServices(c *ClientReady) []corev1.Service {
+func (s Service) List(c *ClientReady) Resource {
 	services, err := c.Client.
 		CoreV1().
 		Services(c.Namespace.NS).
@@ -25,21 +28,22 @@ func ListServices(c *ClientReady) []corev1.Service {
 	if err != nil {
 		logging.Log.Error(err)
 	}
-	return services.Items
+	s.services = services.Items
+	return s
 }
-func ListServiceColumns(services []corev1.Service) (serviceAttributes []table.Column) {
+func (s Service) Columns() (serviceAttributes []table.Column) {
 	return append(serviceAttributes,
-		table.Column{Title: "Name", Width: serviceFieldWidth("Name", services)},
-		table.Column{Title: "Type", Width: serviceFieldWidth("Type", services)},
-		table.Column{Title: "ClusterIP", Width: serviceFieldWidth("ClusterIP", services)},
-		table.Column{Title: "ExternalIP", Width: serviceFieldWidth("ExternalIP", services)},
-		table.Column{Title: "Ports", Width: serviceFieldWidth("Ports", services)},
+		table.Column{Title: "Name", Width: serviceFieldWidth("Name", s.services)},
+		table.Column{Title: "Type", Width: serviceFieldWidth("Type", s.services)},
+		table.Column{Title: "ClusterIP", Width: serviceFieldWidth("ClusterIP", s.services)},
+		table.Column{Title: "ExternalIP", Width: serviceFieldWidth("ExternalIP", s.services)},
+		table.Column{Title: "Ports", Width: serviceFieldWidth("Ports", s.services)},
 		table.Column{Title: "Age", Width: 20},
 	)
 }
 
-func RetrieveServiceListAsTableRows(services []corev1.Service) (serviceRows []table.Row) {
-	for _, svc := range services {
+func (s Service) Rows() (serviceRows []table.Row) {
+	for _, svc := range s.services {
 
 		serviceRows = append(serviceRows,
 			table.Row{

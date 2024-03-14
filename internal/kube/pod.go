@@ -22,12 +22,15 @@ const (
 	ageColumnWidthPercentage      int = 8
 )
 
-type Pod struct{ id, kind string }
+type Pod struct {
+	kind string
+	pods []corev1.Pod
+}
 
-func NewPodResource() *Pod  { return &Pod{kind: "Pod"} }
-func (p *Pod) Kind() string { return p.kind }
+func NewPodResource() Pod  { return Pod{kind: "Pod"} }
+func (p Pod) Kind() string { return p.kind }
 
-func ListPods(c *ClientReady) []corev1.Pod {
+func (p Pod) List(c *ClientReady) Resource {
 	pods, err := c.Client.
 		CoreV1().
 		Pods(c.Namespace.NS).
@@ -35,10 +38,11 @@ func ListPods(c *ClientReady) []corev1.Pod {
 	if err != nil {
 		logging.Log.Error(err)
 	}
-	return pods.Items
+	p.pods = pods.Items
+	return p
 }
 
-func ListPodColumns(pods []corev1.Pod) (podAttributes []table.Column) {
+func (p Pod) Columns() (podAttributes []table.Column) {
 	var (
 		nameColumnWidth     int = windowutil.ComputeWidthPercentage(nameColumnWidthPercentage)
 		readyColumnWidth    int = windowutil.ComputeWidthPercentage(readyColumnWidthPercentage)
@@ -58,8 +62,8 @@ func ListPodColumns(pods []corev1.Pod) (podAttributes []table.Column) {
 	)
 }
 
-func RetrievePodListAsTableRows(pods []corev1.Pod) (podRows []table.Row) {
-	for _, pod := range pods {
+func (p Pod) Rows() (podRows []table.Row) {
+	for _, pod := range p.pods {
 		podRows = append(podRows,
 			table.Row{
 				pod.Name,

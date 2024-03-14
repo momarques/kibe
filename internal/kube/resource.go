@@ -4,9 +4,10 @@ import (
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
+	tableObject "github.com/charmbracelet/lipgloss/table"
 	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"github.com/samber/lo"
@@ -22,6 +23,10 @@ var SupportedResources = []Resource{
 type Resource interface {
 	FetchDescription(*ClientReady, string) ResourceDescription
 	Kind() string
+
+	List(*ClientReady) Resource
+	Columns() []table.Column
+	Rows() []table.Row
 }
 
 type ResourceDescription interface {
@@ -83,7 +88,7 @@ func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {
 type ResourceLabels map[string]string
 
 func (rl ResourceLabels) TabContent() string {
-	t := table.New()
+	t := tableObject.New()
 	t.Rows(mapToTableRows(rl)...)
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())
@@ -94,7 +99,7 @@ func (rl ResourceLabels) TabContent() string {
 type ResourceAnnotations map[string]string
 
 func (ra ResourceAnnotations) TabContent() string {
-	t := table.New()
+	t := tableObject.New()
 	t.Rows([]string{})
 	t.StyleFunc(uistyles.ColorizeTabKey)
 	t.Border(lipgloss.HiddenBorder())

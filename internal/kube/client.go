@@ -1,6 +1,7 @@
 package kube
 
 import (
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -92,22 +93,8 @@ func (c *ClientReady) WithResource(r Resource) *ClientReady {
 }
 
 func (c *ClientReady) FetchTableView() ([]table.Column, []table.Row, string) {
-	switch c.ResourceSelected.R.(type) {
-	case *Pod:
-		pods := ListPods(c)
-		podColumns := ListPodColumns(pods)
-
-		return podColumns, RetrievePodListAsTableRows(pods), "pods listed"
-	case *Namespace:
-		ns := ListNamespaces(c)
-		nsColumns := ListNamespaceColumns(ns)
-
-		return nsColumns, RetrieveNamespaceListAsTableRows(ns), "namespaces listed"
-	case *Service:
-		svc := ListServices(c)
-		svcColumns := ListServiceColumns(svc)
-
-		return svcColumns, RetrieveServiceListAsTableRows(svc), "services listed"
-	}
-	return nil, nil, ""
+	resource := c.R.List(c)
+	return resource.Columns(),
+		resource.Rows(),
+		fmt.Sprintf("%ss listed", resource.Kind())
 }
