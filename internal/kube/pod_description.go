@@ -45,7 +45,6 @@ type PodDescription struct {
 }
 
 func (p Pod) Describe(c *ClientReady, podID string) ResourceDescription {
-	logging.Log.Info("Describing pod")
 	pod := DescribePod(c, podID)
 
 	return PodDescription{
