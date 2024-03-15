@@ -3,7 +3,6 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
@@ -24,12 +23,10 @@ type CoreUI struct {
 
 	client *kube.ClientReady
 
-	keys         enabledKeys
-	list         list.Model
-	listSelector *listSelector
-	table        tableModel
-	tab          tabModel
-	tabKeys      tabKeyMap
+	keys  enabledKeys
+	list  listModel
+	tab   tabModel
+	table tableModel
 
 	headerModel    headerModel
 	helpModel      help.Model
@@ -39,20 +36,16 @@ type CoreUI struct {
 }
 
 func NewUI() CoreUI {
-	selector := newListSelector()
-
-	tabKeyMap := newTabKeyMap()
 	table := newTableModel()
+	tab := newTabModel()
 
 	return CoreUI{
 		viewState: showList,
 
-		keys:         setKeys(table.tableKeyMap, tabKeyMap),
-		list:         newlistModel(selector),
-		listSelector: selector,
-		table:        table,
-		tab:          newTabModel(),
-		tabKeys:      tabKeyMap,
+		keys:  setKeys(table.tableKeyMap, tab.tabKeyMap),
+		list:  newListModel(),
+		table: table,
+		tab:   tab,
 
 		headerModel:    headerModel{},
 		helpModel:      help.New(),
@@ -83,9 +76,9 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case showTab:
 		switch m.tab.tabViewState {
 		case contentSelected:
-			m.keys = m.keys.setEnabled(m.tabKeys.fullHelp()...)
+			m.keys = m.keys.setEnabled(m.tab.fullHelp()...)
 		case noContentSelected:
-			m.keys = m.keys.setEnabled(m.tabKeys.fullHelpWithContentSelected()...)
+			m.keys = m.keys.setEnabled(m.tab.fullHelpWithContentSelected()...)
 		}
 		return m.updateTabModel(msg)
 	}
@@ -130,13 +123,13 @@ func (m CoreUI) composedView() string {
 		switch m.tab.tabViewState {
 		case noContentSelected:
 			helpBindingLines = [][]key.Binding{
-				m.tabKeys.firstHelpLineView(),
-				m.tabKeys.secondHelpLineView(),
+				m.tab.firstHelpLineView(),
+				m.tab.secondHelpLineView(),
 			}
 		case contentSelected:
 			helpBindingLines = [][]key.Binding{
-				m.tabKeys.firstHelpLineViewWithContentSelected(),
-				m.tabKeys.secondHelpLineView(),
+				m.tab.firstHelpLineViewWithContentSelected(),
+				m.tab.secondHelpLineView(),
 			}
 		}
 	}

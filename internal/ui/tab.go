@@ -24,23 +24,24 @@ const tabViewHiddenHeightPercentage int = 44
 const tabViewHiddenWidthPercentage int = 65
 
 type tabModel struct {
+	paginator paginator.Model
+	kube.ResourceDescription
+	tabKeyMap
 	tabViewState
+
+	activeTab          int
+	dimm               bool
 	Tabs               []string
 	TabContent         []string
 	TabSelectedContent string
 	TabSubContent      []string
-
-	kube.ResourceDescription
-
-	activeTab      int
-	dimm           bool
-	paginatorModel paginator.Model
 }
 
 func newTabModel() tabModel {
 	return tabModel{
-		tabViewState:   noContentSelected,
-		paginatorModel: newPaginatorModel(1),
+		paginator:    newPaginatorModel(1),
+		tabKeyMap:    newTabKeyMap(),
+		tabViewState: noContentSelected,
 	}
 }
 
@@ -50,22 +51,22 @@ func (m CoreUI) updateTabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msg, m.tabKeys.Back):
+			case key.Matches(msg, m.tab.Back):
 				m.viewState = showTable
 				return m.sync(nil)
 
-			case key.Matches(msg, m.tabKeys.Quit):
+			case key.Matches(msg, m.tab.Quit):
 				return m, tea.Quit
 
-			case key.Matches(msg, m.tabKeys.NextTab):
+			case key.Matches(msg, m.tab.NextTab):
 				m.tab.activeTab = min(m.tab.activeTab+1, len(m.tab.Tabs)-1)
 				return m, nil
 
-			case key.Matches(msg, m.tabKeys.PreviousTab):
+			case key.Matches(msg, m.tab.PreviousTab):
 				m.tab.activeTab = max(m.tab.activeTab-1, 0)
 				return m, nil
 
-			case key.Matches(msg, m.tabKeys.Choose):
+			case key.Matches(msg, m.tab.Choose):
 				m.tab.tabViewState = contentSelected
 				return m, nil
 			}
@@ -76,22 +77,22 @@ func (m CoreUI) updateTabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msg, m.tabKeys.Back):
+			case key.Matches(msg, m.tab.Back):
 				m.tab.tabViewState = noContentSelected
 				return m, nil
 
-			case key.Matches(msg, m.tabKeys.Quit):
+			case key.Matches(msg, m.tab.Quit):
 				return m, tea.Quit
 
-			case key.Matches(msg, m.tabKeys.NextContent):
+			case key.Matches(msg, m.tab.NextContent):
 				m.tab.activeTab = min(m.tab.activeTab+1, len(m.tab.Tabs)-1)
 				return m, nil
 
-			case key.Matches(msg, m.tabKeys.PreviousContent):
+			case key.Matches(msg, m.tab.PreviousContent):
 				m.tab.activeTab = max(m.tab.activeTab-1, 0)
 				return m, nil
 
-			case key.Matches(msg, m.tabKeys.Choose):
+			case key.Matches(msg, m.tab.Choose):
 
 			}
 		}
@@ -195,7 +196,7 @@ func (t tabModel) describeResource(c *kube.ClientReady, resourceID string) (tabM
 }
 
 func (t tabModel) fetchSubContent() tabModel {
-	start, end := t.paginatorModel.GetSliceBounds(len(t.TabSubContent))
+	start, end := t.paginator.GetSliceBounds(len(t.TabSubContent))
 
 	t.TabSelectedContent = t.TabSubContent[start:end][0]
 	return t

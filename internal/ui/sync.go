@@ -81,15 +81,15 @@ func (m CoreUI) changeSyncState() syncBarModel {
 	case synced:
 		m.syncBarModel.text = syncedText
 		m.syncBarModel.color = lipgloss.Color(syncedColor)
-		m.listSelector.spinnerState = hideSpinner
+		m.list.spinnerState = hideSpinner
 	case syncing:
 		m.syncBarModel.text = syncingText
 		m.syncBarModel.color = lipgloss.Color(syncingColor)
-		m.listSelector.spinnerState = showSpinner
+		m.list.spinnerState = showSpinner
 	case unsynced:
 		m.syncBarModel.text = unsyncedText
 		m.syncBarModel.color = lipgloss.Color(unsyncedColor)
-		m.listSelector.spinnerState = hideSpinner
+		m.list.spinnerState = hideSpinner
 	}
 	return m.syncBarModel
 }
@@ -98,10 +98,10 @@ func (m CoreUI) syncBarModelView() string {
 	syncStyle := uistyles.ViewTitleStyle.
 		Copy()
 
-	if m.listSelector.spinnerState == showSpinner {
+	if m.list.spinnerState == showSpinner {
 		return syncStyle.
 			Background(m.syncBarModel.color).
-			Render(m.listSelector.spinner.View(), m.syncBarModel.text)
+			Render(m.list.spinner.View(), m.syncBarModel.text)
 	}
 	return syncStyle.
 		Background(m.syncBarModel.color).

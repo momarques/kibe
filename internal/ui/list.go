@@ -12,10 +12,17 @@ import (
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
-func newlistModel(s *listSelector) list.Model {
+type listModel struct {
+	list.Model
+	listSelector
+}
+
+func newListModel() listModel {
+	selector := newListSelector()
+
 	l := list.New(
 		[]list.Item{},
-		newItemDelegate(s), 0, 0)
+		newItemDelegate(selector), 0, 0)
 
 	l.Styles.Title = uistyles.ViewTitleStyle.Copy()
 	l.Styles.HelpStyle = uistyles.HelpStyle.Copy()
@@ -23,7 +30,10 @@ func newlistModel(s *listSelector) list.Model {
 	l.Styles.FilterCursor = uistyles.ListFilterCursorStyle.Copy()
 	l.InfiniteScrolling = false
 	l.KeyMap.Quit = bindings.New("quit", "q", "ctrl+c")
-	return l
+	return listModel{
+		listSelector: selector,
+		Model:        l,
+	}
 }
 
 func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -47,7 +57,7 @@ func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case spinner.TickMsg:
-		m.listSelector.spinner, cmd = m.listSelector.spinner.Update(msg)
+		m.list.spinner, cmd = m.list.spinner.Update(msg)
 		return m, cmd
 
 	case headerTitleUpdated:
@@ -61,26 +71,26 @@ func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case statusBarUpdated:
 		m.statusbarModel.SetContent(
-			"Resource", m.listSelector.resource,
-			fmt.Sprintf("Context: %s", m.listSelector.context),
-			fmt.Sprintf("Namespace: %s", m.listSelector.namespace))
+			"Resource", m.list.resource,
+			fmt.Sprintf("Context: %s", m.list.context),
+			fmt.Sprintf("Namespace: %s", m.list.namespace))
 
 		m.statusbarModel, cmd = m.statusbarModel.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
-	m.list, cmd = m.list.Update(msg)
+	m.list.Model, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
 func (m CoreUI) listView() string {
-	if m.listSelector.spinnerState == showSpinner {
+	if m.list.spinnerState == showSpinner {
 		return lipgloss.JoinVertical(
 			lipgloss.Top,
 			fmt.Sprintf("%s%s",
-				m.listSelector.spinner.View(),
+				m.list.spinner.View(),
 				m.list.View()),
 			m.statusbarModel.View())
 	}

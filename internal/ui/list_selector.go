@@ -23,26 +23,23 @@ const (
 type listSelector struct {
 	clientState
 	spinnerState
-
-	client *kube.ClientReady
-
-	context           string
-	useCurrentContext bool
-	namespace         string
-	resource          string
-
+	client    *kube.ClientReady
+	spinner   spinner.Model
 	chooseKey key.Binding
 
-	spinner spinner.Model
+	context           string
+	namespace         string
+	resource          string
+	useCurrentContext bool
 }
 
-func newListSelector() *listSelector {
+func newListSelector() listSelector {
 	sp := spinner.New(
 		spinner.WithStyle(uistyles.OKStatusMessage),
 	)
 	sp.Spinner = spinner.Dot
 
-	return &listSelector{
+	return listSelector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,
 
@@ -54,7 +51,7 @@ func newListSelector() *listSelector {
 	}
 }
 
-func newItemDelegate(s *listSelector) list.DefaultDelegate {
+func newItemDelegate(s listSelector) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
 	d.UpdateFunc = s.update
@@ -144,15 +141,15 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		s.spinner.Tick)
 }
 
-func (s *listSelector) contextSelected(context string) func() tea.Msg {
+func (s listSelector) contextSelected(context string) func() tea.Msg {
 	return func() tea.Msg { return kube.ContextSelected(context) }
 }
 
-func (s *listSelector) namespaceSelected(namespace string) func() tea.Msg {
+func (s listSelector) namespaceSelected(namespace string) func() tea.Msg {
 	return func() tea.Msg { return kube.NamespaceSelected(namespace) }
 }
 
-func (s *listSelector) resourceSelected() func() tea.Msg {
+func (s listSelector) resourceSelected() func() tea.Msg {
 	r, _ := lo.Find(kube.SupportedResources,
 		func(item kube.Resource) bool {
 			switch item.Kind() {
@@ -165,7 +162,7 @@ func (s *listSelector) resourceSelected() func() tea.Msg {
 	return func() tea.Msg { return r }
 }
 
-func (s *listSelector) clientReady() func() tea.Msg {
+func (s listSelector) clientReady() func() tea.Msg {
 	return func() tea.Msg { return s.client }
 }
 
