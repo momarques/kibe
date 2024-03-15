@@ -28,7 +28,6 @@ type CoreUI struct {
 	list         list.Model
 	listSelector *listSelector
 	table        tableModel
-	tableKeys    tableKeyMap
 	tab          tabModel
 	tabKeys      tabKeyMap
 
@@ -42,17 +41,16 @@ type CoreUI struct {
 func NewUI() CoreUI {
 	selector := newListSelector()
 
-	tableKeyMap := newTableKeyMap()
 	tabKeyMap := newTabKeyMap()
+	table := newTableModel()
 
 	return CoreUI{
 		viewState: showList,
 
-		keys:         setKeys(tableKeyMap, tabKeyMap),
+		keys:         setKeys(table.tableKeyMap, tabKeyMap),
 		list:         newlistModel(selector),
 		listSelector: selector,
-		table:        newTableModel(),
-		tableKeys:    tableKeyMap,
+		table:        table,
 		tab:          newTabModel(),
 		tabKeys:      tabKeyMap,
 
@@ -80,7 +78,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case showList:
 		return m.updateListModel(msg)
 	case showTable:
-		m.keys = m.keys.setEnabled(m.tableKeys.fullHelp()...)
+		m.keys = m.keys.setEnabled(m.table.fullHelp()...)
 		return m.updateTableModel(msg)
 	case showTab:
 		switch m.tab.tabViewState {
@@ -124,8 +122,8 @@ func (m CoreUI) composedView() string {
 	switch m.viewState {
 	case showTable:
 		helpBindingLines = [][]key.Binding{
-			m.tableKeys.firstHelpLineView(),
-			m.tableKeys.secondHelpLineView(),
+			m.table.firstHelpLineView(),
+			m.table.secondHelpLineView(),
 		}
 
 	case showTab:

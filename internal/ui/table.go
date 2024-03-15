@@ -15,6 +15,7 @@ const tableViewHeightPercentage int = 32
 
 type tableModel struct {
 	tableContent
+	tableKeyMap
 	table.Model
 }
 
@@ -29,6 +30,7 @@ func newTableModel() tableModel {
 
 	return tableModel{
 		tableContent: newTableContent(),
+		tableKeyMap:  newTableKeyMap(),
 		Model:        t,
 	}
 }
@@ -52,16 +54,16 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msg, m.tableKeys.Quit):
+			case key.Matches(msg, m.table.Quit):
 				return m, tea.Quit
 
-			case key.Matches(msg, m.tableKeys.Describe):
+			case key.Matches(msg, m.table.Describe):
 				selectedResource := m.table.SelectedRow()
 
 				m.tab, cmd = m.tab.describeResource(m.client, selectedResource[0])
 				return m, cmd
 
-			case key.Matches(msg, m.tableKeys.PreviousPage, m.tableKeys.NextPage):
+			case key.Matches(msg, m.table.PreviousPage, m.table.NextPage):
 				m.table.paginator, _ = m.table.paginator.Update(msg)
 				m.table, cmd = m.table.applyTableItems()
 
