@@ -45,28 +45,28 @@ func newTabModel() tabModel {
 }
 
 func (m CoreUI) updateTabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch m.tabModel.tabViewState {
+	switch m.tab.tabViewState {
 	case noContentSelected:
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msg, m.tabKeyMap.Back):
+			case key.Matches(msg, m.tabKeys.Back):
 				m.viewState = showTable
 				return m.sync(nil)
 
-			case key.Matches(msg, m.tabKeyMap.Quit):
+			case key.Matches(msg, m.tabKeys.Quit):
 				return m, tea.Quit
 
-			case key.Matches(msg, m.tabKeyMap.NextTab):
-				m.tabModel.activeTab = min(m.tabModel.activeTab+1, len(m.tabModel.Tabs)-1)
+			case key.Matches(msg, m.tabKeys.NextTab):
+				m.tab.activeTab = min(m.tab.activeTab+1, len(m.tab.Tabs)-1)
 				return m, nil
 
-			case key.Matches(msg, m.tabKeyMap.PreviousTab):
-				m.tabModel.activeTab = max(m.tabModel.activeTab-1, 0)
+			case key.Matches(msg, m.tabKeys.PreviousTab):
+				m.tab.activeTab = max(m.tab.activeTab-1, 0)
 				return m, nil
 
-			case key.Matches(msg, m.tabKeyMap.Choose):
-				m.tabModel.tabViewState = contentSelected
+			case key.Matches(msg, m.tabKeys.Choose):
+				m.tab.tabViewState = contentSelected
 				return m, nil
 			}
 		}
@@ -76,22 +76,22 @@ func (m CoreUI) updateTabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
-			case key.Matches(msg, m.tabKeyMap.Back):
-				m.tabModel.tabViewState = noContentSelected
+			case key.Matches(msg, m.tabKeys.Back):
+				m.tab.tabViewState = noContentSelected
 				return m, nil
 
-			case key.Matches(msg, m.tabKeyMap.Quit):
+			case key.Matches(msg, m.tabKeys.Quit):
 				return m, tea.Quit
 
-			case key.Matches(msg, m.tabKeyMap.NextContent):
-				m.tabModel.activeTab = min(m.tabModel.activeTab+1, len(m.tabModel.Tabs)-1)
+			case key.Matches(msg, m.tabKeys.NextContent):
+				m.tab.activeTab = min(m.tab.activeTab+1, len(m.tab.Tabs)-1)
 				return m, nil
 
-			case key.Matches(msg, m.tabKeyMap.PreviousContent):
-				m.tabModel.activeTab = max(m.tabModel.activeTab-1, 0)
+			case key.Matches(msg, m.tabKeys.PreviousContent):
+				m.tab.activeTab = max(m.tab.activeTab-1, 0)
 				return m, nil
 
-			case key.Matches(msg, m.tabKeyMap.Choose):
+			case key.Matches(msg, m.tabKeys.Choose):
 
 			}
 		}
@@ -100,8 +100,8 @@ func (m CoreUI) updateTabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m CoreUI) tabModelView() string {
-	if m.tabModel.Tabs == nil {
+func (m CoreUI) tabView() string {
+	if m.tab.Tabs == nil {
 		return lipgloss.NewStyle().
 			Height(windowutil.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
 			Width(windowutil.ComputeWidthPercentage(tabViewHiddenWidthPercentage)).
@@ -110,20 +110,20 @@ func (m CoreUI) tabModelView() string {
 
 	switch m.viewState {
 	case showTable:
-		m.tabModel.dimm = true
+		m.tab.dimm = true
 	case showTab:
-		m.tabModel.dimm = false
+		m.tab.dimm = false
 	}
 
 	doc := strings.Builder{}
 
-	var activeStyle, inactiveStyle lipgloss.Style = uistyles.NewTabStyle(m.tabModel.dimm)
+	var activeStyle, inactiveStyle lipgloss.Style = uistyles.NewTabStyle(m.tab.dimm)
 	var renderedTabs []string
 
-	for i, t := range m.tabModel.Tabs {
+	for i, t := range m.tab.Tabs {
 		var style lipgloss.Style
 
-		isFirst, isLast, isActive := m.tabModel.getTabPositions(i)
+		isFirst, isLast, isActive := m.tab.getTabPositions(i)
 
 		if isActive {
 			style = activeStyle.Copy()
@@ -146,7 +146,7 @@ func (m CoreUI) tabModelView() string {
 
 	tabs := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
 
-	windowStyle := uistyles.NewWindowStyle(m.tabModel.dimm)
+	windowStyle := uistyles.NewWindowStyle(m.tab.dimm)
 
 	doc.WriteString(tabs)
 	doc.WriteString("\n")
@@ -157,7 +157,7 @@ func (m CoreUI) tabModelView() string {
 			Width(
 				(lipgloss.Width(tabs) - windowStyle.GetHorizontalFrameSize())).
 			Render(
-				m.tabModel.TabContent[m.tabModel.activeTab]))
+				m.tab.TabContent[m.tab.activeTab]))
 
 	return uistyles.DocStyle.Render(doc.String())
 }

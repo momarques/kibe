@@ -25,17 +25,14 @@ type CoreUI struct {
 
 	client *kube.ClientReady
 
-	listModel list.Model
-	*listSelector
-
-	enabledKeys
-
-	tableModel table.Model
-	*tableContent
-	tableKeyMap
-
-	tabModel tabModel
-	tabKeyMap
+	keys         enabledKeys
+	list         list.Model
+	listSelector *listSelector
+	table        table.Model
+	tableContent *tableContent
+	tableKeys    tableKeyMap
+	tab          tabModel
+	tabKeys      tabKeyMap
 
 	headerModel    headerModel
 	helpModel      help.Model
@@ -53,17 +50,14 @@ func NewUI() CoreUI {
 	return CoreUI{
 		viewState: showList,
 
+		keys:         setKeys(tableKeyMap, tabKeyMap),
+		list:         newlistModel(selector),
 		listSelector: selector,
-		listModel:    newlistModel(selector),
-
-		enabledKeys: setKeys(tableKeyMap, tabKeyMap),
-
+		table:        newTableModel(),
 		tableContent: newTableContent(),
-		tableKeyMap:  tableKeyMap,
-		tableModel:   newTableModel(),
-
-		tabKeyMap: tabKeyMap,
-		tabModel:  newTabModel(),
+		tableKeys:    tableKeyMap,
+		tab:          newTabModel(),
+		tabKeys:      tabKeyMap,
 
 		headerModel:    headerModel{},
 		helpModel:      help.New(),
@@ -89,14 +83,14 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case showList:
 		return m.updateListModel(msg)
 	case showTable:
-		m.enabledKeys = m.setEnabled(m.tableKeyMap.fullHelp()...)
+		m.keys = m.keys.setEnabled(m.tableKeys.fullHelp()...)
 		return m.updateTableModel(msg)
 	case showTab:
-		switch m.tabModel.tabViewState {
+		switch m.tab.tabViewState {
 		case contentSelected:
-			m.enabledKeys = m.setEnabled(m.tabKeyMap.fullHelp()...)
+			m.keys = m.keys.setEnabled(m.tabKeys.fullHelp()...)
 		case noContentSelected:
-			m.enabledKeys = m.setEnabled(m.tabKeyMap.fullHelpWithContentSelected()...)
+			m.keys = m.keys.setEnabled(m.tabKeys.fullHelpWithContentSelected()...)
 		}
 		return m.updateTabModel(msg)
 	}
@@ -107,7 +101,7 @@ func (m CoreUI) View() string {
 	switch m.viewState {
 
 	case showList:
-		return m.listModelView()
+		return m.listView()
 
 	case showTable, showTab:
 		return m.composedView()
@@ -133,21 +127,21 @@ func (m CoreUI) composedView() string {
 	switch m.viewState {
 	case showTable:
 		helpBindingLines = [][]key.Binding{
-			m.tableKeyMap.firstHelpLineView(),
-			m.tableKeyMap.secondHelpLineView(),
+			m.tableKeys.firstHelpLineView(),
+			m.tableKeys.secondHelpLineView(),
 		}
 
 	case showTab:
-		switch m.tabModel.tabViewState {
+		switch m.tab.tabViewState {
 		case noContentSelected:
 			helpBindingLines = [][]key.Binding{
-				m.tabKeyMap.firstHelpLineView(),
-				m.tabKeyMap.secondHelpLineView(),
+				m.tabKeys.firstHelpLineView(),
+				m.tabKeys.secondHelpLineView(),
 			}
 		case contentSelected:
 			helpBindingLines = [][]key.Binding{
-				m.tabKeyMap.firstHelpLineViewWithContentSelected(),
-				m.tabKeyMap.secondHelpLineView(),
+				m.tabKeys.firstHelpLineViewWithContentSelected(),
+				m.tabKeys.secondHelpLineView(),
 			}
 		}
 	}
@@ -163,7 +157,7 @@ func (m CoreUI) composedView() string {
 	)
 
 	bottomPanel := lipgloss.JoinVertical(lipgloss.Left,
-		m.tabModelView(),
+		m.tabView(),
 		lipgloss.JoinHorizontal(
 			lipgloss.Left,
 			leftUtilityPanel,

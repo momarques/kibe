@@ -32,7 +32,7 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 	var logMsg string
 	var fetchDuration time.Duration
 
-	m.syncState = syncing
+	m.tableContent.syncState = syncing
 	m.syncBarModel = m.changeSyncState()
 
 	now := time.Now()
@@ -41,8 +41,8 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 		m.tableContent.columns, m.tableContent.rows, logMsg = m.client.FetchTableView()
 		m.tableContent.paginatorModel.SetTotalPages(len(m.tableContent.rows))
 
-		m.paginatorModel, _ = m.paginatorModel.Update(msg)
-		m.tableModel, cmd = m.applyTableItems(m.tableModel)
+		m.tableContent.paginatorModel, _ = m.tableContent.paginatorModel.Update(msg)
+		m.table, cmd = m.tableContent.applyTableItems(m.table)
 
 		return time.Since(now)
 	}()
@@ -77,19 +77,19 @@ func newSyncBarModel() syncBarModel {
 }
 
 func (m CoreUI) changeSyncState() syncBarModel {
-	switch m.syncState {
+	switch m.tableContent.syncState {
 	case synced:
 		m.syncBarModel.text = syncedText
 		m.syncBarModel.color = lipgloss.Color(syncedColor)
-		m.spinnerState = hideSpinner
+		m.listSelector.spinnerState = hideSpinner
 	case syncing:
 		m.syncBarModel.text = syncingText
 		m.syncBarModel.color = lipgloss.Color(syncingColor)
-		m.spinnerState = showSpinner
+		m.listSelector.spinnerState = showSpinner
 	case unsynced:
 		m.syncBarModel.text = unsyncedText
 		m.syncBarModel.color = lipgloss.Color(unsyncedColor)
-		m.spinnerState = hideSpinner
+		m.listSelector.spinnerState = hideSpinner
 	}
 	return m.syncBarModel
 }
@@ -98,10 +98,10 @@ func (m CoreUI) syncBarModelView() string {
 	syncStyle := uistyles.ViewTitleStyle.
 		Copy()
 
-	if m.spinnerState == showSpinner {
+	if m.listSelector.spinnerState == showSpinner {
 		return syncStyle.
 			Background(m.syncBarModel.color).
-			Render(m.spinner.View(), m.syncBarModel.text)
+			Render(m.listSelector.spinner.View(), m.syncBarModel.text)
 	}
 	return syncStyle.
 		Background(m.syncBarModel.color).

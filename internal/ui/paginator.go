@@ -26,5 +26,5 @@ func (m CoreUI) paginatorModelView() string {
 		Copy().
 		MarginRight(40).
 		MarginBottom(1).
-		Render(m.paginatorModel.View())
+		Render(m.tableContent.paginatorModel.View())
 }

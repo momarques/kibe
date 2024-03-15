@@ -36,18 +36,18 @@ func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			AppStyle.
 			Copy().
 			GetFrameSize()
-		m.listModel.SetSize(msg.Width-h, msg.Height-v)
+		m.list.SetSize(msg.Width-h, msg.Height-v)
 
 		m.height = msg.Height
 		m.statusbarModel.SetSize(msg.Width)
 
 	case tea.KeyMsg:
-		if m.listModel.FilterState() == list.Filtering {
+		if m.list.FilterState() == list.Filtering {
 			break
 		}
 
 	case spinner.TickMsg:
-		m.spinner, cmd = m.spinner.Update(msg)
+		m.listSelector.spinner, cmd = m.listSelector.spinner.Update(msg)
 		return m, cmd
 
 	case headerTitleUpdated:
@@ -69,22 +69,22 @@ func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		cmds = append(cmds, cmd)
 	}
 
-	m.listModel, cmd = m.listModel.Update(msg)
+	m.list, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
-func (m CoreUI) listModelView() string {
+func (m CoreUI) listView() string {
 	if m.listSelector.spinnerState == showSpinner {
 		return lipgloss.JoinVertical(
 			lipgloss.Top,
 			fmt.Sprintf("%s%s",
-				m.spinner.View(),
-				m.listModel.View()),
+				m.listSelector.spinner.View(),
+				m.list.View()),
 			m.statusbarModel.View())
 	}
 	return lipgloss.JoinVertical(
-		lipgloss.Top, m.listModel.View(),
+		lipgloss.Top, m.list.View(),
 		m.statusbarModel.View())
 }
