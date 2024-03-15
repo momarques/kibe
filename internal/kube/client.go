@@ -66,16 +66,15 @@ type RequestState chan error
 type ClientReady struct {
 	Client *kubernetes.Clientset
 
-	*ContextSelected
-	*ResourceSelected
+	ContextSelected
+	NamespaceSelected
+	ResourceSelected
 }
 
 func NewClientReady(context string) *ClientReady {
 	return &ClientReady{
-		Client: NewKubeClient(context),
-		ContextSelected: &ContextSelected{
-			C: context,
-		},
+		Client:          NewKubeClient(context),
+		ContextSelected: ContextSelected(context),
 	}
 }
 
@@ -83,17 +82,17 @@ func (c *ClientReady) WithNamespace(namespace string) *ClientReady {
 	if namespace == "" {
 		namespace = "default"
 	}
-	c.Namespace = &NamespaceSelected{NS: namespace}
+	c.NamespaceSelected = NamespaceSelected(namespace)
 	return c
 }
 
 func (c *ClientReady) WithResource(r Resource) *ClientReady {
-	c.ResourceSelected = &ResourceSelected{r}
+	c.ResourceSelected = r
 	return c
 }
 
 func (c *ClientReady) FetchTableView() ([]table.Column, []table.Row, string) {
-	resource := c.R.List(c)
+	resource := c.ResourceSelected.List(c)
 	return resource.Columns(),
 		resource.Rows(),
 		fmt.Sprintf("%ss listed", resource.Kind())

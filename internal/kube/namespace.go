@@ -63,7 +63,7 @@ func (n Namespace) namespaceFieldWidth() int {
 }
 
 type SelectNamespace struct{ Namespaces []list.Item }
-type NamespaceSelected struct{ NS string }
+type NamespaceSelected string
 
 func NewSelectNamespace(c *ClientReady) func() tea.Msg {
 	n := Namespace{}.List(c)

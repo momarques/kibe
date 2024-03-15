@@ -43,7 +43,7 @@ func NewSelectResource(c *ClientReady) func() tea.Msg {
 	}
 }
 
-type ResourceSelected struct{ R Resource }
+type ResourceSelected Resource
 
 type ResourceItem struct{ apiVersion, kind string }
 

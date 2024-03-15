@@ -23,7 +23,7 @@ func (s Service) Kind() string    { return s.kind }
 func (s Service) List(c *ClientReady) Resource {
 	services, err := c.Client.
 		CoreV1().
-		Services(c.Namespace.NS).
+		Services(string(c.NamespaceSelected)).
 		List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)

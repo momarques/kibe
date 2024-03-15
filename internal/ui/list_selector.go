@@ -94,7 +94,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 	case kube.ContextSelected:
 		m.ResetFilter()
 
-		s.client = kube.NewClientReady(msg.C)
+		s.client = kube.NewClientReady(string(msg))
 		return s.updateStatusBar()
 
 	case kube.SelectNamespace:
@@ -105,7 +105,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	case kube.NamespaceSelected:
 		m.ResetFilter()
-		s.client = s.client.WithNamespace(msg.NS)
+		s.client = s.client.WithNamespace(string(msg))
 
 		return s.updateStatusBar()
 
@@ -118,10 +118,10 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 	case kube.ResourceSelected:
 		m.ResetFilter()
 
-		s.client = s.client.WithResource(msg.R)
+		s.client = s.client.WithResource(msg)
 		return tea.Batch(
 			s.updateStatusBar(),
-			s.updateHeader(fmt.Sprintf("%s interaction", msg.R.Kind())))
+			s.updateHeader(fmt.Sprintf("%s interaction", msg.Kind())))
 
 	case tea.KeyMsg:
 		return s.updateWithKeyStroke(msg, m)
@@ -133,11 +133,11 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 }
 
 func (s *listSelector) contextSelected(context string) func() tea.Msg {
-	return func() tea.Msg { return kube.ContextSelected{C: context} }
+	return func() tea.Msg { return kube.ContextSelected(context) }
 }
 
 func (s *listSelector) namespaceSelected(namespace string) func() tea.Msg {
-	return func() tea.Msg { return kube.NamespaceSelected{NS: namespace} }
+	return func() tea.Msg { return kube.NamespaceSelected(namespace) }
 }
 
 func (s *listSelector) resourceSelected() func() tea.Msg {
@@ -150,7 +150,7 @@ func (s *listSelector) resourceSelected() func() tea.Msg {
 			return false
 		})
 
-	return func() tea.Msg { return kube.ResourceSelected{R: r} }
+	return func() tea.Msg { return r }
 }
 
 func (s *listSelector) clientReady() func() tea.Msg {

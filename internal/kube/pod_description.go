@@ -20,7 +20,7 @@ import (
 func DescribePod(c *ClientReady, podID string) *corev1.Pod {
 	pod, err := c.Client.
 		CoreV1().
-		Pods(c.Namespace.NS).
+		Pods(string(c.NamespaceSelected)).
 		Get(context.Background(), podID, v1.GetOptions{})
 	if err != nil {
 		logging.Log.Error(err)

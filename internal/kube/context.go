@@ -22,11 +22,7 @@ func NewSelectContext() func() tea.Msg {
 	}
 }
 
-type ContextSelected struct {
-	C         string
-	Namespace *NamespaceSelected
-}
-
+type ContextSelected string
 type ContextItem struct{ api.Context }
 
 func (c ContextItem) Title() string       { return "Cluster: " + c.Cluster }
