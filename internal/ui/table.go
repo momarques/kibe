@@ -4,6 +4,7 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
@@ -94,6 +95,11 @@ func (m CoreUI) tableModelView() string {
 		tableStyle = uistyles.DimmedTableStyle
 		m.tableModel.SetStyles(uistyles.NewTableStyle(true))
 		return tableStyle.Render(m.tableModel.View())
+	}
+	if m.tableContent.columns == nil {
+		return lipgloss.NewStyle().
+			Height((windowutil.ComputeHeightPercentage(tableViewHeightPercentage) + 3)).
+			Render("")
 	}
 	return tableStyle.Render(m.tableModel.View())
 }
