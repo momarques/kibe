@@ -62,30 +62,27 @@ func (n Namespace) namespaceFieldWidth() int {
 		}, 0)
 }
 
-type SelectNamespace struct{ Namespaces []list.Item }
+type SelectNamespace []list.Item
 type NamespaceSelected string
 
 func NewSelectNamespace(c *ClientReady) func() tea.Msg {
 	n := Namespace{}.List(c)
 	return func() tea.Msg {
-		return SelectNamespace{
-			Namespaces: n.(Namespace).newNamespaceList(c)}
+		return SelectNamespace(n.(Namespace).newNamespaceList())
 	}
 }
 
-type NamespaceItem struct{ name string }
+type NamespaceItem string
 
-func (ni NamespaceItem) Title() string       { return "Namespace: " + ni.name }
-func (ni NamespaceItem) FilterValue() string { return ni.name }
+func (ni NamespaceItem) Title() string       { return "Namespace: " + string(ni) }
+func (ni NamespaceItem) FilterValue() string { return string(ni) }
 func (ni NamespaceItem) Description() string { return "" }
 
-func (n Namespace) newNamespaceList(c *ClientReady) []list.Item {
+func (n Namespace) newNamespaceList() []list.Item {
 	namespaceList := []list.Item{}
 
 	for _, ns := range n.namespaces {
-		namespaceList = append(namespaceList, NamespaceItem{
-			name: ns.Name,
-		})
+		namespaceList = append(namespaceList, NamespaceItem(ns.Name))
 	}
 	return namespaceList
 }

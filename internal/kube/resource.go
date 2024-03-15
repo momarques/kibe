@@ -6,11 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
-	tableObject "github.com/charmbracelet/lipgloss/table"
 	"github.com/momarques/kibe/internal/logging"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
-	"github.com/samber/lo"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -21,7 +17,7 @@ var SupportedResources = []Resource{
 }
 
 type Resource interface {
-	FetchDescription(*ClientReady, string) ResourceDescription
+	Describe(*ClientReady, string) ResourceDescription
 	Kind() string
 
 	List(*ClientReady) Resource
@@ -82,33 +78,4 @@ func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {
 		}
 	}
 	return ""
-}
-
-// ResourceLabels provides a map of labels from the resource
-type ResourceLabels map[string]string
-
-func (rl ResourceLabels) TabContent() string {
-	t := tableObject.New()
-	t.Rows(mapToTableRows(rl)...)
-	t.StyleFunc(uistyles.ColorizeTabKey)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
-}
-
-// ResourceAnnotations provides a map of annotations from the resource
-type ResourceAnnotations map[string]string
-
-func (ra ResourceAnnotations) TabContent() string {
-	t := tableObject.New()
-	t.Rows([]string{})
-	t.StyleFunc(uistyles.ColorizeTabKey)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
-}
-
-func mapToTableRows(m map[string]string) [][]string {
-	return lo.MapToSlice(m,
-		func(k, v string) []string {
-			return []string{k, v}
-		})
 }

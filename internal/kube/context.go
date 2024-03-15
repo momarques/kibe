@@ -23,7 +23,7 @@ func NewSelectContext() func() tea.Msg {
 }
 
 type ContextSelected string
-type ContextItem struct{ api.Context }
+type ContextItem api.Context
 
 func (c ContextItem) Title() string       { return "Cluster: " + c.Cluster }
 func (c ContextItem) FilterValue() string { return c.Cluster }
@@ -41,9 +41,7 @@ func newContextList(config *api.Config) []list.Item {
 	contextList := []list.Item{}
 
 	for _, v := range config.Contexts {
-		contextList = append(contextList, ContextItem{
-			Context: *v,
-		})
+		contextList = append(contextList, ContextItem(*v))
 	}
 	return contextList
 }

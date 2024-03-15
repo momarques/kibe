@@ -186,7 +186,7 @@ type descriptionReady struct {
 }
 
 func (t tabModel) describeResource(c *kube.ClientReady, resourceID string) (tabModel, tea.Cmd) {
-	t.ResourceDescription = c.ResourceSelected.FetchDescription(c, resourceID)
+	t.ResourceDescription = c.ResourceSelected.Describe(c, resourceID)
 	return t, func() tea.Msg {
 		return descriptionReady{
 			t.ResourceDescription.TabNames(), t.ResourceDescription.TabContent(),

@@ -44,7 +44,7 @@ type PodDescription struct {
 	Events        []string            `kibedescription:"Events"`
 }
 
-func (p Pod) FetchDescription(c *ClientReady, podID string) ResourceDescription {
+func (p Pod) Describe(c *ClientReady, podID string) ResourceDescription {
 	pod := DescribePod(c, podID)
 
 	return PodDescription{

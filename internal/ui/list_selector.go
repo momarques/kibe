@@ -101,7 +101,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		m.Title = "Choose a namespace"
 		s.spinnerState = hideSpinner
 
-		return m.SetItems(msg.Namespaces)
+		return m.SetItems(msg)
 
 	case kube.NamespaceSelected:
 		m.ResetFilter()

@@ -2,7 +2,7 @@ package kube
 
 type NamespaceDescription struct{}
 
-func (n Namespace) FetchDescription(c *ClientReady, namespaceID string) ResourceDescription {
+func (n Namespace) Describe(c *ClientReady, namespaceID string) ResourceDescription {
 	return NamespaceDescription{}
 }
 

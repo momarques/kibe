@@ -2,7 +2,7 @@ package kube
 
 type ServiceDescription struct{}
 
-func (s Service) FetchDescription(c *ClientReady, serviceID string) ResourceDescription {
+func (s Service) Describe(c *ClientReady, serviceID string) ResourceDescription {
 	return ServiceDescription{}
 }
 
