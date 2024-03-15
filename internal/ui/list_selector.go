@@ -75,7 +75,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	case kube.SelectContext:
 		m.Title = "Choose a context to connect"
-		if s.useCurrentContext {
+		if s.useCurrentContext && msg.CurrentContext != "" {
 			m.Title = "Skipping context selection"
 
 			s.context = msg.CurrentContext
