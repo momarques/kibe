@@ -32,17 +32,17 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 	var logMsg string
 	var fetchDuration time.Duration
 
-	m.tableContent.syncState = syncing
+	m.table.syncState = syncing
 	m.syncBarModel = m.changeSyncState()
 
 	now := time.Now()
 	fetchDuration = func() time.Duration {
 
-		m.tableContent.columns, m.tableContent.rows, logMsg = m.client.FetchTableView()
-		m.tableContent.paginatorModel.SetTotalPages(len(m.tableContent.rows))
+		m.table.columns, m.table.rows, logMsg = m.client.FetchTableView()
+		m.table.paginator.SetTotalPages(len(m.table.rows))
 
-		m.tableContent.paginatorModel, _ = m.tableContent.paginatorModel.Update(msg)
-		m.table, cmd = m.tableContent.applyTableItems(m.table)
+		m.table.paginator, _ = m.table.paginator.Update(msg)
+		m.table, cmd = m.table.applyTableItems()
 
 		return time.Since(now)
 	}()
@@ -77,7 +77,7 @@ func newSyncBarModel() syncBarModel {
 }
 
 func (m CoreUI) changeSyncState() syncBarModel {
-	switch m.tableContent.syncState {
+	switch m.table.syncState {
 	case synced:
 		m.syncBarModel.text = syncedText
 		m.syncBarModel.color = lipgloss.Color(syncedColor)

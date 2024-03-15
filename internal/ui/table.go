@@ -13,7 +13,12 @@ import (
 
 const tableViewHeightPercentage int = 32
 
-func newTableModel() table.Model {
+type tableModel struct {
+	tableContent
+	table.Model
+}
+
+func newTableModel() tableModel {
 	t := table.New(
 		table.WithFocused(true),
 	)
@@ -21,13 +26,17 @@ func newTableModel() table.Model {
 	t.SetStyles(uistyles.NewTableStyle(false))
 	t.SetHeight(
 		windowutil.ComputeHeightPercentage(tableViewHeightPercentage))
-	return t
+
+	return tableModel{
+		tableContent: newTableContent(),
+		Model:        t,
+	}
 }
 
 func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
-	switch m.tableContent.syncState {
+	switch m.table.syncState {
 	case synced, syncing:
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
@@ -38,7 +47,7 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
 			logging.Log.Infof("table size -> %d x %d", m.table.Width(), m.table.Height())
 			m.helpModel.Width = 20
-			m.table, cmd = m.table.Update(msg)
+			m.table.Model, cmd = m.table.Update(msg)
 			return m, cmd
 
 		case tea.KeyMsg:
@@ -53,8 +62,8 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 
 			case key.Matches(msg, m.tableKeys.PreviousPage, m.tableKeys.NextPage):
-				m.tableContent.paginatorModel, _ = m.tableContent.paginatorModel.Update(msg)
-				m.table, cmd = m.tableContent.applyTableItems(m.table)
+				m.table.paginator, _ = m.table.paginator.Update(msg)
+				m.table, cmd = m.table.applyTableItems()
 
 				return m, cmd
 			}
@@ -69,14 +78,14 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case lastSync:
-			m.tableContent.syncState = synced
+			m.table.syncState = synced
 			m.syncBarModel = m.changeSyncState()
 
 			return m, tea.Batch(tea.Tick(kube.ResquestTimeout, startSyncing))
 
 		case syncState:
 			if msg == unsynced {
-				m.tableContent.syncState = msg
+				m.table.syncState = msg
 				m.syncBarModel = m.changeSyncState()
 				return m.sync(nil)
 			}
@@ -86,7 +95,7 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.sync(msg)
 	}
 
-	m.table, cmd = m.table.Update(msg)
+	m.table.Model, cmd = m.table.Update(msg)
 	return m, cmd
 }
 
@@ -98,7 +107,7 @@ func (m CoreUI) tableModelView() string {
 		m.table.SetStyles(uistyles.NewTableStyle(true))
 		return tableStyle.Render(m.table.View())
 	}
-	if m.tableContent.columns == nil {
+	if m.table.columns == nil {
 		return lipgloss.NewStyle().
 			Height((windowutil.ComputeHeightPercentage(tableViewHeightPercentage) + 3)).
 			Render("")

@@ -9,22 +9,22 @@ import (
 type tableContent struct {
 	syncState
 
-	columns        []table.Column
-	rows           []table.Row
-	paginatorModel paginator.Model
+	columns   []table.Column
+	rows      []table.Row
+	paginator paginator.Model
 }
 
-func newTableContent() *tableContent {
-	return &tableContent{
-		syncState:      unsynced,
-		paginatorModel: newPaginatorModel(15),
+func newTableContent() tableContent {
+	return tableContent{
+		syncState: unsynced,
+		paginator: newPaginatorModel(15),
 	}
 }
 
-func (c *tableContent) applyTableItems(m table.Model) (table.Model, tea.Cmd) {
-	m.SetColumns(c.columns)
+func (m tableModel) applyTableItems() (tableModel, tea.Cmd) {
+	m.SetColumns(m.columns)
 
-	start, end := c.paginatorModel.GetSliceBounds(len(c.rows))
-	m.SetRows(c.rows[start:end])
-	return m, c.updateHeader(len(c.rows))
+	start, end := m.paginator.GetSliceBounds(len(m.rows))
+	m.SetRows(m.rows[start:end])
+	return m, m.updateHeader(len(m.rows))
 }

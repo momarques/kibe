@@ -4,7 +4,6 @@ import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
@@ -28,8 +27,7 @@ type CoreUI struct {
 	keys         enabledKeys
 	list         list.Model
 	listSelector *listSelector
-	table        table.Model
-	tableContent *tableContent
+	table        tableModel
 	tableKeys    tableKeyMap
 	tab          tabModel
 	tabKeys      tabKeyMap
@@ -54,7 +52,6 @@ func NewUI() CoreUI {
 		list:         newlistModel(selector),
 		listSelector: selector,
 		table:        newTableModel(),
-		tableContent: newTableContent(),
 		tableKeys:    tableKeyMap,
 		tab:          newTabModel(),
 		tabKeys:      tabKeyMap,
