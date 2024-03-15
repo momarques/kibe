@@ -47,6 +47,7 @@ type PodDescription struct {
 func (p Pod) Describe(c *ClientReady, podID string) ResourceDescription {
 	pod := DescribePod(c, podID)
 
+	logging.Log.Info("conditions -> ", newPodStatus(pod))
 	return PodDescription{
 		Overview:      newPodOverview(pod),
 		Status:        newPodStatus(pod),
@@ -147,11 +148,9 @@ type PodStatus struct {
 
 func newPodStatus(pod *corev1.Pod) PodStatus {
 	return PodStatus{
-		Start:  pod.CreationTimestamp.Time,
-		Status: string(pod.Status.Phase),
-		Conditions: lo.Map(
-			pod.Status.Conditions,
-			podConditionToString),
+		Start:      pod.CreationTimestamp.Time,
+		Status:     string(pod.Status.Phase),
+		Conditions: lo.Map(pod.Status.Conditions, podConditionToString),
 	}
 }
 
@@ -172,13 +171,20 @@ func podConditionToString(condition corev1.PodCondition, _ int) string {
 func (ps PodStatus) TabContent() string {
 	fieldNames := LookupStructFieldNames(reflect.TypeOf(ps))
 
+	conditionsValue := strings.Join(ps.Conditions, " -> ")
+
 	t := table.New()
 	t.Rows(
 		[]string{fieldNames[0], ps.Start.String()},
 		[]string{fieldNames[1], ps.Status},
-		[]string{fieldNames[2], strings.Join(ps.Conditions, "\n")},
+		[]string{fieldNames[2], conditionsValue},
 	)
-	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.StyleFunc(func(row, col int) lipgloss.Style {
+		if col == 1 {
+			return lipgloss.NewStyle().Width(len(conditionsValue))
+		}
+		return uistyles.ColorizeTabKey(row, col)
+	})
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }

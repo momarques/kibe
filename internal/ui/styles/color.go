@@ -9,9 +9,6 @@ func ColorizeTabKey(row, col int) lipgloss.Style {
 	case col == 0:
 		var foreground string
 		foreground = tabKeyPaletteForeground["black"]
-		// if row > 4 {
-		// 	foreground = tabKeyPaletteForeground["light"]
-		// }
 
 		return resourceSectionDescriptionStyle.
 			Copy().
