@@ -75,7 +75,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 	case kube.SelectContext:
 		m.Title = "Choose a context to connect"
-		if s.useCurrentContext && msg.CurrentContext != "" {
+		if s.useCurrentContext && msg.CurrentContext != "" && len(msg.Contexts) > 0 {
 			m.Title = "Skipping context selection"
 
 			s.context = msg.CurrentContext
@@ -84,9 +84,21 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 			return tea.Batch(
 				m.NewStatusMessage(uistyles.StatusMessageStyle(
 					"Using current context", s.context)),
-				s.contextSelected(msg.CurrentContext),
+				s.contextSelected(s.context),
 				s.spinner.Tick)
 		}
+
+		if len(msg.Contexts) == 1 {
+			s.context = msg.Contexts[0].FilterValue()
+			s.spinnerState = showSpinner
+
+			return tea.Batch(
+				m.NewStatusMessage(uistyles.StatusMessageStyle(
+					"Using single existing context", s.context)),
+				s.contextSelected(s.context),
+				s.spinner.Tick)
+		}
+
 		s.spinnerState = hideSpinner
 
 		return m.SetItems(msg.Contexts)
