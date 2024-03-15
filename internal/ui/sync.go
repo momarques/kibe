@@ -33,7 +33,7 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 	var fetchDuration time.Duration
 
 	m.table.syncState = syncing
-	m.syncBarModel = m.changeSyncState()
+	m.syncBar = m.changeSyncState()
 
 	now := time.Now()
 	fetchDuration = func() time.Duration {
@@ -49,7 +49,7 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 
 	return m, tea.Batch(
 		cmd,
-		m.syncBarModel.spinner.Tick,
+		m.syncBar.spinner.Tick,
 		m.logProcess(logMsg, fetchDuration),
 		func() tea.Msg {
 			return lastSync(time.Now())
@@ -61,9 +61,9 @@ func startSyncing(t time.Time) tea.Msg {
 }
 
 type syncBarModel struct {
-	spinner spinner.Model
-	text    string
 	color   lipgloss.Color
+	text    string
+	spinner spinner.Model
 }
 
 func newSyncBarModel() syncBarModel {
@@ -79,31 +79,31 @@ func newSyncBarModel() syncBarModel {
 func (m CoreUI) changeSyncState() syncBarModel {
 	switch m.table.syncState {
 	case synced:
-		m.syncBarModel.text = syncedText
-		m.syncBarModel.color = lipgloss.Color(syncedColor)
+		m.syncBar.text = syncedText
+		m.syncBar.color = lipgloss.Color(syncedColor)
 		m.list.spinnerState = hideSpinner
 	case syncing:
-		m.syncBarModel.text = syncingText
-		m.syncBarModel.color = lipgloss.Color(syncingColor)
+		m.syncBar.text = syncingText
+		m.syncBar.color = lipgloss.Color(syncingColor)
 		m.list.spinnerState = showSpinner
 	case unsynced:
-		m.syncBarModel.text = unsyncedText
-		m.syncBarModel.color = lipgloss.Color(unsyncedColor)
+		m.syncBar.text = unsyncedText
+		m.syncBar.color = lipgloss.Color(unsyncedColor)
 		m.list.spinnerState = hideSpinner
 	}
-	return m.syncBarModel
+	return m.syncBar
 }
 
-func (m CoreUI) syncBarModelView() string {
+func (m CoreUI) syncBarView() string {
 	syncStyle := uistyles.ViewTitleStyle.
 		Copy()
 
 	if m.list.spinnerState == showSpinner {
 		return syncStyle.
-			Background(m.syncBarModel.color).
-			Render(m.list.spinner.View(), m.syncBarModel.text)
+			Background(m.syncBar.color).
+			Render(m.list.spinner.View(), m.syncBar.text)
 	}
 	return syncStyle.
-		Background(m.syncBarModel.color).
-		Render(m.syncBarModel.text)
+		Background(m.syncBar.color).
+		Render(m.syncBar.text)
 }

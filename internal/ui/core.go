@@ -28,30 +28,30 @@ type CoreUI struct {
 	tab   tabModel
 	table tableModel
 
-	headerModel    headerModel
-	helpModel      help.Model
-	statusbarModel statusbar.Model
-	syncBarModel   syncBarModel
-	statusLogModel
+	header    headerModel
+	help      help.Model
+	statusBar statusbar.Model
+	statusLog statusLogModel
+	syncBar   syncBarModel
 }
 
 func NewUI() CoreUI {
-	table := newTableModel()
 	tab := newTabModel()
+	table := newTableModel()
 
 	return CoreUI{
 		viewState: showList,
 
 		keys:  setKeys(table.tableKeyMap, tab.tabKeyMap),
 		list:  newListModel(),
-		table: table,
 		tab:   tab,
+		table: table,
 
-		headerModel:    headerModel{},
-		helpModel:      help.New(),
-		statusbarModel: newStatusBarModel(),
-		statusLogModel: newStatusLogModel(),
-		syncBarModel:   newSyncBarModel(),
+		header:    headerModel{},
+		help:      help.New(),
+		statusBar: newStatusBarModel(),
+		statusLog: newStatusLogModel(),
+		syncBar:   newSyncBarModel(),
 	}
 }
 
@@ -69,10 +69,10 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.viewState {
 	case showList:
-		return m.updateListModel(msg)
+		return m.updateList(msg)
 	case showTable:
 		m.keys = m.keys.setEnabled(m.table.fullHelp()...)
-		return m.updateTableModel(msg)
+		return m.updateTable(msg)
 	case showTab:
 		switch m.tab.tabViewState {
 		case contentSelected:
@@ -80,7 +80,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case noContentSelected:
 			m.keys = m.keys.setEnabled(m.tab.fullHelpWithContentSelected()...)
 		}
-		return m.updateTabModel(msg)
+		return m.updateTab(msg)
 	}
 	return m, nil
 }
@@ -104,7 +104,7 @@ func (m CoreUI) showHelpLines(helpBindingLines ...[]key.Binding) []string {
 
 	for _, line := range helpBindingLines {
 		helpLines = append(helpLines, helpStyle.Render(
-			m.helpModel.ShortHelpView(line)))
+			m.help.ShortHelpView(line)))
 	}
 	return helpLines
 }
@@ -140,8 +140,8 @@ func (m CoreUI) composedView() string {
 
 	leftUtilityPanel := lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.paginatorModelView(),
-		m.syncBarModelView(),
+		m.paginatorView(),
+		m.syncBarView(),
 	)
 
 	bottomPanel := lipgloss.JoinVertical(lipgloss.Left,
@@ -154,10 +154,10 @@ func (m CoreUI) composedView() string {
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.headerModelView(),
-		m.tableModelView(),
+		m.headerView(),
+		m.tableView(),
 		lipgloss.JoinHorizontal(lipgloss.Center,
 			bottomPanel,
-			m.statusLogModelView()),
-		m.statusbarModel.View())
+			m.statusLogView()),
+		m.statusBar.View())
 }

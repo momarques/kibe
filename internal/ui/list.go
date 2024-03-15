@@ -36,7 +36,7 @@ func newListModel() listModel {
 	}
 }
 
-func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
@@ -49,7 +49,7 @@ func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 
 		m.height = msg.Height
-		m.statusbarModel.SetSize(msg.Width)
+		m.statusBar.SetSize(msg.Width)
 
 	case tea.KeyMsg:
 		if m.list.FilterState() == list.Filtering {
@@ -61,7 +61,7 @@ func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, cmd
 
 	case headerTitleUpdated:
-		m.headerModel.text = msg
+		m.header.text = msg
 		return m, nil
 
 	case *kube.ClientReady:
@@ -70,12 +70,12 @@ func (m CoreUI) updateListModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case statusBarUpdated:
-		m.statusbarModel.SetContent(
+		m.statusBar.SetContent(
 			"Resource", m.list.resource,
 			fmt.Sprintf("Context: %s", m.list.context),
 			fmt.Sprintf("Namespace: %s", m.list.namespace))
 
-		m.statusbarModel, cmd = m.statusbarModel.Update(msg)
+		m.statusBar, cmd = m.statusBar.Update(msg)
 		cmds = append(cmds, cmd)
 	}
 
@@ -92,9 +92,9 @@ func (m CoreUI) listView() string {
 			fmt.Sprintf("%s%s",
 				m.list.spinner.View(),
 				m.list.View()),
-			m.statusbarModel.View())
+			m.statusBar.View())
 	}
 	return lipgloss.JoinVertical(
 		lipgloss.Top, m.list.View(),
-		m.statusbarModel.View())
+		m.statusBar.View())
 }

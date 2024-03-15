@@ -35,7 +35,7 @@ func newTableModel() tableModel {
 	}
 }
 
-func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch m.table.syncState {
@@ -48,7 +48,7 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.SetColumns(m.client.ResourceSelected.Columns())
 			logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
 			logging.Log.Infof("table size -> %d x %d", m.table.Width(), m.table.Height())
-			m.helpModel.Width = 20
+			m.help.Width = 20
 			m.table.Model, cmd = m.table.Update(msg)
 			return m, cmd
 
@@ -76,19 +76,19 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case headerItemCountUpdated:
-			m.headerModel.itemCount = msg
+			m.header.itemCount = msg
 			return m, nil
 
 		case lastSync:
 			m.table.syncState = synced
-			m.syncBarModel = m.changeSyncState()
+			m.syncBar = m.changeSyncState()
 
 			return m, tea.Batch(tea.Tick(kube.ResquestTimeout, startSyncing))
 
 		case syncState:
 			if msg == unsynced {
 				m.table.syncState = msg
-				m.syncBarModel = m.changeSyncState()
+				m.syncBar = m.changeSyncState()
 				return m.sync(nil)
 			}
 		}
@@ -101,7 +101,7 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m CoreUI) tableModelView() string {
+func (m CoreUI) tableView() string {
 	tableStyle := uistyles.TableStyle
 
 	if m.viewState == showTab {

@@ -14,7 +14,7 @@ import (
 )
 
 type statusLogModel struct {
-	logMsgStream stream.Stream
+	stream.Stream
 }
 
 type statusLogMessage struct {
@@ -28,7 +28,7 @@ func newStatusLogModel() statusLogModel {
 	// starts with 10 in order to start with a fixed log string size
 	stream = stream.With([]statusLogMessage{{}, {}, {}, {}, {}, {}, {}, {}, {}, {}})
 	return statusLogModel{
-		logMsgStream: stream,
+		Stream: stream,
 	}
 }
 
@@ -45,16 +45,16 @@ func (m CoreUI) logProcess(text string, duration time.Duration) tea.Cmd {
 func (m CoreUI) updateStatusLog(msg tea.Msg) tea.Model {
 	switch msg := msg.(type) {
 	case statusLogMessage:
-		m.logMsgStream = m.logMsgStream.Add(msg)
-		if total, _ := m.logMsgStream.Count(); total > 10 {
-			_, m.logMsgStream = m.logMsgStream.Pop()
+		m.statusLog.Stream = m.statusLog.Add(msg)
+		if total, _ := m.statusLog.Count(); total > 10 {
+			_, m.statusLog.Stream = m.statusLog.Pop()
 		}
 	}
 	return m
 }
 
 func (s statusLogModel) String() []string {
-	logStream := s.logMsgStream.Out().Val().([]statusLogMessage)
+	logStream := s.Out().Val().([]statusLogMessage)
 
 	return lo.Map(logStream, func(item statusLogMessage, index int) string {
 		var duration string
@@ -71,9 +71,9 @@ func (s statusLogModel) String() []string {
 	})
 }
 
-func (m CoreUI) statusLogModelView() string {
+func (m CoreUI) statusLogView() string {
 	return lipgloss.NewStyle().
 		MarginTop(11).
 		MarginLeft(3).
-		Render(strings.Join(m.statusLogModel.String(), "\n"))
+		Render(strings.Join(m.statusLog.String(), "\n"))
 }

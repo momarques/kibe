@@ -45,7 +45,7 @@ func newTabModel() tabModel {
 	}
 }
 
-func (m CoreUI) updateTabModel(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch m.tab.tabViewState {
 	case noContentSelected:
 		switch msg := msg.(type) {

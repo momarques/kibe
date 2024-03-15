@@ -21,7 +21,7 @@ func newPaginatorModel(itemsPerPage int) paginator.Model {
 	return p
 }
 
-func (m CoreUI) paginatorModelView() string {
+func (m CoreUI) paginatorView() string {
 	return uistyles.PaginatorStyle.
 		Copy().
 		MarginRight(40).
