@@ -45,6 +45,7 @@ type PodDescription struct {
 }
 
 func (p Pod) Describe(c *ClientReady, podID string) ResourceDescription {
+	logging.Log.Info("Describing pod")
 	pod := DescribePod(c, podID)
 
 	return PodDescription{
@@ -91,6 +92,13 @@ type PodOverview struct {
 	QoSClass       string   `kibedescription:"QoS Class"`
 }
 
+func getPodOwner(pod *corev1.Pod) string {
+	if len(pod.OwnerReferences) > 0 {
+		return pod.OwnerReferences[0].Kind + "/" + pod.OwnerReferences[0].Name
+	}
+	return ""
+}
+
 func newPodOverview(pod *corev1.Pod) PodOverview {
 	return PodOverview{
 		Name:           pod.Name,
@@ -102,7 +110,7 @@ func newPodOverview(pod *corev1.Pod) PodOverview {
 			func(item corev1.PodIP, _ int) net.IP {
 				return net.ParseIP(item.IP)
 			}),
-		ControlledBy: pod.OwnerReferences[0].Kind + "/" + pod.OwnerReferences[0].Name,
+		ControlledBy: getPodOwner(pod),
 		QoSClass:     string(pod.Status.QOSClass),
 	}
 }
