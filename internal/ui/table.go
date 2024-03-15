@@ -32,9 +32,11 @@ func (m CoreUI) updateTableModel(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
 
-			// m.tableModel.SetHeight(msg.Height - m.tableModel.Height())
+			m.tableModel.SetHeight(msg.Height - m.tableModel.Height())
 			// m.tableModel.SetWidth(msg.Width - m.tableModel.Width())
+			m.tableModel.SetColumns(m.client.ResourceSelected.Columns())
 			logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
+			logging.Log.Infof("table size -> %d x %d", m.tableModel.Width(), m.tableModel.Height())
 			m.helpModel.Width = 20
 			m.tableModel, cmd = m.tableModel.Update(msg)
 			return m, cmd
