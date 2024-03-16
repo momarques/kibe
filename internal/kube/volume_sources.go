@@ -10,6 +10,45 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
+type PodVolumes []corev1.Volume
+
+type VolumeDetails struct {
+	Name    string
+	Source  string
+	Details interface{}
+}
+
+func (pv PodVolumes) fetchVolumeSourcesAsString() []map[string]string {
+	return lo.Map(pv, func(item corev1.Volume, _ int) map[string]string {
+		return map[string]string{
+			item.Name: printVolumeSource(item.VolumeSource),
+		}
+	})
+}
+
+func (pv PodVolumes) TabContent(page int) string {
+	volumes := pv.fetchVolumeSourcesAsString()
+	if pv == nil || len(volumes) == 0 {
+		return ""
+	}
+	volumeDetails := lo.Entries(volumes[page])[0]
+
+	renderer, err := glamour.NewTermRenderer(
+		glamour.WithWordWrap(60),
+		glamour.WithStyles(glamour.DarkStyleConfig),
+	)
+	if err != nil {
+		logging.Log.Error(err)
+	}
+	out, err := renderer.Render(
+		fmt.Sprintf("# %s\n ```yaml\n%s``` \n", volumeDetails.Key, volumeDetails.Value))
+
+	if err != nil {
+		logging.Log.Error(err)
+	}
+	return out
+}
+
 func printAWSElasticBlockStore(v *corev1.AWSElasticBlockStoreVolumeSource) string {
 	vs := fmt.Sprintf("Type: \tAWSElasticBlockStoreVolumeSource\n"+
 		"VolumeID: \t%v\n"+
@@ -362,41 +401,4 @@ func printVolumeSource(v corev1.VolumeSource) string {
 		return printVsphereVolume(v.VsphereVolume)
 	}
 	return ""
-}
-
-type PodVolumes []corev1.Volume
-
-func (pv PodVolumes) fetchVolumeSourcesAsString() []map[string]string {
-	return lo.Map(pv, func(item corev1.Volume, _ int) map[string]string {
-		return map[string]string{
-			item.Name: printVolumeSource(item.VolumeSource),
-		}
-	})
-}
-
-func (pv PodVolumes) TabContent() string {
-	volumes := pv.fetchVolumeSourcesAsString()
-
-	volumeDetails := lo.Entries(volumes[0])[0]
-
-	renderer, err := glamour.NewTermRenderer(
-		glamour.WithWordWrap(60),
-		glamour.WithStyles(glamour.DarkStyleConfig),
-	)
-	if err != nil {
-		logging.Log.Error(err)
-	}
-	out, err := renderer.Render(
-		fmt.Sprintf("# %s\n ```yaml\n%s``` \n", volumeDetails.Key, volumeDetails.Value))
-
-	if err != nil {
-		logging.Log.Error(err)
-	}
-	return out
-}
-
-type VolumeDetails struct {
-	Name    string
-	Source  string
-	Details interface{}
 }

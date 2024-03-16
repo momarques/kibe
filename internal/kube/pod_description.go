@@ -47,7 +47,6 @@ type PodDescription struct {
 func (p Pod) Describe(c *ClientReady, podID string) ResourceDescription {
 	pod := DescribePod(c, podID)
 
-	logging.Log.Info("conditions -> ", newPodStatus(pod))
 	return PodDescription{
 		Overview:      newPodOverview(pod),
 		Status:        newPodStatus(pod),
@@ -70,7 +69,7 @@ func (pd PodDescription) TabContent() []string {
 		pd.Status.TabContent(),
 		pd.Labels.TabContent(),
 		pd.Annotations.TabContent(),
-		pd.Volumes.TabContent(),
+		pd.Volumes.TabContent(0),
 		pd.Containers.TabContent(),
 		pd.NodeSelectors.TabContent(),
 		pd.Tolerations.TabContent(),
@@ -252,4 +251,16 @@ func prettyPrintTolerations(t corev1.Toleration) string {
 	}
 
 	return toleration.String()
+}
+
+func (pd PodDescription) SubContent(subContentIndex int) []string {
+	t := reflect.TypeFor[PodDescription]()
+	field := t.Field(subContentIndex)
+	if field.Name == "Volumes" {
+		return lo.Map(pd.Volumes,
+			func(item corev1.Volume, index int) string {
+				return pd.Volumes.TabContent(index)
+			})
+	}
+	return []string{}
 }

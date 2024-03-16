@@ -6,6 +6,12 @@ import (
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
+type ResourceDescription interface {
+	TabNames() []string
+	TabContent() []string
+	SubContent(int) []string
+}
+
 // ResourceLabels provides a map of labels from the resource
 type ResourceLabels map[string]string
 

@@ -69,8 +69,8 @@ func newTabKeyMap() tabKeyMap {
 		PreviousTab: bindings.New("previous tab", "left", "shift+tab"),
 		NextTab:     bindings.New("next tab", "right", "tab"),
 
-		PreviousContent: bindings.New("previous content", "up"),
-		NextContent:     bindings.New("next content", "down"),
+		PreviousContent: bindings.New("previous content", "left"),
+		NextContent:     bindings.New("next content", "right"),
 
 		Choose: bindings.New("choose", "enter"),
 		Back:   bindings.New("go back", "esc"),

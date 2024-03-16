@@ -13,3 +13,7 @@ func (sd ServiceDescription) TabContent() []string {
 func (sd ServiceDescription) TabNames() []string {
 	return []string{}
 }
+
+func (sd ServiceDescription) SubContent(subContentIndex int) []string {
+	return []string{}
+}

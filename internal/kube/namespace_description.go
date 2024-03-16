@@ -13,3 +13,7 @@ func (nd NamespaceDescription) TabContent() []string {
 func (nd NamespaceDescription) TabNames() []string {
 	return []string{}
 }
+
+func (nd NamespaceDescription) SubContent(subContentIndex int) []string {
+	return []string{}
+}

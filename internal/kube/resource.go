@@ -25,11 +25,6 @@ type Resource interface {
 	Rows() []table.Row
 }
 
-type ResourceDescription interface {
-	TabNames() []string
-	TabContent() []string
-}
-
 type SelectResource struct{ Resources []list.Item }
 
 func NewSelectResource(c *ClientReady) func() tea.Msg {
