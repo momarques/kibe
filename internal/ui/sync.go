@@ -41,7 +41,7 @@ func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
 		m.table.columns, m.table.rows, logMsg = m.client.FetchTableView()
 		m.table.paginator.SetTotalPages(len(m.table.rows))
 
-		m.table.paginator, _ = m.table.paginator.Update(msg)
+		m.table.paginator.Model, _ = m.table.paginator.Update(msg)
 		m.table, cmd = m.table.applyTableItems()
 
 		return time.Since(now)

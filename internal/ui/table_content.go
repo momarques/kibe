@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -11,7 +10,7 @@ type tableContent struct {
 
 	columns   []table.Column
 	rows      []table.Row
-	paginator paginator.Model
+	paginator paginatorModel
 }
 
 func newTableContent() tableContent {

@@ -64,7 +64,7 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, cmd
 
 			case key.Matches(msg, m.table.PreviousPage, m.table.NextPage):
-				m.table.paginator, _ = m.table.paginator.Update(msg)
+				m.table.paginator.Model, _ = m.table.paginator.Update(msg)
 				m.table, cmd = m.table.applyTableItems()
 
 				return m, cmd

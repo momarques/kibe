@@ -140,7 +140,7 @@ func (m CoreUI) composedView() string {
 
 	leftUtilityPanel := lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.paginatorView(),
+		m.table.paginator.view(),
 		m.syncBarView(),
 	)
 

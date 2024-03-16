@@ -4,7 +4,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/paginator"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
@@ -31,7 +30,7 @@ type tabModel struct {
 	TabContent       []string
 	TabSubContent    []string
 
-	paginator paginator.Model
+	paginator paginatorModel
 	kube.ResourceDescription
 	tabKeyMap
 	tabViewState
@@ -70,7 +69,7 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case key.Matches(msg, m.tab.Choose):
 				m.tab.tabViewState = contentSelected
-				m.tab = m.tab.fetchSubContent()
+				m.tab = m.tab.fetchSubContent(msg)
 				return m, nil
 			}
 		}
@@ -88,12 +87,12 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case key.Matches(msg, m.tab.NextContent):
-				m.tab.paginator, _ = m.tab.paginator.Update(msg)
+				m.tab.paginator.Model, _ = m.tab.paginator.Update(msg)
 				m.tab.activeSubContent = min(m.tab.activeSubContent+1, len(m.tab.TabSubContent)-1)
 				return m, nil
 
 			case key.Matches(msg, m.tab.PreviousContent):
-				m.tab.paginator, _ = m.tab.paginator.Update(msg)
+				m.tab.paginator.Model, _ = m.tab.paginator.Update(msg)
 				m.tab.activeSubContent = max(m.tab.activeSubContent-1, 0)
 				return m, nil
 
@@ -165,7 +164,10 @@ func (m CoreUI) tabView() string {
 	case noContentSelected:
 		content = m.tab.TabContent[m.tab.activeTab]
 	case contentSelected:
-		content = m.tab.TabSubContent[m.tab.activeSubContent]
+		content = lipgloss.JoinVertical(
+			lipgloss.Left,
+			m.tab.TabSubContent[m.tab.activeSubContent],
+			m.tab.paginator.view())
 	}
 
 	doc.WriteString(tabs)
@@ -208,7 +210,9 @@ func (t tabModel) describeResource(c *kube.ClientReady, resourceID string) (tabM
 	}
 }
 
-func (t tabModel) fetchSubContent() tabModel {
+func (t tabModel) fetchSubContent(msg tea.Msg) tabModel {
 	t.TabSubContent = t.ResourceDescription.SubContent(t.activeTab)
+	t.paginator.SetTotalPages(len(t.TabSubContent))
+	t.paginator.Model, _ = t.paginator.Update(msg)
 	return t
 }

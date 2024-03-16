@@ -6,8 +6,11 @@ import (
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
-func newPaginatorModel(itemsPerPage int) paginator.Model {
+type paginatorModel struct {
+	paginator.Model
+}
 
+func newPaginatorModel(itemsPerPage int) paginatorModel {
 	p := paginator.New()
 	p.Type = paginator.Dots
 	p.PerPage = itemsPerPage
@@ -18,13 +21,19 @@ func newPaginatorModel(itemsPerPage int) paginator.Model {
 		Foreground(lipgloss.AdaptiveColor{Light: "250", Dark: "#624548"}).
 		Render("•")
 
-	return p
+	return paginatorModel{
+		Model: p,
+	}
 }
 
-func (m CoreUI) paginatorView() string {
+func (p paginatorModel) loadPages() paginatorModel {
+	return paginatorModel{}
+}
+
+func (p paginatorModel) view() string {
 	return uistyles.PaginatorStyle.
 		Copy().
 		MarginRight(40).
 		MarginBottom(1).
-		Render(m.table.paginator.View())
+		Render(p.View())
 }
