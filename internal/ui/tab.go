@@ -159,21 +159,23 @@ func (m CoreUI) tabView() string {
 		Width((lipgloss.Width(tabs) - windowStyle.GetHorizontalFrameSize()))
 
 	var content string
+	var contentBlock lipgloss.Style = lipgloss.NewStyle().Height(16)
 
 	switch m.tab.tabViewState {
 	case noContentSelected:
 		content = m.tab.TabContent[m.tab.activeTab]
 	case contentSelected:
-		content = lipgloss.JoinVertical(
-			lipgloss.Left,
-			m.tab.TabSubContent[m.tab.activeSubContent],
-			m.tab.paginator.view())
+		content = m.tab.TabSubContent[m.tab.activeSubContent]
 	}
 
 	doc.WriteString(tabs)
 	doc.WriteString("\n")
-	doc.WriteString(contentStyle.Render(content))
-
+	doc.WriteString(contentStyle.Render(
+		lipgloss.JoinVertical(
+			lipgloss.Left,
+			contentBlock.Render(content),
+			m.tab.paginator.view(),
+		)))
 	return uistyles.DocStyle.Render(doc.String())
 }
 

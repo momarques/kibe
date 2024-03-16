@@ -47,7 +47,7 @@ var (
 		// Width(WindowWidth - 60)
 	windowStyle = lipgloss.NewStyle().
 			BorderForeground(highlightColor).
-			Padding(2, 0).
+			Padding(1, 0).
 		// Align(lipgloss.Center, lipgloss.Center).
 		Border(lipgloss.NormalBorder()).
 		UnsetBorderTop()
