@@ -31,7 +31,7 @@ func NewPodResource() Pod  { return Pod{kind: "Pod"} }
 func (p Pod) Kind() string { return p.kind }
 
 func (p Pod) List(c *ClientReady) Resource {
-	pods, err := c.Client.
+	pods, err := c.
 		CoreV1().
 		Pods(string(c.NamespaceSelected)).
 		List(context.Background(), v1.ListOptions{})

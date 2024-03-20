@@ -61,19 +61,28 @@ func NewKubeClient(context string) *kubernetes.Clientset {
 	return client
 }
 
-type RequestState chan error
+type TableResponse struct {
+	Columns   []table.Column
+	Rows      []table.Row
+	Operation string
+
+	FetchDuration time.Duration
+	Err           chan error
+}
 
 type ClientReady struct {
-	Client *kubernetes.Clientset
+	*kubernetes.Clientset
 
 	ContextSelected
 	NamespaceSelected
 	ResourceSelected
+
+	TableResponse
 }
 
 func NewClientReady(context string) *ClientReady {
 	return &ClientReady{
-		Client:          NewKubeClient(context),
+		Clientset:       NewKubeClient(context),
 		ContextSelected: ContextSelected(context),
 	}
 }
@@ -91,9 +100,17 @@ func (c *ClientReady) WithResource(r Resource) *ClientReady {
 	return c
 }
 
-func (c *ClientReady) FetchTableView() ([]table.Column, []table.Row, string) {
+func (c *ClientReady) FetchTableView(responseCh chan TableResponse) string {
+	var now = time.Now()
+
+	logging.Log.Info("fetch -> ")
+
 	resource := c.ResourceSelected.List(c)
-	return resource.Columns(),
-		resource.Rows(),
-		fmt.Sprintf("%ss listed", resource.Kind())
+
+	responseCh <- TableResponse{
+		Columns:       resource.Columns(),
+		Rows:          resource.Rows(),
+		FetchDuration: time.Since(now),
+	}
+	return fmt.Sprintf("listing %ss", resource.Kind())
 }

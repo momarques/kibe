@@ -21,7 +21,7 @@ func NewNamespaceResource() Namespace { return Namespace{kind: "Namespace"} }
 func (n Namespace) Kind() string      { return n.kind }
 
 func (n Namespace) List(c *ClientReady) Resource {
-	namespaces, err := c.Client.
+	namespaces, err := c.
 		CoreV1().
 		Namespaces().
 		List(context.Background(), v1.ListOptions{})
