@@ -68,23 +68,30 @@ func (m CoreUI) updateStatusLog(msg statusLogMessage, replaceAtIndex int) CoreUI
 	return m
 }
 
+func (s statusLogMessage) formatDuration() string {
+	if s.duration > 0 {
+		return fmt.Sprintf(" %dms", s.duration.Milliseconds())
+	}
+	return ""
+}
+
+func (s statusLogMessage) formatTimestamp() string {
+	if s.text != "" {
+		return fmt.Sprintf("%s ", s.timestamp.Format(time.TimeOnly))
+	}
+	return ""
+}
+
 func (s statusLogModel) String() []string {
 	logStream := s.Out().Val().([]statusLogMessage)
 
 	return lo.Map(logStream, func(item statusLogMessage, index int) string {
-		var duration string
-		var text string = item.text
-		var timestamp string
-
-		if item.duration > 0 {
-			duration = fmt.Sprintf(" %dms", item.duration.Milliseconds())
-		}
-		if item.text != "" {
-			timestamp = item.timestamp.Format(time.TimeOnly)
-		}
 		return lipgloss.NewStyle().
 			Foreground(uistyles.StatusLogMessages[index]).
-			Render(timestamp + " " + text + duration)
+			Render(
+				item.formatTimestamp() +
+					item.text +
+					item.formatDuration())
 	})
 }
 
