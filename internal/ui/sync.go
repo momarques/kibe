@@ -7,7 +7,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
@@ -23,19 +22,10 @@ const (
 	unsyncedColor string = "#d83f24"
 )
 
-type lastSync time.Time
-
-func (l lastSync) Cmd() func() tea.Msg {
-	return func() tea.Msg {
-		return l
-	}
-}
-
 func (m CoreUI) sync() (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
 	var logMsg string
 
-	logging.Log.Info("sync -> ")
 	m, cmd = m.changeSyncState(syncing)
 
 	go func() {
@@ -50,10 +40,6 @@ func (m CoreUI) sync() (CoreUI, tea.Cmd) {
 		}),
 	)
 }
-
-// func startSyncing(t time.Time) tea.Msg {
-// 	return unsynced
-// }
 
 type syncStarted time.Time
 
@@ -82,7 +68,6 @@ func newSyncBarModel() syncBarModel {
 func (m CoreUI) changeSyncState(state syncState) (CoreUI, tea.Cmd) {
 	m.table.syncState = state
 
-	logging.Log.Info("changing state to: ", state)
 	switch state {
 	case synced:
 		m.syncBar.text = "synced"

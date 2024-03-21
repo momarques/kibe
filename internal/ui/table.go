@@ -6,7 +6,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
@@ -50,8 +49,6 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.SetHeight(msg.Height - m.table.Height())
 			// m.table.SetWidth(msg.Width - m.table.Width())
 			m.table.SetColumns(m.client.ResourceSelected.Columns())
-			// logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
-			// logging.Log.Infof("table size -> %d x %d", m.table.Width(), m.table.Height())
 			m.help.Width = 20
 			m.table.Model, cmd = m.table.Update(msg)
 			return m, cmd
@@ -84,29 +81,16 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case syncStarted:
-			logging.Log.Info("syncing started -> ")
 			return m.updateOnTableResponse()
 
-		case lastSync:
-
-			m, cmd = m.changeSyncState(unsynced)
-			return m, cmd
-
-		// case syncState:
-		// 	if msg == unsynced {
-		// 		m, _ = m.changeSyncState(msg)
-		// 		return m.sync()
-		// 	}
 		default:
 			if m.table.syncState == synced {
-				logging.Log.Info("start syncing -> ")
 				return m.sync()
 			}
 			return m, nil
 		}
 
 	case unsynced:
-		logging.Log.Info("unsynced -> ")
 		return m.sync()
 	}
 

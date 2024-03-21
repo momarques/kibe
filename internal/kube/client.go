@@ -103,8 +103,6 @@ func (c *ClientReady) WithResource(r Resource) *ClientReady {
 func (c *ClientReady) FetchTableView(responseCh chan TableResponse) string {
 	var now = time.Now()
 
-	logging.Log.Info("fetch -> ")
-
 	resource := c.ResourceSelected.List(c)
 
 	responseCh <- TableResponse{
