@@ -14,14 +14,28 @@ import (
 	"github.com/wesovilabs/koazee/stream"
 )
 
-type statusLogModel struct {
-	stream.Stream
-}
-
 type statusLogMessage struct {
 	duration  time.Duration
 	text      string
 	timestamp time.Time
+}
+
+func (s statusLogMessage) formatDuration() string {
+	if s.duration > 0 {
+		return fmt.Sprintf(" %dms", s.duration.Milliseconds())
+	}
+	return ""
+}
+
+func (s statusLogMessage) formatTimestamp() string {
+	if s.text != "" {
+		return fmt.Sprintf("%s ", s.timestamp.Format(time.TimeOnly))
+	}
+	return ""
+}
+
+type statusLogModel struct {
+	stream.Stream
 }
 
 func newStatusLogModel() statusLogModel {
@@ -31,6 +45,19 @@ func newStatusLogModel() statusLogModel {
 	return statusLogModel{
 		Stream: stream,
 	}
+}
+
+func (s statusLogModel) String() []string {
+	logStream := s.Out().Val().([]statusLogMessage)
+
+	return lo.Map(logStream, func(item statusLogMessage, index int) string {
+		return lipgloss.NewStyle().
+			Foreground(uistyles.StatusLogMessages[index]).
+			Render(
+				item.formatTimestamp() +
+					item.text +
+					item.formatDuration())
+	})
 }
 
 func (m CoreUI) logProcess(text string) tea.Cmd {
@@ -66,33 +93,6 @@ func (m CoreUI) updateStatusLog(msg statusLogMessage, replaceAtIndex int) CoreUI
 		m.statusLog.Stream = m.statusLog.Set(replaceAtIndex, msg)
 	}
 	return m
-}
-
-func (s statusLogMessage) formatDuration() string {
-	if s.duration > 0 {
-		return fmt.Sprintf(" %dms", s.duration.Milliseconds())
-	}
-	return ""
-}
-
-func (s statusLogMessage) formatTimestamp() string {
-	if s.text != "" {
-		return fmt.Sprintf("%s ", s.timestamp.Format(time.TimeOnly))
-	}
-	return ""
-}
-
-func (s statusLogModel) String() []string {
-	logStream := s.Out().Val().([]statusLogMessage)
-
-	return lo.Map(logStream, func(item statusLogMessage, index int) string {
-		return lipgloss.NewStyle().
-			Foreground(uistyles.StatusLogMessages[index]).
-			Render(
-				item.formatTimestamp() +
-					item.text +
-					item.formatDuration())
-	})
 }
 
 func (m CoreUI) statusLogView() string {
