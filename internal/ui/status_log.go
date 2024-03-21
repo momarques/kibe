@@ -32,23 +32,27 @@ func newStatusLogModel() statusLogModel {
 	}
 }
 
-func (m CoreUI) logProcess(text string, duration time.Duration) tea.Cmd {
+func (m CoreUI) logProcess(text string) tea.Cmd {
 	return func() tea.Msg {
 		return statusLogMessage{
-			duration:  duration,
 			text:      text,
 			timestamp: time.Now(),
 		}
 	}
 }
 
-func (m CoreUI) updateStatusLog(msg tea.Msg) tea.Model {
-	switch msg := msg.(type) {
-	case statusLogMessage:
-		m.statusLog.Stream = m.statusLog.Add(msg)
-		if total, _ := m.statusLog.Count(); total > 10 {
-			_, m.statusLog.Stream = m.statusLog.Pop()
-		}
+func (m CoreUI) logProcessDuration(status string, duration time.Duration) statusLogMessage {
+	msg := m.statusLog.Last().Val().(statusLogMessage)
+	msg.duration = duration
+	msg.text = fmt.Sprintf("%s - %s", msg.text, status)
+
+	return msg
+}
+
+func (m CoreUI) updateStatusLog(msg statusLogMessage) CoreUI {
+	m.statusLog.Stream = m.statusLog.Add(msg)
+	if total, _ := m.statusLog.Count(); total > 10 {
+		_, m.statusLog.Stream = m.statusLog.Pop()
 	}
 	return m
 }

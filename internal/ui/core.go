@@ -3,6 +3,7 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
@@ -19,6 +20,8 @@ const (
 
 type CoreUI struct {
 	viewState
+	spinnerState
+
 	height int
 
 	client *kube.ClientReady
@@ -30,6 +33,7 @@ type CoreUI struct {
 
 	header    headerModel
 	help      help.Model
+	spinner   spinner.Model
 	statusBar statusbar.Model
 	statusLog statusLogModel
 	syncBar   syncBarModel
@@ -60,7 +64,7 @@ func (m CoreUI) Init() tea.Cmd {
 }
 
 func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg.(type) {
+	switch msg := msg.(type) {
 	case tea.QuitMsg:
 		return m, tea.Quit
 	case statusLogMessage:

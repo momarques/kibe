@@ -17,6 +17,8 @@ type tableModel struct {
 	tableContent
 	tableKeyMap
 	table.Model
+
+	response chan kube.TableResponse
 }
 
 func newTableModel() tableModel {
@@ -29,9 +31,11 @@ func newTableModel() tableModel {
 		windowutil.ComputeHeightPercentage(tableViewHeightPercentage))
 
 	return tableModel{
+		Model: t,
+
+		response:     make(chan kube.TableResponse),
 		tableContent: newTableContent(),
 		tableKeyMap:  newTableKeyMap(),
-		Model:        t,
 	}
 }
 
@@ -46,8 +50,8 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.table.SetHeight(msg.Height - m.table.Height())
 			// m.table.SetWidth(msg.Width - m.table.Width())
 			m.table.SetColumns(m.client.ResourceSelected.Columns())
-			logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
-			logging.Log.Infof("table size -> %d x %d", m.table.Width(), m.table.Height())
+			// logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
+			// logging.Log.Infof("table size -> %d x %d", m.table.Width(), m.table.Height())
 			m.help.Width = 20
 			m.table.Model, cmd = m.table.Update(msg)
 			return m, cmd
@@ -79,26 +83,58 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.header.itemCount = msg
 			return m, nil
 
+		case syncStarted:
+			logging.Log.Info("syncing started -> ")
+			return m.updateOnTableResponse()
+
 		case lastSync:
-			m.table.syncState = synced
-			m.syncBar = m.changeSyncState()
 
-			return m, tea.Batch(tea.Tick(kube.ResquestTimeout, startSyncing))
+			m, cmd = m.changeSyncState(unsynced)
+			return m, cmd
 
-		case syncState:
-			if msg == unsynced {
-				m.table.syncState = msg
-				m.syncBar = m.changeSyncState()
-				return m.sync(nil)
+		// case syncState:
+		// 	if msg == unsynced {
+		// 		m, _ = m.changeSyncState(msg)
+		// 		return m.sync()
+		// 	}
+		default:
+			if m.table.syncState == synced {
+				logging.Log.Info("start syncing -> ")
+				return m.sync()
 			}
+			return m, nil
 		}
 
 	case unsynced:
-		return m.sync(msg)
+		logging.Log.Info("unsynced -> ")
+		return m.sync()
 	}
 
 	m.table.Model, cmd = m.table.Update(msg)
 	return m, cmd
+}
+
+func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	if response, ok := <-m.table.response; ok {
+		m.table.rows = response.Rows
+		m.table.columns = response.Columns
+
+		m.table.paginator.SetTotalPages(len(m.table.rows))
+		// m.table.paginator.Model, _ = m.table.paginator.Update(nil)
+
+		m.table, cmd = m.table.applyTableItems()
+		cmds = append(cmds, cmd)
+
+		m, cmd = m.changeSyncState(synced)
+		cmds = append(cmds, cmd)
+		return m.updateStatusLog(m.logProcessDuration("OK", response.FetchDuration)),
+			tea.Batch(cmds...)
+	}
+
+	return m, nil
 }
 
 func (m CoreUI) tableView() string {

@@ -54,7 +54,7 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			case key.Matches(msg, m.tab.Back):
 				m.viewState = showTable
-				return m.sync(nil)
+				return m.sync()
 
 			case key.Matches(msg, m.tab.Quit):
 				return m, tea.Quit
