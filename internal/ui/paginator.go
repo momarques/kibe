@@ -26,10 +26,6 @@ func newPaginatorModel(itemsPerPage int) paginatorModel {
 	}
 }
 
-func (p paginatorModel) loadPages() paginatorModel {
-	return paginatorModel{}
-}
-
 func (p paginatorModel) view() string {
 	return uistyles.PaginatorStyle.
 		Copy().

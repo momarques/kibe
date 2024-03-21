@@ -89,18 +89,6 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m CoreUI) View() string {
-	switch m.viewState {
-
-	case showList:
-		return m.listView()
-
-	case showTable, showTab:
-		return m.composedView()
-	}
-	return m.View()
-}
-
 func (m CoreUI) showHelpLines(helpBindingLines ...[]key.Binding) []string {
 	var helpLines []string
 
@@ -164,4 +152,16 @@ func (m CoreUI) composedView() string {
 			bottomPanel,
 			m.statusLogView()),
 		m.statusBar.View())
+}
+
+func (m CoreUI) View() string {
+	switch m.viewState {
+
+	case showList:
+		return m.listView()
+
+	case showTable, showTab:
+		return m.composedView()
+	}
+	return m.View()
 }

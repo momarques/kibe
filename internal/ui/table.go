@@ -12,6 +12,21 @@ import (
 
 const tableViewHeightPercentage int = 32
 
+type tableContent struct {
+	syncState
+
+	columns   []table.Column
+	rows      []table.Row
+	paginator paginatorModel
+}
+
+func newTableContent() tableContent {
+	return tableContent{
+		syncState: unsynced,
+		paginator: newPaginatorModel(15),
+	}
+}
+
 type tableModel struct {
 	tableContent
 	tableKeyMap
@@ -36,6 +51,36 @@ func newTableModel() tableModel {
 		tableContent: newTableContent(),
 		tableKeyMap:  newTableKeyMap(),
 	}
+}
+
+func (m tableModel) applyTableItems() (tableModel, tea.Cmd) {
+	m.SetColumns(m.columns)
+
+	start, end := m.paginator.GetSliceBounds(len(m.rows))
+	m.SetRows(m.rows[start:end])
+	return m, m.updateHeader(len(m.rows))
+}
+
+func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
+	var cmd tea.Cmd
+	var cmds []tea.Cmd
+
+	if response, ok := <-m.table.response; ok {
+		m.table.rows = response.Rows
+		m.table.columns = response.Columns
+
+		m.table.paginator.SetTotalPages(len(m.table.rows))
+
+		m.table, cmd = m.table.applyTableItems()
+		cmds = append(cmds, cmd)
+
+		m, cmd = m.changeSyncState(inSync)
+		cmds = append(cmds, cmd)
+		return m.updateStatusLog(m.logProcessDuration("OK", response.FetchDuration)),
+			tea.Batch(cmds...)
+	}
+
+	return m, nil
 }
 
 func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -85,40 +130,17 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		default:
 			if m.table.syncState == inSync {
-				return m.sync()
+				return m.syncTable()
 			}
 			return m, nil
 		}
 
 	case unsynced:
-		return m.sync()
+		return m.syncTable()
 	}
 
 	m.table.Model, cmd = m.table.Update(msg)
 	return m, cmd
-}
-
-func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
-	var cmd tea.Cmd
-	var cmds []tea.Cmd
-
-	if response, ok := <-m.table.response; ok {
-		m.table.rows = response.Rows
-		m.table.columns = response.Columns
-
-		m.table.paginator.SetTotalPages(len(m.table.rows))
-		// m.table.paginator.Model, _ = m.table.paginator.Update(nil)
-
-		m.table, cmd = m.table.applyTableItems()
-		cmds = append(cmds, cmd)
-
-		m, cmd = m.changeSyncState(inSync)
-		cmds = append(cmds, cmd)
-		return m.updateStatusLog(m.logProcessDuration("OK", response.FetchDuration)),
-			tea.Batch(cmds...)
-	}
-
-	return m, nil
 }
 
 func (m CoreUI) tableView() string {

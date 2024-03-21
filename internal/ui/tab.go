@@ -11,16 +11,16 @@ import (
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
+const tabViewShowedHeightPercentage int = 36
+const tabViewHiddenHeightPercentage int = 44
+const tabViewHiddenWidthPercentage int = 65
+
 type tabViewState int
 
 const (
 	contentSelected tabViewState = iota
 	noContentSelected
 )
-
-const tabViewShowedHeightPercentage int = 36
-const tabViewHiddenHeightPercentage int = 44
-const tabViewHiddenWidthPercentage int = 65
 
 type tabModel struct {
 	activeTab        int
@@ -54,7 +54,7 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			case key.Matches(msg, m.tab.Back):
 				m.viewState = showTable
-				return m.sync()
+				return m.syncTable()
 
 			case key.Matches(msg, m.tab.Quit):
 				return m, tea.Quit
@@ -105,23 +105,7 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m CoreUI) tabView() string {
-	if m.tab.Tabs == nil {
-		return lipgloss.NewStyle().
-			Height(windowutil.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
-			Width(windowutil.ComputeWidthPercentage(tabViewHiddenWidthPercentage)).
-			Render("")
-	}
-
-	switch m.viewState {
-	case showTable:
-		m.tab.dimm = true
-	case showTab:
-		m.tab.dimm = false
-	}
-
-	doc := strings.Builder{}
-
+func (m CoreUI) formatTabs() []string {
 	var activeStyle, inactiveStyle lipgloss.Style = uistyles.NewTabStyle(m.tab.dimm)
 	var renderedTabs []string
 
@@ -149,8 +133,27 @@ func (m CoreUI) tabView() string {
 		renderedTabs = append(renderedTabs, style.Render(t))
 	}
 
-	tabs := lipgloss.JoinHorizontal(lipgloss.Top, renderedTabs...)
+	return renderedTabs
+}
 
+func (m CoreUI) tabView() string {
+	if m.tab.Tabs == nil {
+		return lipgloss.NewStyle().
+			Height(windowutil.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
+			Width(windowutil.ComputeWidthPercentage(tabViewHiddenWidthPercentage)).
+			Render("")
+	}
+
+	switch m.viewState {
+	case showTable:
+		m.tab.dimm = true
+	case showTab:
+		m.tab.dimm = false
+	}
+
+	doc := strings.Builder{}
+
+	tabs := lipgloss.JoinHorizontal(lipgloss.Top, m.formatTabs()...)
 	windowStyle := uistyles.NewWindowStyle(m.tab.dimm)
 
 	contentStyle := windowStyle.

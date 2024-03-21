@@ -31,8 +31,9 @@ func newListModel() listModel {
 	l.InfiniteScrolling = false
 	l.KeyMap.Quit = bindings.New("quit", "q", "ctrl+c")
 	return listModel{
+		Model: l,
+
 		listSelector: selector,
-		Model:        l,
 	}
 }
 
@@ -50,6 +51,7 @@ func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.height = msg.Height
 		m.statusBar.SetSize(msg.Width)
+		return m, nil
 
 	case tea.KeyMsg:
 		if m.list.FilterState() == list.Filtering {

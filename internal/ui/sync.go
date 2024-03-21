@@ -21,45 +21,11 @@ const (
 	unsyncedColor string = "#d83f24"
 )
 
-func (m CoreUI) sync() (CoreUI, tea.Cmd) {
-	var cmd tea.Cmd
-
-	m, cmd = m.changeSyncState(syncing)
-
-	go func() {
-		m.client.FetchTableView(m.table.response)
-	}()
-
-	return m, tea.Batch(
-		cmd,
-		m.logProcess(m.client.LogOperation()),
-		tea.Tick(kube.ResquestTimeout, func(t time.Time) tea.Msg {
-			return syncStarted(time.Now())
-		}),
-	)
-}
-
 type syncStarted time.Time
 
 func (s syncStarted) Cmd() func() tea.Msg {
 	return func() tea.Msg {
 		return s
-	}
-}
-
-type syncBarModel struct {
-	color   lipgloss.Color
-	spinner spinner.Model
-	text    string
-}
-
-func newSyncBarModel() syncBarModel {
-	sp := spinner.New(
-		spinner.WithStyle(uistyles.OKStatusMessage),
-	)
-	sp.Spinner = spinner.Dot
-	return syncBarModel{
-		spinner: sp,
 	}
 }
 
@@ -77,6 +43,40 @@ func (m CoreUI) changeSyncState(state syncState) (CoreUI, tea.Cmd) {
 		// m.spinnerState = hideSpinner
 	}
 	return m, m.syncBar.spinner.Tick
+}
+
+func (m CoreUI) syncTable() (CoreUI, tea.Cmd) {
+	var cmd tea.Cmd
+
+	m, cmd = m.changeSyncState(syncing)
+
+	go func() {
+		m.client.FetchTableView(m.table.response)
+	}()
+
+	return m, tea.Batch(
+		cmd,
+		m.logProcess(m.client.LogOperation()),
+		tea.Tick(kube.ResquestTimeout, func(t time.Time) tea.Msg {
+			return syncStarted(time.Now())
+		}),
+	)
+}
+
+type syncBarModel struct {
+	color   lipgloss.Color
+	spinner spinner.Model
+	text    string
+}
+
+func newSyncBarModel() syncBarModel {
+	sp := spinner.New(
+		spinner.WithStyle(uistyles.OKStatusMessage),
+	)
+	sp.Spinner = spinner.Dot
+	return syncBarModel{
+		spinner: sp,
+	}
 }
 
 func (m CoreUI) syncBarView() string {
