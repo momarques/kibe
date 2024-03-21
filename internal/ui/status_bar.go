@@ -31,7 +31,7 @@ func newStatusBarModel() statusbar.Model {
 
 type statusBarUpdated struct{ resource, context, namespace string }
 
-func (s *listSelector) updateStatusBar() func() tea.Msg {
+func (s listSelector) updateStatusBar() func() tea.Msg {
 	return func() tea.Msg {
 		return statusBarUpdated{
 			resource:  s.resource,

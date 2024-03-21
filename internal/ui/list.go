@@ -14,7 +14,7 @@ import (
 
 type listModel struct {
 	list.Model
-	listSelector
+	*listSelector
 }
 
 func newListModel() listModel {

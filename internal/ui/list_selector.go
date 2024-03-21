@@ -23,6 +23,7 @@ const (
 type listSelector struct {
 	clientState
 	spinnerState
+
 	client    *kube.ClientReady
 	spinner   spinner.Model
 	chooseKey key.Binding
@@ -33,13 +34,13 @@ type listSelector struct {
 	useCurrentContext bool
 }
 
-func newListSelector() listSelector {
+func newListSelector() *listSelector {
 	sp := spinner.New(
 		spinner.WithStyle(uistyles.OKStatusMessage),
 	)
 	sp.Spinner = spinner.Dot
 
-	return listSelector{
+	return &listSelector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,
 
@@ -51,7 +52,7 @@ func newListSelector() listSelector {
 	}
 }
 
-func newItemDelegate(s listSelector) list.DefaultDelegate {
+func newItemDelegate(s *listSelector) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
 	d.UpdateFunc = s.update
@@ -158,7 +159,6 @@ func (s listSelector) resourceSelected() func() tea.Msg {
 			}
 			return false
 		})
-
 	return func() tea.Msg { return r }
 }
 
@@ -168,7 +168,6 @@ func (s listSelector) clientReady() func() tea.Msg {
 
 func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cmd {
 	switch {
-
 	case key.Matches(msg, s.chooseKey):
 		switch i := m.SelectedItem().(type) {
 
