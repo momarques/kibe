@@ -24,17 +24,16 @@ const (
 
 func (m CoreUI) sync() (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
-	var logMsg string
 
 	m, cmd = m.changeSyncState(syncing)
 
 	go func() {
-		logMsg = m.client.FetchTableView(m.table.response)
+		m.client.FetchTableView(m.table.response)
 	}()
 
 	return m, tea.Batch(
 		cmd,
-		m.logProcess(logMsg),
+		m.logProcess(m.client.LogOperation()),
 		tea.Tick(kube.ResquestTimeout, func(t time.Time) tea.Msg {
 			return syncStarted(time.Now())
 		}),

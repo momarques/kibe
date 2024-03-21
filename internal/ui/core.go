@@ -68,7 +68,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.QuitMsg:
 		return m, tea.Quit
 	case statusLogMessage:
-		return m.updateStatusLog(msg), nil
+		return m.updateStatusLog(msg, -1), nil
 	}
 
 	switch m.viewState {

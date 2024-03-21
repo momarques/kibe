@@ -7,6 +7,7 @@ import (
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"github.com/samber/lo"
 	"github.com/wesovilabs/koazee"
@@ -41,18 +42,28 @@ func (m CoreUI) logProcess(text string) tea.Cmd {
 	}
 }
 
-func (m CoreUI) logProcessDuration(status string, duration time.Duration) statusLogMessage {
-	msg := m.statusLog.Last().Val().(statusLogMessage)
+func (m CoreUI) logProcessDuration(status string, duration time.Duration) (statusLogMessage, int) {
+	streamPosition := m.statusLog.Last()
+	index, err := m.statusLog.LastIndexOf(streamPosition.Val().(statusLogMessage))
+	if err != nil {
+		logging.Log.Error(err)
+	}
+
+	msg := streamPosition.Val().(statusLogMessage)
 	msg.duration = duration
 	msg.text = fmt.Sprintf("%s - %s", msg.text, status)
 
-	return msg
+	return msg, index
 }
 
-func (m CoreUI) updateStatusLog(msg statusLogMessage) CoreUI {
-	m.statusLog.Stream = m.statusLog.Add(msg)
-	if total, _ := m.statusLog.Count(); total > 10 {
-		_, m.statusLog.Stream = m.statusLog.Pop()
+func (m CoreUI) updateStatusLog(msg statusLogMessage, replaceAtIndex int) CoreUI {
+	if replaceAtIndex == -1 {
+		m.statusLog.Stream = m.statusLog.Add(msg)
+		if total, _ := m.statusLog.Count(); total > 10 {
+			_, m.statusLog.Stream = m.statusLog.Pop()
+		}
+	} else {
+		m.statusLog.Stream = m.statusLog.Set(replaceAtIndex, msg)
 	}
 	return m
 }
@@ -66,8 +77,10 @@ func (s statusLogModel) String() []string {
 		var timestamp string
 
 		if item.duration > 0 {
-			timestamp = item.timestamp.Format(time.DateTime)
 			duration = fmt.Sprintf(" %dms", item.duration.Milliseconds())
+		}
+		if item.text != "" {
+			timestamp = item.timestamp.Format(time.TimeOnly)
 		}
 		return lipgloss.NewStyle().
 			Foreground(uistyles.StatusLogMessages[index]).

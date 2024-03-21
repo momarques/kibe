@@ -100,7 +100,7 @@ func (c *ClientReady) WithResource(r Resource) *ClientReady {
 	return c
 }
 
-func (c *ClientReady) FetchTableView(responseCh chan TableResponse) string {
+func (c *ClientReady) FetchTableView(responseCh chan TableResponse) {
 	var now = time.Now()
 
 	resource := c.ResourceSelected.List(c)
@@ -110,5 +110,8 @@ func (c *ClientReady) FetchTableView(responseCh chan TableResponse) string {
 		Rows:          resource.Rows(),
 		FetchDuration: time.Since(now),
 	}
-	return fmt.Sprintf("listing %ss", resource.Kind())
+}
+
+func (c *ClientReady) LogOperation() string {
+	return fmt.Sprintf("listing %ss", c.ResourceSelected.Kind())
 }
