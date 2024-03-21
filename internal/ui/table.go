@@ -42,7 +42,7 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch m.table.syncState {
-	case synced, syncing:
+	case inSync, syncing:
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
 
@@ -84,7 +84,7 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m.updateOnTableResponse()
 
 		default:
-			if m.table.syncState == synced {
+			if m.table.syncState == inSync {
 				return m.sync()
 			}
 			return m, nil
@@ -112,7 +112,7 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 		m.table, cmd = m.table.applyTableItems()
 		cmds = append(cmds, cmd)
 
-		m, cmd = m.changeSyncState(synced)
+		m, cmd = m.changeSyncState(inSync)
 		cmds = append(cmds, cmd)
 		return m.updateStatusLog(m.logProcessDuration("OK", response.FetchDuration)),
 			tea.Batch(cmds...)

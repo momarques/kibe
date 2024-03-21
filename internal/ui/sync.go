@@ -13,12 +13,11 @@ import (
 type syncState int
 
 const (
-	synced syncState = iota
+	inSync syncState = iota
 	unsynced
 	syncing
 
-	syncedColor   string = "#a4c847"
-	syncingColor  string = "#cea540"
+	inSyncColor   string = "#a4c847"
 	unsyncedColor string = "#d83f24"
 )
 
@@ -68,18 +67,14 @@ func (m CoreUI) changeSyncState(state syncState) (CoreUI, tea.Cmd) {
 	m.table.syncState = state
 
 	switch state {
-	case synced:
-		m.syncBar.text = "synced"
-		m.syncBar.color = lipgloss.Color(syncedColor)
-		m.spinnerState = hideSpinner
-	case syncing:
-		m.syncBar.text = "syncing"
-		m.syncBar.color = lipgloss.Color(syncingColor)
-		m.spinnerState = showSpinner
+	case inSync:
+		m.syncBar.text = "in sync"
+		m.syncBar.color = lipgloss.Color(inSyncColor)
+		// m.spinnerState = showSpinner
 	case unsynced:
 		m.syncBar.text = "unsynced"
 		m.syncBar.color = lipgloss.Color(unsyncedColor)
-		m.spinnerState = hideSpinner
+		// m.spinnerState = hideSpinner
 	}
 	return m, m.syncBar.spinner.Tick
 }
