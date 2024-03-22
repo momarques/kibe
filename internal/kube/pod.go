@@ -30,8 +30,8 @@ type Pod struct {
 func NewPodResource() Pod  { return Pod{kind: "Pod"} }
 func (p Pod) Kind() string { return p.kind }
 
-func (p Pod) List(c *ClientReady) Resource {
-	pods, err := c.Client.
+func (p Pod) List(c *ClientReady) (Resource, error) {
+	pods, err := c.
 		CoreV1().
 		Pods(string(c.NamespaceSelected)).
 		List(context.Background(), v1.ListOptions{})
@@ -39,7 +39,7 @@ func (p Pod) List(c *ClientReady) Resource {
 		logging.Log.Error(err)
 	}
 	p.pods = pods.Items
-	return p
+	return p, err
 }
 
 func (p Pod) Columns() (podAttributes []table.Column) {

@@ -23,6 +23,7 @@ const (
 type listSelector struct {
 	clientState
 	spinnerState
+
 	client    *kube.ClientReady
 	spinner   spinner.Model
 	chooseKey key.Binding
@@ -33,13 +34,13 @@ type listSelector struct {
 	useCurrentContext bool
 }
 
-func newListSelector() listSelector {
+func newListSelector() *listSelector {
 	sp := spinner.New(
 		spinner.WithStyle(uistyles.OKStatusMessage),
 	)
 	sp.Spinner = spinner.Dot
 
-	return listSelector{
+	return &listSelector{
 		clientState:  notReady,
 		spinnerState: hideSpinner,
 
@@ -51,7 +52,7 @@ func newListSelector() listSelector {
 	}
 }
 
-func newItemDelegate(s listSelector) list.DefaultDelegate {
+func newItemDelegate(s *listSelector) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
 	d.UpdateFunc = s.update
@@ -65,6 +66,94 @@ func newItemDelegate(s listSelector) list.DefaultDelegate {
 	d.ShortHelpFunc = func() []key.Binding { return []key.Binding{s.chooseKey} }
 	d.FullHelpFunc = func() [][]key.Binding { return [][]key.Binding{{s.chooseKey}} }
 	return d
+}
+
+func (s listSelector) contextSelected(context string) func() tea.Msg {
+	return func() tea.Msg { return kube.ContextSelected(context) }
+}
+
+func (s listSelector) namespaceSelected(namespace string) func() tea.Msg {
+	return func() tea.Msg { return kube.NamespaceSelected(namespace) }
+}
+
+func (s listSelector) resourceSelected() func() tea.Msg {
+	r, _ := lo.Find(kube.SupportedResources,
+		func(item kube.Resource) bool {
+			switch item.Kind() {
+			case "Pod", "Service", "Namespace":
+				return true
+			}
+			return false
+		})
+	return func() tea.Msg { return r }
+}
+
+func (s listSelector) clientReady() func() tea.Msg {
+	return func() tea.Msg { return s.client }
+}
+
+func (s *listSelector) updateClientState() tea.Cmd {
+	if s.context != "" && s.namespace != "" && s.resource != "" {
+		s.clientState = ready
+	}
+
+	switch s.clientState {
+	case ready:
+		return s.clientReady()
+
+	case notReady:
+		if s.context == "" {
+			return kube.NewSelectContext()
+		}
+
+		if s.namespace == "" {
+			return kube.NewSelectNamespace(s.client)
+		}
+
+		if s.resource == "" {
+			return kube.NewSelectResource(s.client)
+		}
+	}
+	return nil
+}
+
+func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cmd {
+	switch {
+	case key.Matches(msg, s.chooseKey):
+		switch i := m.SelectedItem().(type) {
+
+		case kube.ContextItem:
+			s.context = i.FilterValue()
+			s.spinnerState = showSpinner
+
+			return tea.Batch(
+				m.NewStatusMessage(uistyles.StatusMessageStyle(
+					"Context", s.context, "set")),
+				s.contextSelected(s.context),
+				s.spinner.Tick)
+
+		case kube.NamespaceItem:
+			s.namespace = i.FilterValue()
+			s.spinnerState = showSpinner
+
+			return tea.Batch(
+				m.NewStatusMessage(uistyles.StatusMessageStyle(
+					"Namespace", s.namespace, "selected")),
+				s.namespaceSelected(s.namespace),
+				s.spinner.Tick)
+
+		case kube.ResourceItem:
+			s.resource = i.FilterValue()
+			s.spinnerState = showSpinner
+
+			return tea.Batch(
+				m.NewStatusMessage(uistyles.StatusMessageStyle(
+					"Showing", s.resource+"s")),
+				s.resourceSelected(),
+				s.spinner.Tick)
+		}
+	}
+	return nil
 }
 
 func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
@@ -139,94 +228,4 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 	return tea.Batch(
 		s.updateClientState(),
 		s.spinner.Tick)
-}
-
-func (s listSelector) contextSelected(context string) func() tea.Msg {
-	return func() tea.Msg { return kube.ContextSelected(context) }
-}
-
-func (s listSelector) namespaceSelected(namespace string) func() tea.Msg {
-	return func() tea.Msg { return kube.NamespaceSelected(namespace) }
-}
-
-func (s listSelector) resourceSelected() func() tea.Msg {
-	r, _ := lo.Find(kube.SupportedResources,
-		func(item kube.Resource) bool {
-			switch item.Kind() {
-			case "Pod", "Service", "Namespace":
-				return true
-			}
-			return false
-		})
-
-	return func() tea.Msg { return r }
-}
-
-func (s listSelector) clientReady() func() tea.Msg {
-	return func() tea.Msg { return s.client }
-}
-
-func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cmd {
-	switch {
-
-	case key.Matches(msg, s.chooseKey):
-		switch i := m.SelectedItem().(type) {
-
-		case kube.ContextItem:
-			s.context = i.FilterValue()
-			s.spinnerState = showSpinner
-
-			return tea.Batch(
-				m.NewStatusMessage(uistyles.StatusMessageStyle(
-					"Context", s.context, "set")),
-				s.contextSelected(s.context),
-				s.spinner.Tick)
-
-		case kube.NamespaceItem:
-			s.namespace = i.FilterValue()
-			s.spinnerState = showSpinner
-
-			return tea.Batch(
-				m.NewStatusMessage(uistyles.StatusMessageStyle(
-					"Namespace", s.namespace, "selected")),
-				s.namespaceSelected(s.namespace),
-				s.spinner.Tick)
-
-		case kube.ResourceItem:
-			s.resource = i.FilterValue()
-			s.spinnerState = showSpinner
-
-			return tea.Batch(
-				m.NewStatusMessage(uistyles.StatusMessageStyle(
-					"Showing", s.resource+"s")),
-				s.resourceSelected(),
-				s.spinner.Tick)
-		}
-	}
-	return nil
-}
-
-func (s *listSelector) updateClientState() tea.Cmd {
-	if s.context != "" && s.namespace != "" && s.resource != "" {
-		s.clientState = ready
-	}
-
-	switch s.clientState {
-	case ready:
-		return s.clientReady()
-
-	case notReady:
-		if s.context == "" {
-			return kube.NewSelectContext()
-		}
-
-		if s.namespace == "" {
-			return kube.NewSelectNamespace(s.client)
-		}
-
-		if s.resource == "" {
-			return kube.NewSelectResource(s.client)
-		}
-	}
-	return nil
 }

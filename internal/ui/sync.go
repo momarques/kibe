@@ -6,64 +6,35 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/kube"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 )
 
 type syncState int
 
 const (
-	synced syncState = iota
+	inSync syncState = iota
 	unsynced
 	syncing
 
-	syncedText   string = "synced"
-	syncingText  string = "syncing"
-	unsyncedText string = "unsynced"
-
-	syncedColor   string = "#a4c847"
-	syncingColor  string = "#cea540"
+	inSyncColor   string = "#a4c847"
 	unsyncedColor string = "#d83f24"
 )
 
-type lastSync time.Time
+type syncStarted time.Time
 
-func (m CoreUI) sync(msg tea.Msg) (CoreUI, tea.Cmd) {
-	var cmd tea.Cmd
-	var logMsg string
-	var fetchDuration time.Duration
-
-	m.table.syncState = syncing
-	m.syncBar = m.changeSyncState()
-
-	now := time.Now()
-	fetchDuration = func() time.Duration {
-
-		m.table.columns, m.table.rows, logMsg = m.client.FetchTableView()
-		m.table.paginator.SetTotalPages(len(m.table.rows))
-
-		m.table.paginator.Model, _ = m.table.paginator.Update(msg)
-		m.table, cmd = m.table.applyTableItems()
-
-		return time.Since(now)
-	}()
-
-	return m, tea.Batch(
-		cmd,
-		m.syncBar.spinner.Tick,
-		m.logProcess(logMsg, fetchDuration),
-		func() tea.Msg {
-			return lastSync(time.Now())
-		})
-}
-
-func startSyncing(t time.Time) tea.Msg {
-	return unsynced
+func (s syncStarted) Cmd() func() tea.Msg {
+	return func() tea.Msg {
+		return s
+	}
 }
 
 type syncBarModel struct {
+	spinnerState
+
 	color   lipgloss.Color
-	text    string
 	spinner spinner.Model
+	text    string
 }
 
 func newSyncBarModel() syncBarModel {
@@ -72,38 +43,54 @@ func newSyncBarModel() syncBarModel {
 	)
 	sp.Spinner = spinner.Dot
 	return syncBarModel{
-		spinner: sp,
+		spinner:      sp,
+		spinnerState: hideSpinner,
 	}
 }
 
-func (m CoreUI) changeSyncState() syncBarModel {
+func (m CoreUI) changeSyncState(state syncState) CoreUI {
+	m.table.syncState = state
+
 	switch m.table.syncState {
-	case synced:
-		m.syncBar.text = syncedText
-		m.syncBar.color = lipgloss.Color(syncedColor)
-		m.list.spinnerState = hideSpinner
-	case syncing:
-		m.syncBar.text = syncingText
-		m.syncBar.color = lipgloss.Color(syncingColor)
-		m.list.spinnerState = showSpinner
+	case inSync:
+		m.syncBar.text = "in sync"
+		m.syncBar.color = lipgloss.Color(inSyncColor)
+		m.syncBar.spinnerState = showSpinner
 	case unsynced:
-		m.syncBar.text = unsyncedText
+		m.syncBar.text = "unsynced"
 		m.syncBar.color = lipgloss.Color(unsyncedColor)
-		m.list.spinnerState = hideSpinner
+		m.syncBar.spinnerState = hideSpinner
 	}
-	return m.syncBar
+	return m
+}
+
+func (m CoreUI) syncTable() (CoreUI, tea.Cmd) {
+	m = m.changeSyncState(syncing)
+
+	go func() {
+		m.client.FetchTableView(m.table.response)
+	}()
+
+	return m, tea.Batch(
+		m.logProcess(m.client.LogOperation()),
+		m.syncBar.spinner.Tick,
+		tea.Tick(kube.ResquestTimeout, func(t time.Time) tea.Msg {
+			return syncStarted(time.Now())
+		}),
+	)
 }
 
 func (m CoreUI) syncBarView() string {
 	syncStyle := uistyles.ViewTitleStyle.
-		Copy()
+		Copy().
+		Background(m.syncBar.color)
 
-	if m.list.spinnerState == showSpinner {
-		return syncStyle.
-			Background(m.syncBar.color).
-			Render(m.list.spinner.View(), m.syncBar.text)
+	if m.syncBar.spinnerState == showSpinner {
+		return lipgloss.JoinHorizontal(lipgloss.Left,
+			m.syncBar.spinner.View(),
+			syncStyle.
+				Render(m.syncBar.text))
 	}
 	return syncStyle.
-		Background(m.syncBar.color).
 		Render(m.syncBar.text)
 }

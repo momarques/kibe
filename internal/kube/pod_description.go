@@ -18,7 +18,7 @@ import (
 )
 
 func DescribePod(c *ClientReady, podID string) *corev1.Pod {
-	pod, err := c.Client.
+	pod, err := c.
 		CoreV1().
 		Pods(string(c.NamespaceSelected)).
 		Get(context.Background(), podID, v1.GetOptions{})

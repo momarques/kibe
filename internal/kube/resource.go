@@ -20,7 +20,7 @@ type Resource interface {
 	Describe(*ClientReady, string) ResourceDescription
 	Kind() string
 
-	List(*ClientReady) Resource
+	List(*ClientReady) (Resource, error)
 	Columns() []table.Column
 	Rows() []table.Row
 }
@@ -57,7 +57,7 @@ func newResourceList(apiList []*v1.APIResourceList) []list.Item {
 }
 
 func ListAvailableResources(c *ClientReady) []list.Item {
-	apiList, err := c.Client.ServerPreferredResources()
+	apiList, err := c.ServerPreferredResources()
 	if err != nil {
 		logging.Log.Error(err)
 	}

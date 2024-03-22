@@ -2,21 +2,38 @@ package ui
 
 import (
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
 const tableViewHeightPercentage int = 32
 
+type tableContent struct {
+	syncState
+
+	columns   []table.Column
+	rows      []table.Row
+	paginator paginatorModel
+}
+
+func newTableContent() tableContent {
+	return tableContent{
+		syncState: unsynced,
+		paginator: newPaginatorModel(15),
+	}
+}
+
 type tableModel struct {
 	tableContent
 	tableKeyMap
 	table.Model
+
+	response chan kube.TableResponse
 }
 
 func newTableModel() tableModel {
@@ -29,25 +46,56 @@ func newTableModel() tableModel {
 		windowutil.ComputeHeightPercentage(tableViewHeightPercentage))
 
 	return tableModel{
+		Model: t,
+
+		response:     make(chan kube.TableResponse),
 		tableContent: newTableContent(),
 		tableKeyMap:  newTableKeyMap(),
-		Model:        t,
 	}
+}
+
+func (m tableModel) applyTableItems() (tableModel, tea.Cmd) {
+	m.SetColumns(m.columns)
+
+	start, end := m.paginator.GetSliceBounds(len(m.rows))
+	m.SetRows(m.rows[start:end])
+	return m, m.updateHeader(len(m.rows))
+}
+
+func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
+	var cmd tea.Cmd
+
+	if response, ok := <-m.table.response; ok {
+		if response.Err != nil {
+			m = m.changeSyncState(unsynced)
+			return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
+		}
+		m.table.rows = response.Rows
+		m.table.columns = response.Columns
+
+		m.table.paginator.SetTotalPages(len(m.table.rows))
+
+		m.table, cmd = m.table.applyTableItems()
+
+		m = m.changeSyncState(inSync)
+		return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)), cmd
+	}
+
+	return m, nil
 }
 
 func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
 
 	switch m.table.syncState {
-	case synced, syncing:
+	case inSync, syncing:
 		switch msg := msg.(type) {
 		case tea.WindowSizeMsg:
 
 			m.table.SetHeight(msg.Height - m.table.Height())
 			// m.table.SetWidth(msg.Width - m.table.Width())
 			m.table.SetColumns(m.client.ResourceSelected.Columns())
-			logging.Log.Infof("window size -> %d x %d", msg.Width, msg.Height)
-			logging.Log.Infof("table size -> %d x %d", m.table.Width(), m.table.Height())
 			m.help.Width = 20
 			m.table.Model, cmd = m.table.Update(msg)
 			return m, cmd
@@ -79,22 +127,21 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.header.itemCount = msg
 			return m, nil
 
-		case lastSync:
-			m.table.syncState = synced
-			m.syncBar = m.changeSyncState()
+		case syncStarted:
+			m, cmd = m.updateOnTableResponse()
+			cmds = append(cmds, cmd)
+			m, cmd = m.syncTable()
+			cmds = append(cmds, cmd)
 
-			return m, tea.Batch(tea.Tick(kube.ResquestTimeout, startSyncing))
+			return m, tea.Batch(cmds...)
 
-		case syncState:
-			if msg == unsynced {
-				m.table.syncState = msg
-				m.syncBar = m.changeSyncState()
-				return m.sync(nil)
-			}
+		case spinner.TickMsg:
+			m.syncBar.spinner, cmd = m.syncBar.spinner.Update(msg)
+			return m, cmd
 		}
 
 	case unsynced:
-		return m.sync(msg)
+		return m.syncTable()
 	}
 
 	m.table.Model, cmd = m.table.Update(msg)

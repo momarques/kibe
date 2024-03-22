@@ -6,6 +6,17 @@ import (
 	"github.com/mistakenelf/teacup/statusbar"
 )
 
+type statusBarUpdated struct{ resource, context, namespace string }
+
+func (s listSelector) updateStatusBar() func() tea.Msg {
+	return func() tea.Msg {
+		return statusBarUpdated{
+			resource:  s.resource,
+			context:   s.context,
+			namespace: s.namespace}
+	}
+}
+
 func newStatusBarModel() statusbar.Model {
 	s := statusbar.New(
 		statusbar.ColorConfig{
@@ -27,15 +38,4 @@ func newStatusBarModel() statusbar.Model {
 	)
 	s.SetContent("Resource", "", "", "")
 	return s
-}
-
-type statusBarUpdated struct{ resource, context, namespace string }
-
-func (s *listSelector) updateStatusBar() func() tea.Msg {
-	return func() tea.Msg {
-		return statusBarUpdated{
-			resource:  s.resource,
-			context:   s.context,
-			namespace: s.namespace}
-	}
 }

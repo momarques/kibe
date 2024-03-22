@@ -19,6 +19,7 @@ const (
 
 type CoreUI struct {
 	viewState
+
 	height int
 
 	client *kube.ClientReady
@@ -60,11 +61,11 @@ func (m CoreUI) Init() tea.Cmd {
 }
 
 func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	switch msg.(type) {
+	switch msg := msg.(type) {
 	case tea.QuitMsg:
 		return m, tea.Quit
 	case statusLogMessage:
-		return m.updateStatusLog(msg), nil
+		return m.updateStatusLog(msg, -1), nil
 	}
 
 	switch m.viewState {
@@ -83,18 +84,6 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateTab(msg)
 	}
 	return m, nil
-}
-
-func (m CoreUI) View() string {
-	switch m.viewState {
-
-	case showList:
-		return m.listView()
-
-	case showTable, showTab:
-		return m.composedView()
-	}
-	return m.View()
 }
 
 func (m CoreUI) showHelpLines(helpBindingLines ...[]key.Binding) []string {
@@ -160,4 +149,16 @@ func (m CoreUI) composedView() string {
 			bottomPanel,
 			m.statusLogView()),
 		m.statusBar.View())
+}
+
+func (m CoreUI) View() string {
+	switch m.viewState {
+
+	case showList:
+		return m.listView()
+
+	case showTable, showTab:
+		return m.composedView()
+	}
+	return m.View()
 }

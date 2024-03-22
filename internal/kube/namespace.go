@@ -20,16 +20,13 @@ type Namespace struct {
 func NewNamespaceResource() Namespace { return Namespace{kind: "Namespace"} }
 func (n Namespace) Kind() string      { return n.kind }
 
-func (n Namespace) List(c *ClientReady) Resource {
-	namespaces, err := c.Client.
+func (n Namespace) List(c *ClientReady) (Resource, error) {
+	namespaces, err := c.
 		CoreV1().
 		Namespaces().
 		List(context.Background(), v1.ListOptions{})
-	if err != nil {
-		logging.Log.Error(err)
-	}
 	n.namespaces = namespaces.Items
-	return n
+	return n, err
 }
 
 func (n Namespace) Columns() (namespaceAttributes []table.Column) {
@@ -66,7 +63,10 @@ type SelectNamespace []list.Item
 type NamespaceSelected string
 
 func NewSelectNamespace(c *ClientReady) func() tea.Msg {
-	n := Namespace{}.List(c)
+	n, err := Namespace{}.List(c)
+	if err != nil {
+		logging.Log.Error(err)
+	}
 	return func() tea.Msg {
 		return SelectNamespace(n.(Namespace).newNamespaceList())
 	}
