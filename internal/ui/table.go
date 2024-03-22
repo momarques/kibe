@@ -74,7 +74,7 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 		m.table, cmd = m.table.applyTableItems()
 
 		m = m.changeSyncState(inSync)
-		return m.updateStatusLog(m.logProcessDuration("OK", response.FetchDuration)),
+		return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)),
 			cmd
 	}
 

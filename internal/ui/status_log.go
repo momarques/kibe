@@ -14,7 +14,17 @@ import (
 	"github.com/wesovilabs/koazee/stream"
 )
 
+type operationStatus int
+
+const (
+	None operationStatus = iota
+	NOK
+	OK
+)
+
 type statusLogMessage struct {
+	operationStatus
+
 	duration  time.Duration
 	text      string
 	timestamp time.Time
@@ -30,6 +40,18 @@ func (s statusLogMessage) formatDuration() string {
 func (s statusLogMessage) formatTimestamp() string {
 	if s.text != "" {
 		return fmt.Sprintf("%s ", s.timestamp.Format(time.TimeOnly))
+	}
+	return ""
+}
+
+func (s statusLogMessage) formatStatus() string {
+	switch s.operationStatus {
+	case None:
+		return ""
+	case OK:
+		return " OK"
+	case NOK:
+		return " NOK"
 	}
 	return ""
 }
@@ -56,6 +78,7 @@ func (s statusLogModel) String() []string {
 			Render(
 				item.formatTimestamp() +
 					item.text +
+					item.formatStatus() +
 					item.formatDuration())
 	})
 }
@@ -69,7 +92,7 @@ func (m CoreUI) logProcess(text string) tea.Cmd {
 	}
 }
 
-func (m CoreUI) logProcessDuration(status string, duration time.Duration) (statusLogMessage, int) {
+func (m CoreUI) logProcessDuration(status operationStatus, duration time.Duration) (statusLogMessage, int) {
 	streamPosition := m.statusLog.Last()
 	index, err := m.statusLog.LastIndexOf(streamPosition.Val().(statusLogMessage))
 	if err != nil {
@@ -78,7 +101,7 @@ func (m CoreUI) logProcessDuration(status string, duration time.Duration) (statu
 
 	msg := streamPosition.Val().(statusLogMessage)
 	msg.duration = duration
-	msg.text = fmt.Sprintf("%s - %s", msg.text, status)
+	msg.operationStatus = status
 
 	return msg, index
 }
