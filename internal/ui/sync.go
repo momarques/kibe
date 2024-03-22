@@ -29,41 +29,9 @@ func (s syncStarted) Cmd() func() tea.Msg {
 	}
 }
 
-func (m CoreUI) changeSyncState(state syncState) (CoreUI, tea.Cmd) {
-	m.table.syncState = state
-
-	switch state {
-	case inSync:
-		m.syncBar.text = "in sync"
-		m.syncBar.color = lipgloss.Color(inSyncColor)
-		// m.spinnerState = showSpinner
-	case unsynced:
-		m.syncBar.text = "unsynced"
-		m.syncBar.color = lipgloss.Color(unsyncedColor)
-		// m.spinnerState = hideSpinner
-	}
-	return m, m.syncBar.spinner.Tick
-}
-
-func (m CoreUI) syncTable() (CoreUI, tea.Cmd) {
-	var cmd tea.Cmd
-
-	m, cmd = m.changeSyncState(syncing)
-
-	go func() {
-		m.client.FetchTableView(m.table.response)
-	}()
-
-	return m, tea.Batch(
-		cmd,
-		m.logProcess(m.client.LogOperation()),
-		tea.Tick(kube.ResquestTimeout, func(t time.Time) tea.Msg {
-			return syncStarted(time.Now())
-		}),
-	)
-}
-
 type syncBarModel struct {
+	spinnerState
+
 	color   lipgloss.Color
 	spinner spinner.Model
 	text    string
@@ -75,18 +43,57 @@ func newSyncBarModel() syncBarModel {
 	)
 	sp.Spinner = spinner.Dot
 	return syncBarModel{
-		spinner: sp,
+		spinner:      sp,
+		spinnerState: hideSpinner,
 	}
+}
+
+func (m CoreUI) changeSyncState(state syncState) CoreUI {
+	m.table.syncState = state
+
+	switch state {
+	case inSync:
+		m.syncBar.text = "in sync"
+		m.syncBar.color = lipgloss.Color(inSyncColor)
+		m.syncBar.spinnerState = hideSpinner
+	case syncing:
+		m.syncBar.text = "in sync"
+		m.syncBar.color = lipgloss.Color(inSyncColor)
+		m.syncBar.spinnerState = showSpinner
+	case unsynced:
+		m.syncBar.text = "unsynced"
+		m.syncBar.color = lipgloss.Color(unsyncedColor)
+		m.syncBar.spinnerState = hideSpinner
+	}
+	return m
+}
+
+func (m CoreUI) syncTable() (CoreUI, tea.Cmd) {
+	m = m.changeSyncState(syncing)
+
+	go func() {
+		m.client.FetchTableView(m.table.response)
+	}()
+
+	return m, tea.Batch(
+		m.logProcess(m.client.LogOperation()),
+		m.syncBar.spinner.Tick,
+		tea.Tick(kube.ResquestTimeout, func(t time.Time) tea.Msg {
+			return syncStarted(time.Now())
+		}),
+	)
 }
 
 func (m CoreUI) syncBarView() string {
 	syncStyle := uistyles.ViewTitleStyle.
 		Copy()
 
-	if m.list.spinnerState == showSpinner {
-		return syncStyle.
-			Background(m.syncBar.color).
-			Render(m.list.spinner.View(), m.syncBar.text)
+	if m.syncBar.spinnerState == showSpinner {
+		return lipgloss.JoinHorizontal(lipgloss.Left,
+			m.syncBar.spinner.View(),
+			syncStyle.
+				Background(m.syncBar.color).
+				Render(m.syncBar.text))
 	}
 	return syncStyle.
 		Background(m.syncBar.color).

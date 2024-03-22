@@ -2,6 +2,7 @@ package ui
 
 import (
 	"github.com/charmbracelet/bubbles/key"
+	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -63,7 +64,6 @@ func (m tableModel) applyTableItems() (tableModel, tea.Cmd) {
 
 func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
-	var cmds []tea.Cmd
 
 	if response, ok := <-m.table.response; ok {
 		m.table.rows = response.Rows
@@ -72,12 +72,10 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 		m.table.paginator.SetTotalPages(len(m.table.rows))
 
 		m.table, cmd = m.table.applyTableItems()
-		cmds = append(cmds, cmd)
 
-		m, cmd = m.changeSyncState(inSync)
-		cmds = append(cmds, cmd)
+		m = m.changeSyncState(inSync)
 		return m.updateStatusLog(m.logProcessDuration("OK", response.FetchDuration)),
-			tea.Batch(cmds...)
+			cmd
 	}
 
 	return m, nil
@@ -85,6 +83,7 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 
 func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
 
 	switch m.table.syncState {
 	case inSync, syncing:
@@ -126,13 +125,16 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case syncStarted:
-			return m.updateOnTableResponse()
+			m, cmd = m.updateOnTableResponse()
+			cmds = append(cmds, cmd)
+			m, cmd = m.syncTable()
+			cmds = append(cmds, cmd)
 
-		default:
-			if m.table.syncState == inSync {
-				return m.syncTable()
-			}
-			return m, nil
+			return m, tea.Batch(cmds...)
+
+		case spinner.TickMsg:
+			m.syncBar.spinner, cmd = m.syncBar.spinner.Update(msg)
+			return m, cmd
 		}
 
 	case unsynced:

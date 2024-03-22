@@ -3,7 +3,6 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
@@ -20,7 +19,6 @@ const (
 
 type CoreUI struct {
 	viewState
-	spinnerState
 
 	height int
 
@@ -33,7 +31,6 @@ type CoreUI struct {
 
 	header    headerModel
 	help      help.Model
-	spinner   spinner.Model
 	statusBar statusbar.Model
 	statusLog statusLogModel
 	syncBar   syncBarModel
