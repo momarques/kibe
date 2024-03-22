@@ -66,6 +66,10 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
 
 	if response, ok := <-m.table.response; ok {
+		if response.Err != nil {
+			m = m.changeSyncState(unsynced)
+			return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
+		}
 		m.table.rows = response.Rows
 		m.table.columns = response.Columns
 
@@ -74,8 +78,7 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 		m.table, cmd = m.table.applyTableItems()
 
 		m = m.changeSyncState(inSync)
-		return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)),
-			cmd
+		return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)), cmd
 	}
 
 	return m, nil

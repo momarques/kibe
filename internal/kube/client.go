@@ -67,7 +67,7 @@ type TableResponse struct {
 	Operation string
 
 	FetchDuration time.Duration
-	Err           chan error
+	Err           error
 }
 
 type ClientReady struct {
@@ -103,12 +103,13 @@ func (c *ClientReady) WithResource(r Resource) *ClientReady {
 func (c *ClientReady) FetchTableView(responseCh chan TableResponse) {
 	var now = time.Now()
 
-	resource := c.ResourceSelected.List(c)
+	resource, err := c.ResourceSelected.List(c)
 
 	responseCh <- TableResponse{
 		Columns:       resource.Columns(),
 		Rows:          resource.Rows(),
 		FetchDuration: time.Since(now),
+		Err:           err,
 	}
 }
 

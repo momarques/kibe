@@ -20,7 +20,7 @@ type Service struct {
 func NewServiceResource() Service { return Service{kind: "Service"} }
 func (s Service) Kind() string    { return s.kind }
 
-func (s Service) List(c *ClientReady) Resource {
+func (s Service) List(c *ClientReady) (Resource, error) {
 	services, err := c.
 		CoreV1().
 		Services(string(c.NamespaceSelected)).
@@ -29,7 +29,7 @@ func (s Service) List(c *ClientReady) Resource {
 		logging.Log.Error(err)
 	}
 	s.services = services.Items
-	return s
+	return s, err
 }
 func (s Service) Columns() (serviceAttributes []table.Column) {
 	return append(serviceAttributes,

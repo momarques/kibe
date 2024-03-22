@@ -20,7 +20,7 @@ type Resource interface {
 	Describe(*ClientReady, string) ResourceDescription
 	Kind() string
 
-	List(*ClientReady) Resource
+	List(*ClientReady) (Resource, error)
 	Columns() []table.Column
 	Rows() []table.Row
 }
