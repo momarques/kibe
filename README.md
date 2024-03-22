@@ -50,30 +50,30 @@ Kibe is still in development, and should be released when I achieve a MVP. This 
 
 Handle basic Kubernetes resources:
 
-- Pod
-- Deployment
-- Service
-- Ingress
-- Job
-- Cronjob
-- ServiceAccount
-- Secret
-- ConfigMap
-- Node
-- Namespace
+- [x] Pod
+- [ ] Deployment
+- [ ] Service
+- [ ] Ingress
+- [ ] Job
+- [ ] Cronjob
+- [ ] ServiceAccount
+- [ ] Secret
+- [ ] ConfigMap
+- [ ] Node
+- [ ] Namespace
 
 Execute some resource actions:
 
-- List
-- Describe
-- Delete
-- Edit
-- Copy YAML
+- [x] List
+- [x] Describe
+- [ ] Delete
+- [ ] Edit
+- [ ] Copy YAML
 
 Visualize Logs:
 
-- Tail
-- Past logs
+- [ ] Tail
+- [ ] Previous logs
 
 ### UI
 
