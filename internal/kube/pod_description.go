@@ -33,29 +33,27 @@ func DescribePod(c *ClientReady, podID string) *corev1.Pod {
 // Those Sections are segmented in categories to enable a cleaner view of all the pod config
 // Every Section has its own style
 type PodDescription struct {
-	Overview      PodOverview         `kibedescription:"Overview"`
-	Status        PodStatus           `kibedescription:"Status"`
-	Labels        ResourceLabels      `kibedescription:"Labels"`
-	Annotations   ResourceAnnotations `kibedescription:"Annotations"`
-	Volumes       PodVolumes          `kibedescription:"Volumes"`
-	Containers    PodContainers       `kibedescription:"Containers"`
-	NodeSelectors PodNodeSelector     `kibedescription:"Node Selectors"`
-	Tolerations   PodTolerations      `kibedescription:"Tolerations"`
-	Events        []string            `kibedescription:"Events"`
+	Overview       PodOverview         `kibedescription:"Overview"`
+	Status         PodStatus           `kibedescription:"Status"`
+	Labels         ResourceLabels      `kibedescription:"Labels"`
+	Annotations    ResourceAnnotations `kibedescription:"Annotations"`
+	Volumes        PodVolumes          `kibedescription:"Volumes"`
+	Containers     PodContainers       `kibedescription:"Containers"`
+	NodeScheduling PodNodeScheduling   `kibedescription:"Node Scheduling"`
+	Events         []string            `kibedescription:"Events"`
 }
 
 func (p Pod) Describe(c *ClientReady, podID string) ResourceDescription {
 	pod := DescribePod(c, podID)
 
 	return PodDescription{
-		Overview:      newPodOverview(pod),
-		Status:        newPodStatus(pod),
-		Labels:        ResourceLabels(pod.Labels),
-		Annotations:   ResourceAnnotations(pod.Annotations),
-		Volumes:       PodVolumes(pod.Spec.Volumes),
-		Containers:    PodContainers(pod.Spec.Containers),
-		NodeSelectors: PodNodeSelector(pod.Spec.NodeSelector),
-		Tolerations:   PodTolerations(pod.Spec.Tolerations),
+		Overview:       newPodOverview(pod),
+		Status:         newPodStatus(pod),
+		Labels:         ResourceLabels(pod.Labels),
+		Annotations:    ResourceAnnotations(pod.Annotations),
+		Volumes:        PodVolumes(pod.Spec.Volumes),
+		Containers:     PodContainers(pod.Spec.Containers),
+		NodeScheduling: newPodNodeScheduling(pod),
 	}
 }
 
@@ -71,8 +69,7 @@ func (pd PodDescription) TabContent() []string {
 		pd.Annotations.TabContent(),
 		pd.Volumes.TabContent(0),
 		pd.Containers.TabContent(),
-		pd.NodeSelectors.TabContent(),
-		pd.Tolerations.TabContent(),
+		pd.NodeScheduling.TabContent(),
 		"",
 	}
 }
@@ -81,14 +78,13 @@ func (pd PodDescription) TabContent() []string {
 //
 // This object must return the whole content in a single formatted string
 type PodOverview struct {
-	Name           string   `kibedescription:"Name"`
-	Namespace      string   `kibedescription:"Namespace"`
-	NodeName       string   `kibedescription:"Node Name"`
-	ServiceAccount string   `kibedescription:"Service Account"`
-	IP             net.IP   `kibedescription:"IP"`
-	IPs            []net.IP `kibedescription:"IPs"`
-	ControlledBy   string   `kibedescription:"Controlled by"`
-	QoSClass       string   `kibedescription:"QoS Class"`
+	Name           string   `kibedescription:"Name:"`
+	Namespace      string   `kibedescription:"Namespace:"`
+	ServiceAccount string   `kibedescription:"Service Account:"`
+	IP             net.IP   `kibedescription:"IP:"`
+	IPs            []net.IP `kibedescription:"IPs:"`
+	ControlledBy   string   `kibedescription:"Controlled by:"`
+	QoSClass       string   `kibedescription:"QoS Class:"`
 }
 
 func getPodOwner(pod *corev1.Pod) string {
@@ -102,7 +98,6 @@ func newPodOverview(pod *corev1.Pod) PodOverview {
 	return PodOverview{
 		Name:           pod.Name,
 		Namespace:      pod.Namespace,
-		NodeName:       pod.Spec.NodeName,
 		ServiceAccount: pod.Spec.ServiceAccountName,
 		IP:             net.ParseIP(pod.Status.PodIP),
 		IPs: lo.Map(pod.Status.PodIPs,
@@ -126,23 +121,22 @@ func (po PodOverview) TabContent() string {
 	t.Rows(
 		[]string{fieldNames[0], po.Name},
 		[]string{fieldNames[1], po.Namespace},
-		[]string{fieldNames[2], po.NodeName},
-		[]string{fieldNames[3], po.ServiceAccount},
-		[]string{fieldNames[4], po.IP.String()},
-		[]string{fieldNames[5], strings.Join(ips, ",")},
-		[]string{fieldNames[6], po.ControlledBy},
-		[]string{fieldNames[7], po.QoSClass},
+		[]string{fieldNames[2], po.ServiceAccount},
+		[]string{fieldNames[3], po.IP.String()},
+		[]string{fieldNames[4], strings.Join(ips, ",")},
+		[]string{fieldNames[5], po.ControlledBy},
+		[]string{fieldNames[6], po.QoSClass},
 	)
-	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.StyleFunc(uistyles.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
 
 // PodStatus provides historic status information from the pod
 type PodStatus struct {
-	Start      time.Time `kibedescription:"Started at"`
-	Status     string    `kibedescription:"Status"`
-	Conditions []string  `kibedescription:"Conditions"`
+	Start      time.Time `kibedescription:"Started at:"`
+	Status     string    `kibedescription:"Status:"`
+	Conditions []string  `kibedescription:"Conditions:"`
 }
 
 func newPodStatus(pod *corev1.Pod) PodStatus {
@@ -182,7 +176,7 @@ func (ps PodStatus) TabContent() string {
 		if col == 1 {
 			return lipgloss.NewStyle().Width(len(conditionsValue))
 		}
-		return uistyles.ColorizeTabKey(row, col)
+		return uistyles.ColorizeTabKeys(row, col)
 	})
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
@@ -193,7 +187,7 @@ type PodContainers []corev1.Container
 func (pc PodContainers) TabContent() string {
 	t := table.New()
 	t.Rows(pc.podContainerToTableRows()...)
-	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.StyleFunc(uistyles.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
@@ -211,7 +205,7 @@ func (pn PodNodeSelector) TabContent() string {
 	t := table.New()
 
 	t.Rows(mapToTableRows(pn)...)
-	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.StyleFunc(uistyles.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
@@ -229,7 +223,7 @@ func (pt PodTolerations) TabContent() string {
 	t := table.New()
 
 	t.Rows(pt.podTolerationsToTableRows()...)
-	t.StyleFunc(uistyles.ColorizeTabKey)
+	t.StyleFunc(uistyles.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
@@ -251,6 +245,34 @@ func prettyPrintTolerations(t corev1.Toleration) string {
 	}
 
 	return toleration.String()
+}
+
+type PodNodeScheduling struct {
+	NodeName      string          `kibedescription:"Node Name:"`
+	NodeSelectors PodNodeSelector `kibedescription:"Node Selectors:"`
+	Tolerations   PodTolerations  `kibedescription:"Tolerations:"`
+}
+
+func newPodNodeScheduling(pod *corev1.Pod) PodNodeScheduling {
+	return PodNodeScheduling{
+		NodeName:      pod.Spec.NodeName,
+		NodeSelectors: PodNodeSelector(pod.Spec.NodeSelector),
+		Tolerations:   PodTolerations(pod.Spec.Tolerations),
+	}
+}
+
+func (pn PodNodeScheduling) TabContent() string {
+
+	t := table.New()
+
+	t.Rows(mapToTableRows(map[string]string{
+		"Node name":      pn.NodeName,
+		"Node selectors": pn.NodeSelectors.TabContent(),
+		"Tolerations":    pn.Tolerations.TabContent(),
+	})...)
+	t.StyleFunc(uistyles.ColorizeTabKeys)
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
 }
 
 func (pd PodDescription) SubContent(subContentIndex int) []string {
