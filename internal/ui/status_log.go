@@ -8,7 +8,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/logging"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
 	"github.com/samber/lo"
 	"github.com/wesovilabs/koazee"
 	"github.com/wesovilabs/koazee/stream"
@@ -22,8 +21,20 @@ const (
 	OK
 )
 
+type loglevel struct {
+	level, color string
+}
+
+var (
+	INFO  = loglevel{"INFO", "#498c69"}
+	WARN  = loglevel{"WARN", "#e4d491"}
+	ERROR = loglevel{"ERROR", "#d65f50"}
+	DEBUG = loglevel{"DEBUG", "#d282c0"}
+)
+
 type statusLogMessage struct {
 	operationStatus
+	loglevel
 
 	duration  time.Duration
 	text      string
@@ -32,9 +43,17 @@ type statusLogMessage struct {
 
 func (s statusLogMessage) formatDuration() string {
 	if s.duration > 0 {
-		return fmt.Sprintf(" %dms", s.duration.Milliseconds())
+		return lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#595959")).
+			Render(fmt.Sprintf(" duration=%dms", s.duration.Milliseconds()))
 	}
 	return ""
+}
+
+func (s statusLogMessage) formatLogLevel() string {
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color(s.color)).
+		Render(s.level + " ")
 }
 
 func (s statusLogMessage) formatTimestamp() string {
@@ -45,13 +64,19 @@ func (s statusLogMessage) formatTimestamp() string {
 }
 
 func (s statusLogMessage) formatStatus() string {
+	style := lipgloss.NewStyle().Bold(true)
 	switch s.operationStatus {
 	case None:
 		return ""
 	case OK:
-		return " OK"
+		return style.
+			Foreground(lipgloss.Color("#a4c847")).
+			Render("OK")
 	case NOK:
-		return " NOK"
+		return style.
+			Copy().
+			Foreground(lipgloss.Color("#d65f50")).
+			Render("NOK")
 	}
 	return ""
 }
@@ -73,19 +98,18 @@ func (s statusLogModel) String() []string {
 	logStream := s.Out().Val().([]statusLogMessage)
 
 	return lo.Map(logStream, func(item statusLogMessage, index int) string {
-		return lipgloss.NewStyle().
-			Foreground(uistyles.StatusLogMessages[index]).
-			Render(
-				item.formatTimestamp() +
-					item.text +
-					item.formatStatus() +
-					item.formatDuration())
+		return item.formatTimestamp() +
+			item.formatLogLevel() +
+			item.text + " " +
+			item.formatStatus() +
+			item.formatDuration()
 	})
 }
 
 func (m CoreUI) logProcess(text string) tea.Cmd {
 	return func() tea.Msg {
 		return statusLogMessage{
+			loglevel:  INFO,
 			text:      text,
 			timestamp: time.Now(),
 		}
