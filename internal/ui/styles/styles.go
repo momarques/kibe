@@ -8,7 +8,8 @@ var (
 	ViewTitleStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#ffffff")).
 			Background(lipgloss.Color("#d65f50")).
-			Padding(0, 1)
+			PaddingLeft(1).
+			PaddingRight(1)
 
 	HelpStyle = lipgloss.NewStyle().
 			Foreground(lipgloss.Color("#e4d491")).

@@ -120,7 +120,7 @@ func (m CoreUI) updateStatusLog(msg statusLogMessage, replaceAtIndex int) CoreUI
 
 func (m CoreUI) statusLogView() string {
 	return lipgloss.NewStyle().
-		MarginTop(11).
-		MarginLeft(3).
+		MarginBottom(1).
+		MarginLeft(2).
 		Render(strings.Join(m.statusLog.String(), "\n"))
 }

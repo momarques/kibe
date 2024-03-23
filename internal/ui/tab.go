@@ -11,9 +11,9 @@ import (
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
-const tabViewShowedHeightPercentage int = 36
+const tabViewShowedHeightPercentage int = 30
 const tabViewHiddenHeightPercentage int = 44
-const tabViewHiddenWidthPercentage int = 65
+const tabViewHiddenWidthPercentage int = 64
 
 type tabViewState int
 
@@ -162,7 +162,7 @@ func (m CoreUI) tabView() string {
 		Width((lipgloss.Width(tabs) - windowStyle.GetHorizontalFrameSize()))
 
 	var content string
-	var contentBlock lipgloss.Style = lipgloss.NewStyle().Height(16)
+	var contentBlock lipgloss.Style = lipgloss.NewStyle().Height(15)
 
 	switch m.tab.tabViewState {
 	case noContentSelected:
