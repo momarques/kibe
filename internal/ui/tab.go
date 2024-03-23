@@ -12,7 +12,6 @@ import (
 )
 
 const tabViewHiddenHeightPercentage int = 44
-const tabViewHiddenWidthPercentage int = 67
 
 type tabViewState int
 
