@@ -123,8 +123,14 @@ func (m CoreUI) composedView() string {
 		}
 	}
 
+	tabPanel := lipgloss.JoinHorizontal(
+		lipgloss.Bottom,
+		m.tabView(),
+		m.statusLogView(),
+	)
+
 	helpView := lipgloss.JoinVertical(
-		lipgloss.Center,
+		lipgloss.Left,
 		m.showHelpLines(helpBindingLines...)...)
 
 	leftUtilityPanel := lipgloss.JoinVertical(
@@ -133,21 +139,21 @@ func (m CoreUI) composedView() string {
 		m.syncBarView(),
 	)
 
-	bottomPanel := lipgloss.JoinVertical(lipgloss.Left,
-		m.tabView(),
-		lipgloss.JoinHorizontal(
-			lipgloss.Left,
-			leftUtilityPanel,
-			helpView,
-		))
+	bottomPanel := lipgloss.JoinHorizontal(
+		lipgloss.Left,
+		leftUtilityPanel,
+		lipgloss.NewStyle().Width(3).Render(""),
+		helpView,
+	)
 
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
 		m.headerView(),
 		m.tableView(),
-		lipgloss.JoinHorizontal(lipgloss.Center,
+		lipgloss.JoinVertical(lipgloss.Left,
+			tabPanel,
 			bottomPanel,
-			m.statusLogView()),
+		),
 		m.statusBar.View())
 }
 
