@@ -1,4 +1,4 @@
-package uistyles
+package style
 
 import (
 	"github.com/charmbracelet/lipgloss"
@@ -15,42 +15,41 @@ var (
 	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
 	inactiveTabStyle  = lipgloss.NewStyle().
 				Border(inactiveTabBorder, true).
-				BorderForeground(highlightColor).
+				BorderForeground(GetColor(defaultThemeConfig.Tab.InactiveTabBorder)).
 				Padding(0, 1)
 
 	activeTabBorder = tabBorderWithBottom("┘", " ", "└")
 	activeTabStyle  = inactiveTabStyle.
 			Copy().
 			Border(activeTabBorder, true).
-			Background(lipgloss.Color("#ffb1b5")).
-			Foreground(lipgloss.Color("#322223"))
+			Background(GetColor(defaultThemeConfig.Tab.ActiveTab.BG)).
+			Foreground(GetColor(defaultThemeConfig.Tab.ActiveTab.TXT))
 
 	dimmedInactiveTabStyle = lipgloss.NewStyle().
 				Border(inactiveTabBorder, true).
 				Padding(0, 1).
-				BorderForeground(dimmHighlightColor).
-				Foreground(dimmHighlightColor)
+				BorderForeground(GetColor(defaultThemeConfig.Tab.DimmedInactiveTabBorder)).
+				Foreground(GetColor(defaultThemeConfig.Tab.DimmedActiveTab.TXT))
 
 	dimmedActiveTabStyle = dimmedInactiveTabStyle.
 				Copy().
 				Border(activeTabBorder, true).
-				Background(dimmHighlightColor).
-				Foreground(lipgloss.Color("#aa9890"))
-
-	highlightColor     = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#ffb8bc"}
-	dimmHighlightColor = lipgloss.AdaptiveColor{Light: "#874BFD", Dark: "#4b3e3b"}
+				Background(GetColor(defaultThemeConfig.Tab.DimmedActiveTab.BG)).
+				Foreground(GetColor(defaultThemeConfig.Tab.DimmedActiveTab.TXT))
 
 	DocStyle = lipgloss.NewStyle().
 			Padding(0).
 			MarginLeft(2)
-		// MarginRight(20).
-		// Width(WindowWidth - 60)
+
 	windowStyle = lipgloss.NewStyle().
-			BorderForeground(highlightColor).
+			BorderForeground(GetColor(defaultThemeConfig.Tab.ActiveTabBorder)).
 			Padding(1, 0).
-		// Align(lipgloss.Center, lipgloss.Center).
-		Border(lipgloss.NormalBorder()).
-		UnsetBorderTop()
+			Border(lipgloss.NormalBorder()).
+			UnsetBorderTop()
+
+	dimmedWindowStyle = windowStyle.
+				Copy().
+				BorderForeground(GetColor(defaultThemeConfig.Tab.DimmedInactiveTabBorder))
 )
 
 func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
@@ -63,11 +62,8 @@ func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
 
 func NewWindowStyle(dimm bool) lipgloss.Style {
 	if dimm {
-		return windowStyle.
-			Copy().
-			BorderForeground(dimmHighlightColor)
+		return dimmedWindowStyle.Copy()
 	}
-
 	return windowStyle.Copy()
 }
 

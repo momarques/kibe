@@ -1,4 +1,4 @@
-package uistyles
+package style
 
 import (
 	"github.com/charmbracelet/bubbles/table"
@@ -9,27 +9,27 @@ var (
 	TableStyle = lipgloss.NewStyle().
 			MarginLeft(2).
 			Border(lipgloss.DoubleBorder(), true, true, true, true).
-			BorderForeground(lipgloss.Color("#ffb8bc"))
+			BorderForeground(GetColor(defaultThemeConfig.Table.ActiveBorder))
 	DimmedTableStyle = TableStyle.
 				Copy().
-				BorderForeground(dimmHighlightColor)
+				BorderForeground(GetColor(defaultThemeConfig.Table.DimmedBorder))
 
 	tableHeaderStyle = lipgloss.NewStyle().
-				Background(lipgloss.Color("#c5636a"))
+				Background(GetColor(defaultThemeConfig.Table.ActiveHeader.BG))
 	tableCellStyle     = lipgloss.NewStyle()
 	tableSelectedStyle = lipgloss.NewStyle().
-				Background(lipgloss.Color("#ffb1b5")).
-				Foreground(lipgloss.Color("#322223"))
+				Background(GetColor(defaultThemeConfig.Table.ActiveSelected.BG)).
+				Foreground(GetColor(defaultThemeConfig.Table.ActiveSelected.TXT))
 
 	dimmedTableHeaderStyle = lipgloss.NewStyle().
-				Background(dimmHighlightColor).
-				Foreground(lipgloss.Color("#616161"))
+				Background(GetColor(defaultThemeConfig.Table.DimmedHeader.BG)).
+				Foreground(GetColor(defaultThemeConfig.Table.DimmedHeader.TXT))
 	dimmedTableCellStyle = lipgloss.NewStyle().
-				Foreground(dimmHighlightColor)
+				Foreground(GetColor(defaultThemeConfig.Table.DimmedCell.TXT))
 
 	dimmedTableSelectedStyle = lipgloss.NewStyle().
-					Background(lipgloss.Color("#616161")).
-					Foreground(lipgloss.Color("#222222"))
+					Background(GetColor(defaultThemeConfig.Table.DimmedSelected.BG)).
+					Foreground(GetColor(defaultThemeConfig.Table.DimmedSelected.TXT))
 
 	PaginatorStyle = lipgloss.NewStyle().MarginLeft(2)
 )
