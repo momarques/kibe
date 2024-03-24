@@ -9,7 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 )
 
 type viewState int
@@ -72,7 +71,6 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case statusLogMessage:
 		return m.updateStatusLog(msg, -1), nil
 	case statusBarUpdated:
-		logging.Log.Info("status bar updated")
 		m.statusBar.SetContent(
 			"Resource", msg.resource,
 			fmt.Sprintf("Context: %s", msg.context),

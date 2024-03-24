@@ -72,6 +72,7 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 			m = m.changeSyncState(unsynced)
 			return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
 		}
+
 		m.table.rows = response.Rows
 		m.table.columns = response.Columns
 

@@ -7,6 +7,7 @@ import (
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
+	"github.com/momarques/kibe/internal/ui/style"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
@@ -48,15 +49,16 @@ func (p Pod) List(c *ClientReady) (Resource, error) {
 	return p, err
 }
 
+var (
+	nameColumnWidth     int = windowutil.ComputeWidthPercentage(nameColumnWidthPercentage)
+	readyColumnWidth    int = windowutil.ComputeWidthPercentage(readyColumnWidthPercentage)
+	statusColumnWidth   int = windowutil.ComputeWidthPercentage(statusColumnWidthPercentage)
+	restartsColumnWidth int = windowutil.ComputeWidthPercentage(restartsColumnWidthPercentage)
+	nodeColumnWidth     int = windowutil.ComputeWidthPercentage(nodeColumnWidthPercentage)
+	ageColumnWidth      int = windowutil.ComputeWidthPercentage(ageColumnWidthPercentage)
+)
+
 func (p Pod) Columns() (podAttributes []table.Column) {
-	var (
-		nameColumnWidth     int = windowutil.ComputeWidthPercentage(nameColumnWidthPercentage)
-		readyColumnWidth    int = windowutil.ComputeWidthPercentage(readyColumnWidthPercentage)
-		statusColumnWidth   int = windowutil.ComputeWidthPercentage(statusColumnWidthPercentage)
-		restartsColumnWidth int = windowutil.ComputeWidthPercentage(restartsColumnWidthPercentage)
-		nodeColumnWidth     int = windowutil.ComputeWidthPercentage(nodeColumnWidthPercentage)
-		ageColumnWidth      int = windowutil.ComputeWidthPercentage(ageColumnWidthPercentage)
-	)
 
 	return append(podAttributes,
 		table.Column{Title: "Name", Width: nameColumnWidth},
@@ -68,20 +70,34 @@ func (p Pod) Columns() (podAttributes []table.Column) {
 	)
 }
 
+func podPhaseColor(p corev1.PodPhase) string {
+	pString := string(p)
+
+	switch p {
+	case corev1.PodRunning, corev1.PodSucceeded:
+		return style.OKStatusMessage().
+			Render(pString)
+	case corev1.PodPending:
+		return style.WarnStatusMessage().Render(pString)
+	case corev1.PodFailed:
+		return style.NOKStatusMessage().Render(pString)
+	case corev1.PodUnknown:
+		return style.NoneStatusMessage().Render(pString)
+	}
+
+	return pString
+}
+
 func (p Pod) Rows() (podRows []table.Row) {
 	for _, pod := range p.pods {
 		podRows = append(podRows,
 			table.Row{
 				pod.Name,
-				checkReadyContainers(
-					pod.Status.ContainerStatuses),
-				string(
-					pod.Status.Phase),
-				checkRestartedContainers(
-					pod.Status.ContainerStatuses),
+				checkReadyContainers(pod.Status.ContainerStatuses),
+				string(pod.Status.Phase),
+				checkRestartedContainers(pod.Status.ContainerStatuses),
 				pod.Spec.NodeName,
-				DeltaTime(
-					pod.GetCreationTimestamp().Time),
+				DeltaTime(pod.GetCreationTimestamp().Time),
 			},
 		)
 	}

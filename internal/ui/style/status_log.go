@@ -11,15 +11,22 @@ func StatusLogDuration() lipgloss.TerminalColor { return GetColor(ThemeConfig.St
 
 func OKStatusMessage() lipgloss.Style {
 	return lipgloss.NewStyle().
+		Bold(false).
 		Foreground(GetColor(ThemeConfig.StatusLog.OKStatus.TXT))
 }
 
 func NOKStatusMessage() lipgloss.Style {
 	return lipgloss.NewStyle().
+		Bold(true).
 		Foreground(GetColor(ThemeConfig.StatusLog.NOKStatus.TXT))
 }
 
 func WarnStatusMessage() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Foreground(GetColor(ThemeConfig.StatusLog.WarnStatus.TXT))
+}
+
+func NoneStatusMessage() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Foreground(GetColor(ThemeConfig.StatusLog.Duration.TXT))
 }

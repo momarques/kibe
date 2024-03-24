@@ -177,11 +177,11 @@ var defaultThemeConfig = &Theme{
 		},
 		OKStatus: TextColorSet{
 			// BG:  "#ffffff",
-			TXT: "#a2e3ad",
+			TXT: "#a4c847",
 		},
 		NOKStatus: TextColorSet{
 			// BG:  "#ffffff",
-			TXT: "#f35143",
+			TXT: "#d65f50",
 		},
 		WarnStatus: TextColorSet{
 			// BG:  "#ffffff",

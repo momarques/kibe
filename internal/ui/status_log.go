@@ -66,18 +66,14 @@ func (s statusLogMessage) formatTimestamp() string {
 }
 
 func (s statusLogMessage) formatStatus() string {
-	style := lipgloss.NewStyle().Bold(true)
 	switch s.operationStatus {
 	case None:
 		return ""
 	case OK:
-		return style.
-			Foreground(lipgloss.Color("#a4c847")).
+		return style.OKStatusMessage().
 			Render("OK")
 	case NOK:
-		return style.
-			Copy().
-			Foreground(lipgloss.Color("#d65f50")).
+		return style.NOKStatusMessage().
 			Render("NOK")
 	}
 	return ""

@@ -21,7 +21,7 @@ func (rl ResourceLabels) TabContent() string {
 	t.Rows(
 		mapToTableRows(
 			mapKeysToYamlKeys(rl))...)
-	t.StyleFunc(style.ColorizeTabKeys)
+	t.StyleFunc(style.ColorizeTable)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
@@ -33,7 +33,7 @@ func (ra ResourceAnnotations) TabContent() string {
 	t := table.New()
 	t.Rows(mapToTableRows(
 		mapKeysToYamlKeys(ra))...)
-	t.StyleFunc(style.ColorizeTabKeys)
+	t.StyleFunc(style.ColorizeTable)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
