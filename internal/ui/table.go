@@ -160,12 +160,12 @@ func (m CoreUI) tableView() string {
 	if m.viewState == showTab {
 		tableStyle = style.DimmedTableStyle
 		m.table.SetStyles(style.NewTableStyle(true))
-		return tableStyle.Render(m.table.View())
+		return tableStyle().Render(m.table.View())
 	}
 	if m.table.columns == nil {
 		return lipgloss.NewStyle().
 			Height((windowutil.ComputeHeightPercentage(tableViewHeightPercentage) + 3)).
 			Render("")
 	}
-	return tableStyle.Render(m.table.View())
+	return tableStyle().Render(m.table.View())
 }

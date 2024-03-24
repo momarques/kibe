@@ -8,6 +8,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/logging"
+	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
 	"github.com/wesovilabs/koazee"
 	"github.com/wesovilabs/koazee/stream"
@@ -22,14 +23,15 @@ const (
 )
 
 type loglevel struct {
-	level, color string
+	level string
+	lipgloss.TerminalColor
 }
 
 var (
-	INFO  = loglevel{"INFO", "#498c69"}
-	WARN  = loglevel{"WARN", "#e4d491"}
-	ERROR = loglevel{"ERROR", "#d65f50"}
-	DEBUG = loglevel{"DEBUG", "#d282c0"}
+	INFO  = loglevel{"INFO", style.InfoLevel()}
+	WARN  = loglevel{"WARN", style.WarnLevel()}
+	ERROR = loglevel{"ERROR", style.ErrorLevel()}
+	DEBUG = loglevel{"DEBUG", style.DebugLevel()}
 )
 
 type statusLogMessage struct {
@@ -44,7 +46,7 @@ type statusLogMessage struct {
 func (s statusLogMessage) formatDuration() string {
 	if s.duration > 0 {
 		return lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#595959")).
+			Foreground(style.StatusLogDuration()).
 			Render(fmt.Sprintf(" duration=%dms", s.duration.Milliseconds()))
 	}
 	return ""
@@ -52,7 +54,7 @@ func (s statusLogMessage) formatDuration() string {
 
 func (s statusLogMessage) formatLogLevel() string {
 	return lipgloss.NewStyle().
-		Foreground(lipgloss.Color(s.color)).
+		Foreground(s.TerminalColor).
 		Render(s.level + " ")
 }
 

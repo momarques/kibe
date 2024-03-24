@@ -4,15 +4,15 @@ import (
 	"regexp"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/logging"
 )
 
 func ColorizeTabKeys(row, col int) lipgloss.Style {
 	switch {
 	case col == 0:
-		return resourceSectionDescriptionStyle.
-			Copy().
+		return lipgloss.NewStyle().
 			Background(lipgloss.NoColor{}).
-			Foreground(GetColor(defaultThemeConfig.Tab.ActiveTabContentKeys)).
+			Foreground(GetColor(ThemeConfig.Tab.ActiveTabContentKeys)).
 			Padding(0, 1).
 			Bold(true)
 	}
@@ -20,6 +20,7 @@ func ColorizeTabKeys(row, col int) lipgloss.Style {
 }
 
 func GetColor(c string) lipgloss.TerminalColor {
+	logging.Log.Info("color from theme -> ", c)
 	colorPattern, _ := regexp.Compile(`^#[0-9a-fA-F]{6}$`)
 	if colorPattern.MatchString(c) {
 		return lipgloss.Color(c)

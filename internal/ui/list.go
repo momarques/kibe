@@ -24,10 +24,10 @@ func newListModel() listModel {
 		[]list.Item{},
 		newItemDelegate(selector), 0, 0)
 
-	l.Styles.Title = style.ListHeaderTitleStyle.Copy()
-	l.Styles.HelpStyle = style.HelpStyle.Copy()
-	l.Styles.FilterPrompt = style.ListFilterPromptStyle.Copy()
-	l.Styles.FilterCursor = style.ListFilterCursorStyle.Copy()
+	l.Styles.Title = style.ListHeaderTitleStyle()
+	l.Styles.HelpStyle = style.HelpStyle()
+	l.Styles.FilterPrompt = style.ListFilterPromptStyle()
+	l.Styles.FilterCursor = style.ListFilterCursorStyle()
 	l.InfiniteScrolling = false
 	l.KeyMap.Quit = bindings.New("quit", "q", "ctrl+c")
 	return listModel{
@@ -44,8 +44,7 @@ func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		h, v := style.
-			AppStyle.
-			Copy().
+			AppStyle().
 			GetFrameSize()
 		m.list.SetSize(msg.Width-h, msg.Height-v)
 

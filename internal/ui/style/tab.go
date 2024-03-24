@@ -10,47 +10,57 @@ var (
 )
 
 var (
-	resourceSectionDescriptionStyle = lipgloss.NewStyle()
-
 	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
-	inactiveTabStyle  = lipgloss.NewStyle().
-				Border(inactiveTabBorder, true).
-				BorderForeground(GetColor(defaultThemeConfig.Tab.InactiveTabBorder)).
-				Padding(0, 1)
-
-	activeTabBorder = tabBorderWithBottom("┘", " ", "└")
-	activeTabStyle  = inactiveTabStyle.
-			Copy().
-			Border(activeTabBorder, true).
-			Background(GetColor(defaultThemeConfig.Tab.ActiveTab.BG)).
-			Foreground(GetColor(defaultThemeConfig.Tab.ActiveTab.TXT))
-
-	dimmedInactiveTabStyle = lipgloss.NewStyle().
-				Border(inactiveTabBorder, true).
-				Padding(0, 1).
-				BorderForeground(GetColor(defaultThemeConfig.Tab.DimmedInactiveTabBorder)).
-				Foreground(GetColor(defaultThemeConfig.Tab.DimmedActiveTab.TXT))
-
-	dimmedActiveTabStyle = dimmedInactiveTabStyle.
-				Copy().
-				Border(activeTabBorder, true).
-				Background(GetColor(defaultThemeConfig.Tab.DimmedActiveTab.BG)).
-				Foreground(GetColor(defaultThemeConfig.Tab.DimmedActiveTab.TXT))
-
-	DocStyle = lipgloss.NewStyle().
-			Padding(0).
-			MarginLeft(2)
-
-	windowStyle = lipgloss.NewStyle().
-			BorderForeground(GetColor(defaultThemeConfig.Tab.ActiveTabBorder)).
-			Padding(1, 0).
-			Border(lipgloss.NormalBorder()).
-			UnsetBorderTop()
-
-	dimmedWindowStyle = windowStyle.
-				Copy().
-				BorderForeground(GetColor(defaultThemeConfig.Tab.DimmedInactiveTabBorder))
+	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
 )
+
+func inactiveTabStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Border(inactiveTabBorder, true).
+		BorderForeground(GetColor(ThemeConfig.Tab.InactiveTabBorder)).
+		Padding(0, 1)
+}
+
+func activeTabStyle() lipgloss.Style {
+	return inactiveTabStyle().
+		Border(activeTabBorder, true).
+		Background(GetColor(ThemeConfig.Tab.ActiveTab.BG)).
+		Foreground(GetColor(ThemeConfig.Tab.ActiveTab.TXT))
+}
+
+func dimmedInactiveTabStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Border(inactiveTabBorder, true).
+		Padding(0, 1).
+		BorderForeground(GetColor(ThemeConfig.Tab.DimmedInactiveTabBorder)).
+		Foreground(GetColor(ThemeConfig.Tab.DimmedActiveTab.TXT))
+}
+
+func dimmedActiveTabStyle() lipgloss.Style {
+	return dimmedInactiveTabStyle().
+		Border(activeTabBorder, true).
+		Background(GetColor(ThemeConfig.Tab.DimmedActiveTab.BG)).
+		Foreground(GetColor(ThemeConfig.Tab.DimmedActiveTab.TXT))
+}
+
+func DocStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Padding(0).
+		MarginLeft(2)
+}
+
+func windowStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		BorderForeground(GetColor(ThemeConfig.Tab.ActiveTabBorder)).
+		Padding(1, 0).
+		Border(lipgloss.NormalBorder()).
+		UnsetBorderTop()
+}
+
+func dimmedWindowStyle() lipgloss.Style {
+	return windowStyle().
+		BorderForeground(GetColor(ThemeConfig.Tab.DimmedInactiveTabBorder))
+}
 
 func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
 	border := lipgloss.RoundedBorder()
@@ -62,14 +72,14 @@ func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
 
 func NewWindowStyle(dimm bool) lipgloss.Style {
 	if dimm {
-		return dimmedWindowStyle.Copy()
+		return dimmedWindowStyle()
 	}
-	return windowStyle.Copy()
+	return windowStyle()
 }
 
 func NewTabStyle(dimm bool) (lipgloss.Style, lipgloss.Style) {
 	if dimm {
-		return dimmedActiveTabStyle.Copy(), dimmedInactiveTabStyle.Copy()
+		return dimmedActiveTabStyle(), dimmedInactiveTabStyle()
 	}
-	return activeTabStyle.Copy(), inactiveTabStyle.Copy()
+	return activeTabStyle(), inactiveTabStyle()
 }

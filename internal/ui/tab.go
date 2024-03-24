@@ -182,7 +182,7 @@ func (m CoreUI) tabView() string {
 			contentBlock.Render(content),
 			m.tab.paginator.view(),
 		)))
-	return style.DocStyle.Render(doc.String())
+	return style.DocStyle().Render(doc.String())
 }
 
 func (t tabModel) getTabPositions(index int) (bool, bool, bool) {

@@ -2,12 +2,23 @@ package style
 
 import "github.com/charmbracelet/lipgloss"
 
-var (
-	SyncBarStatusStyle = ViewTitleStyle.Copy().
-				PaddingRight(0).
-				Width(10)
+var ()
 
-	InSyncColor   = lipgloss.Color(defaultThemeConfig.SyncBar.InSyncState.BG)
-	UnsyncedColor = lipgloss.Color(defaultThemeConfig.SyncBar.UnsyncedState.BG)
-	StartingColor = lipgloss.Color(defaultThemeConfig.SyncBar.StartingState.BG)
-)
+func InSyncColor() lipgloss.Color {
+	return lipgloss.Color(ThemeConfig.SyncBar.InSyncState.BG)
+}
+
+func UnsyncedColor() lipgloss.Color {
+	return lipgloss.Color(ThemeConfig.SyncBar.UnsyncedState.BG)
+}
+
+func StartingColor() lipgloss.Color {
+	return lipgloss.Color(ThemeConfig.SyncBar.StartingState.BG)
+}
+
+func SyncBarStatusStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		PaddingLeft(1).
+		PaddingRight(0).
+		Width(10)
+}

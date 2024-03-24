@@ -33,7 +33,7 @@ func (m CoreUI) headerView() string {
 	itemCountStyle := style.CoreHeaderItemCountStyle
 
 	return lipgloss.JoinVertical(lipgloss.Left,
-		titleStyle.Render(string(m.header.text)),
-		itemCountStyle.Render(fmt.Sprintf("%d items", m.header.itemCount)),
+		titleStyle().Render(string(m.header.text)),
+		itemCountStyle().Render(fmt.Sprintf("%d items", m.header.itemCount)),
 	)
 }

@@ -152,11 +152,11 @@ func podConditionToString(condition corev1.PodCondition, _ int) string {
 
 	switch condition.Status {
 	case corev1.ConditionTrue:
-		return style.OKStatusMessage.Render(questionCondition)
+		return style.OKStatusMessage().Render(questionCondition)
 	case corev1.ConditionFalse:
-		return style.NOKStatusMessage.Render(questionCondition)
+		return style.NOKStatusMessage().Render(questionCondition)
 	case corev1.ConditionUnknown:
-		return style.WarnStatusMessage.Render(questionCondition)
+		return style.WarnStatusMessage().Render(questionCondition)
 	}
 	return ""
 }

@@ -174,11 +174,11 @@ var defaultThemeConfig = &Theme{
 
 	StatusLog: StatusLogColors{
 		Duration: TextColorSet{
-			BG:  "#ffffff",
-			TXT: "#ffffff",
+			// BG:  "#ffffff",
+			TXT: "#595959",
 		},
 		Timestamp: TextColorSet{
-			BG:  "#ffffff",
+			// BG:  "#ffffff",
 			TXT: "#ffffff",
 		},
 		OKStatus: TextColorSet{
@@ -194,20 +194,20 @@ var defaultThemeConfig = &Theme{
 			TXT: "#ffde6e",
 		},
 		InfoLevel: TextColorSet{
-			BG:  "#ffffff",
-			TXT: "#ffffff",
+			// BG:  "#ffffff",
+			TXT: "#498c69",
 		},
 		WarnLevel: TextColorSet{
-			BG:  "#ffffff",
-			TXT: "#ffffff",
+			// BG:  "#ffffff",
+			TXT: "#e4d491",
 		},
 		ErrorLevel: TextColorSet{
-			BG:  "#ffffff",
-			TXT: "#ffffff",
+			// BG:  "#ffffff",
+			TXT: "#d65f50",
 		},
 		DebugLevel: TextColorSet{
-			BG:  "#ffffff",
-			TXT: "#ffffff",
+			// BG:  "#ffffff",
+			TXT: "#d282c0",
 		},
 	},
 

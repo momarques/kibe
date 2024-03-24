@@ -27,8 +27,7 @@ func newPaginatorModel(itemsPerPage int) paginatorModel {
 }
 
 func (p paginatorModel) view() string {
-	return style.PaginatorStyle.
-		Copy().
+	return style.PaginatorStyle().
 		// MarginRight(40).
 		MarginBottom(1).
 		Render(p.View())

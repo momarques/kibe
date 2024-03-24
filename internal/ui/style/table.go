@@ -5,47 +5,61 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	TableStyle = lipgloss.NewStyle().
-			MarginLeft(2).
-			Border(lipgloss.DoubleBorder(), true, true, true, true).
-			BorderForeground(GetColor(defaultThemeConfig.Table.ActiveBorder))
-	DimmedTableStyle = TableStyle.
-				Copy().
-				BorderForeground(GetColor(defaultThemeConfig.Table.DimmedBorder))
+func TableStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		MarginLeft(2).
+		Border(lipgloss.DoubleBorder(), true, true, true, true).
+		BorderForeground(GetColor(ThemeConfig.Table.ActiveBorder))
+}
 
-	tableHeaderStyle = lipgloss.NewStyle().
-				Background(GetColor(defaultThemeConfig.Table.ActiveHeader.BG))
-	tableCellStyle     = lipgloss.NewStyle()
-	tableSelectedStyle = lipgloss.NewStyle().
-				Background(GetColor(defaultThemeConfig.Table.ActiveSelected.BG)).
-				Foreground(GetColor(defaultThemeConfig.Table.ActiveSelected.TXT))
+func DimmedTableStyle() lipgloss.Style {
+	return TableStyle().
+		BorderForeground(GetColor(ThemeConfig.Table.DimmedBorder))
+}
 
-	dimmedTableHeaderStyle = lipgloss.NewStyle().
-				Background(GetColor(defaultThemeConfig.Table.DimmedHeader.BG)).
-				Foreground(GetColor(defaultThemeConfig.Table.DimmedHeader.TXT))
-	dimmedTableCellStyle = lipgloss.NewStyle().
-				Foreground(GetColor(defaultThemeConfig.Table.DimmedCell.TXT))
+func tableHeaderStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Background(GetColor(ThemeConfig.Table.ActiveHeader.BG))
+}
 
-	dimmedTableSelectedStyle = lipgloss.NewStyle().
-					Background(GetColor(defaultThemeConfig.Table.DimmedSelected.BG)).
-					Foreground(GetColor(defaultThemeConfig.Table.DimmedSelected.TXT))
+func tableCellStyle() lipgloss.Style { return lipgloss.NewStyle() }
 
-	PaginatorStyle = lipgloss.NewStyle().MarginLeft(2)
-)
+func tableSelectedStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Background(GetColor(ThemeConfig.Table.ActiveSelected.BG)).
+		Foreground(GetColor(ThemeConfig.Table.ActiveSelected.TXT))
+}
+
+func dimmedTableHeaderStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Background(GetColor(ThemeConfig.Table.DimmedHeader.BG)).
+		Foreground(GetColor(ThemeConfig.Table.DimmedHeader.TXT))
+}
+
+func dimmedTableCellStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Foreground(GetColor(ThemeConfig.Table.DimmedCell.TXT))
+}
+
+func dimmedTableSelectedStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Background(GetColor(ThemeConfig.Table.DimmedSelected.BG)).
+		Foreground(GetColor(ThemeConfig.Table.DimmedSelected.TXT))
+}
+
+func PaginatorStyle() lipgloss.Style { return lipgloss.NewStyle().MarginLeft(2) }
 
 func NewTableStyle(dimm bool) table.Styles {
 	s := table.DefaultStyles()
 
-	s.Cell = tableCellStyle
-	s.Header = tableHeaderStyle
-	s.Selected = tableSelectedStyle
+	s.Cell = tableCellStyle()
+	s.Header = tableHeaderStyle()
+	s.Selected = tableSelectedStyle()
 
 	if dimm {
-		s.Cell = dimmedTableCellStyle
-		s.Header = dimmedTableHeaderStyle
-		s.Selected = dimmedTableSelectedStyle
+		s.Cell = dimmedTableCellStyle()
+		s.Header = dimmedTableHeaderStyle()
+		s.Selected = dimmedTableSelectedStyle()
 	}
-
 	return s
 }

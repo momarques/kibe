@@ -38,7 +38,7 @@ type syncBarModel struct {
 
 func newSyncBarModel() syncBarModel {
 	sp := spinner.New(
-		spinner.WithStyle(style.OKStatusMessage),
+		spinner.WithStyle(style.OKStatusMessage()),
 	)
 	sp.Spinner = spinner.Dot
 	return syncBarModel{
@@ -54,15 +54,15 @@ func (m CoreUI) changeSyncState(state syncState) CoreUI {
 	switch m.table.syncState {
 	case inSync:
 		m.syncBar.text = "in sync"
-		m.syncBar.bgColor = style.InSyncColor
+		m.syncBar.bgColor = style.InSyncColor()
 		m.syncBar.spinnerState = showSpinner
 	case unsynced:
 		m.syncBar.text = "unsynced"
-		m.syncBar.bgColor = style.UnsyncedColor
+		m.syncBar.bgColor = style.UnsyncedColor()
 		m.syncBar.spinnerState = hideSpinner
 	case starting:
 		m.syncBar.text = "starting"
-		m.syncBar.bgColor = style.StartingColor
+		m.syncBar.bgColor = style.StartingColor()
 		m.syncBar.spinnerState = showSpinner
 	}
 	return m
@@ -92,7 +92,7 @@ func (s syncBarModel) spinnerView() string {
 }
 
 func (m CoreUI) syncBarView() string {
-	syncStyle := style.SyncBarStatusStyle.Copy().
+	syncStyle := style.SyncBarStatusStyle().
 		Foreground(m.syncBar.fgColor).
 		Background(m.syncBar.bgColor)
 
