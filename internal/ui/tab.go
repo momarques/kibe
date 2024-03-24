@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	"github.com/momarques/kibe/internal/ui/style"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
@@ -110,7 +110,7 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CoreUI) formatTabs() []string {
-	var activeStyle, inactiveStyle lipgloss.Style = uistyles.NewTabStyle(m.tab.dimm)
+	var activeStyle, inactiveStyle lipgloss.Style = style.NewTabStyle(m.tab.dimm)
 	var renderedTabs []string
 
 	for i, t := range m.tab.Tabs {
@@ -158,7 +158,7 @@ func (m CoreUI) tabView() string {
 	doc := strings.Builder{}
 
 	tabs := lipgloss.JoinHorizontal(lipgloss.Top, m.formatTabs()...)
-	windowStyle := uistyles.NewWindowStyle(m.tab.dimm)
+	windowStyle := style.NewWindowStyle(m.tab.dimm)
 
 	contentStyle := windowStyle.
 		Copy().
@@ -182,7 +182,7 @@ func (m CoreUI) tabView() string {
 			contentBlock.Render(content),
 			m.tab.paginator.view(),
 		)))
-	return uistyles.DocStyle.Render(doc.String())
+	return style.DocStyle.Render(doc.String())
 }
 
 func (t tabModel) getTabPositions(index int) (bool, bool, bool) {

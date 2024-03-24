@@ -7,7 +7,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	"github.com/momarques/kibe/internal/ui/style"
 )
 
 type syncState int
@@ -17,10 +17,6 @@ const (
 	unsynced
 	syncing
 	starting
-
-	inSyncColor   string = "#a4c847"
-	unsyncedColor string = "#d83f24"
-	startingColor string = "#4b3e3b"
 )
 
 type syncStarted time.Time
@@ -34,17 +30,19 @@ func (s syncStarted) Cmd() func() tea.Msg {
 type syncBarModel struct {
 	spinnerState
 
-	color   lipgloss.Color
+	bgColor lipgloss.Color
+	fgColor lipgloss.Color
 	spinner spinner.Model
 	text    string
 }
 
 func newSyncBarModel() syncBarModel {
 	sp := spinner.New(
-		spinner.WithStyle(uistyles.OKStatusMessage),
+		spinner.WithStyle(style.OKStatusMessage),
 	)
 	sp.Spinner = spinner.Dot
 	return syncBarModel{
+		fgColor:      lipgloss.Color("#ffffff"),
 		spinner:      sp,
 		spinnerState: hideSpinner,
 	}
@@ -56,15 +54,15 @@ func (m CoreUI) changeSyncState(state syncState) CoreUI {
 	switch m.table.syncState {
 	case inSync:
 		m.syncBar.text = "in sync"
-		m.syncBar.color = lipgloss.Color(inSyncColor)
+		m.syncBar.bgColor = lipgloss.Color(style.InSyncColor)
 		m.syncBar.spinnerState = showSpinner
 	case unsynced:
 		m.syncBar.text = "unsynced"
-		m.syncBar.color = lipgloss.Color(unsyncedColor)
+		m.syncBar.bgColor = lipgloss.Color(style.UnsyncedColor)
 		m.syncBar.spinnerState = hideSpinner
 	case starting:
 		m.syncBar.text = "starting"
-		m.syncBar.color = lipgloss.Color(startingColor)
+		m.syncBar.bgColor = lipgloss.Color(style.StartingColor)
 		m.syncBar.spinnerState = showSpinner
 	}
 	return m
@@ -94,12 +92,9 @@ func (s syncBarModel) spinnerView() string {
 }
 
 func (m CoreUI) syncBarView() string {
-	syncStyle := uistyles.ViewTitleStyle.
-		Copy().
-		PaddingRight(0).
-		PaddingLeft(1).
-		Background(m.syncBar.color).
-		Width(10)
+	syncStyle := style.SyncBarStatusStyle.
+		Foreground(m.syncBar.fgColor).
+		Background(m.syncBar.bgColor)
 
 	return lipgloss.JoinHorizontal(lipgloss.Left,
 		m.syncBar.spinnerView(),
