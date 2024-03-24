@@ -7,11 +7,8 @@ import (
 
 var (
 	WindowWidth, WindowHeight = windowutil.GetWindowSize()
-)
-
-var (
-	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
-	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
+	inactiveTabBorder         = tabBorderWithBottom("┴", "─", "┴")
+	activeTabBorder           = tabBorderWithBottom("┘", " ", "└")
 )
 
 func inactiveTabStyle() lipgloss.Style {

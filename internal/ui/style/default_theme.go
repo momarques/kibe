@@ -108,7 +108,7 @@ var defaultThemeConfig = &Theme{
 
 	Tab: TabColors{
 		ActiveTabBorder:   "#ffb8bc",
-		InactiveTabBorder: "#4b3e3b",
+		InactiveTabBorder: "#ffb8bc",
 		// DimmedActiveTabBorder:   "#ffffff",
 		DimmedInactiveTabBorder: "#4b3e3b",
 
