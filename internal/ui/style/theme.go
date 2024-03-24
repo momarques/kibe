@@ -12,118 +12,118 @@ import (
 )
 
 type Theme struct {
-	List ListColors `koanf:"list,omitempty"`
+	List ListColors `yaml:"list"`
 
-	MainHeader HeaderColorSet `koanf:"mainHeader,omitempty"`
+	MainHeader HeaderColorSet `yaml:"mainHeader"`
 
-	Table TableColors `koanf:"table,omitempty"`
-	Tab   TabColors   `koanf:"tab,omitempty"`
+	Table TableColors `yaml:"table"`
+	Tab   TabColors   `yaml:"tab"`
 
-	SyncBar   SyncBarColors   `koanf:"syncBar,omitempty"`
-	Help      HelpColorSet    `koanf:"help,omitempty"`
-	StatusLog StatusLogColors `koanf:"statusLog,omitempty"`
-	StatusBar StatusBarColors `koanf:"statusBar,omitempty"`
+	SyncBar   SyncBarColors   `yaml:"syncBar"`
+	Help      HelpColorSet    `yaml:"help"`
+	StatusLog StatusLogColors `yaml:"statusLog"`
+	StatusBar StatusBarColors `yaml:"statusBar"`
 }
 
 type TextColorSet struct {
-	BG  string `koanf:"bg,omitempty"`
-	TXT string `koanf:"txt,omitempty"`
+	BG  string `yaml:"bg"`
+	TXT string `yaml:"txt"`
 }
 
 type HeaderColorSet struct {
-	Title        TextColorSet `koanf:"title,omitempty"`
-	ItemCount    TextColorSet `koanf:"itemCount,omitempty"`
-	FilterPrompt TextColorSet `koanf:"filterPrompt,omitempty"`
-	FilterCursor TextColorSet `koanf:"filterCursor,omitempty"`
+	Title        TextColorSet `yaml:"title"`
+	ItemCount    TextColorSet `yaml:"itemCount"`
+	FilterPrompt TextColorSet `yaml:"filterPrompt"`
+	FilterCursor TextColorSet `yaml:"filterCursor"`
 }
 
 type HelpColorSet struct {
-	ShortcutName        TextColorSet `koanf:"shortcutName,omitempty"`
-	ShortcutDescription TextColorSet `koanf:"shortcutDescription,omitempty"`
-	ShortcutSeparator   TextColorSet `koanf:"shortcutSeparator,omitempty"`
+	ShortcutName        TextColorSet `yaml:"shortcutName"`
+	ShortcutDescription TextColorSet `yaml:"shortcutDescription"`
+	ShortcutSeparator   TextColorSet `yaml:"shortcutSeparator"`
 }
 
 type PaginatorColorSet struct {
-	Active   string `koanf:"active,omitempty"`
-	Inactive string `koanf:"inactive,omitempty"`
-	Dimmed   string `koanf:"dimmed,omitempty"`
+	Active   string `yaml:"active"`
+	Inactive string `yaml:"inactive"`
+	Dimmed   string `yaml:"dimmed"`
 }
 
 type ListColors struct {
-	Header        HeaderColorSet `koanf:"header,omitempty"`
-	StatusMessage TextColorSet   `koanf:"statusMessage,omitempty"`
+	Header        HeaderColorSet `yaml:"header"`
+	StatusMessage TextColorSet   `yaml:"statusMessage"`
 
-	ActiveSelectionTitle TextColorSet `koanf:"activeSelection_title,omitempty"`
-	NormalTitle          TextColorSet `koanf:"normalTitle,omitempty"`
-	DimmedTitle          TextColorSet `koanf:"dimmedTitle,omitempty"`
+	ActiveSelectionTitle TextColorSet `yaml:"activeSelectionTitle"`
+	NormalTitle          TextColorSet `yaml:"normalTitle"`
+	DimmedTitle          TextColorSet `yaml:"dimmedTitle"`
 
-	ActiveSelectionDescription TextColorSet `koanf:"activeSelectionDescription,omitempty"`
-	NormalDescription          TextColorSet `koanf:"normalDescription,omitempty"`
-	DimmedDescription          TextColorSet `koanf:"dimmedDescription,omitempty"`
+	ActiveSelectionDescription TextColorSet `yaml:"activeSelectionDescription"`
+	NormalDescription          TextColorSet `yaml:"normalDescription"`
+	DimmedDescription          TextColorSet `yaml:"dimmedDescription"`
 }
 
 type TableColors struct {
-	ActiveBorder string `koanf:"activeBorder,omitempty"`
-	DimmedBorder string `koanf:"dimmedBorder,omitempty"`
+	ActiveBorder string `yaml:"activeBorder"`
+	DimmedBorder string `yaml:"dimmedBorder"`
 
-	ActiveCell TextColorSet `koanf:"activeCell,omitempty"`
-	DimmedCell TextColorSet `koanf:"dimmedCell,omitempty"`
+	ActiveCell TextColorSet `yaml:"activeCell"`
+	DimmedCell TextColorSet `yaml:"dimmedCell"`
 
-	ActiveHeader TextColorSet `koanf:"activeHeader,omitempty"`
-	DimmedHeader TextColorSet `koanf:"dimmedHeader,omitempty"`
+	ActiveHeader TextColorSet `yaml:"activeHeader"`
+	DimmedHeader TextColorSet `yaml:"dimmedHeader"`
 
-	ActiveSelected TextColorSet `koanf:"activeSelected,omitempty"`
-	DimmedSelected TextColorSet `koanf:"dimmedSelected,omitempty"`
+	ActiveSelected TextColorSet `yaml:"activeSelected"`
+	DimmedSelected TextColorSet `yaml:"dimmedSelected"`
 
-	Paginator PaginatorColorSet `koanf:"paginator,omitempty"`
+	Paginator PaginatorColorSet `yaml:"paginator"`
 }
 
 type TabColors struct {
-	ActiveTabBorder         string `koanf:"activeTabBorder,omitempty"`
-	InactiveTabBorder       string `koanf:"inactiveTabBorder,omitempty"`
-	DimmedActiveTabBorder   string `koanf:"dimmedActiveTabBorder,omitempty"`
-	DimmedInactiveTabBorder string `koanf:"dimmedInactiveTabBorder,omitempty"`
+	ActiveTabBorder         string `yaml:"activeTabBorder"`
+	InactiveTabBorder       string `yaml:"inactiveTabBorder"`
+	DimmedActiveTabBorder   string `yaml:"dimmedActiveTabBorder"`
+	DimmedInactiveTabBorder string `yaml:"dimmedInactiveTabBorder"`
 
-	ActiveTab         TextColorSet `koanf:"activeTab,omitempty"`
-	InactiveTab       TextColorSet `koanf:"inactiveTab,omitempty"`
-	DimmedActiveTab   TextColorSet `koanf:"dimmedActiveTab,omitempty"`
-	DimmedInactiveTab TextColorSet `koanf:"dimmedInactiveTab,omitempty"`
+	ActiveTab         TextColorSet `yaml:"activeTab"`
+	InactiveTab       TextColorSet `yaml:"inactiveTab"`
+	DimmedActiveTab   TextColorSet `yaml:"dimmedActiveTab"`
+	DimmedInactiveTab TextColorSet `yaml:"dimmedInactiveTab"`
 
-	ActiveTabContentKeys       string `koanf:"activeTabContent_keys,omitempty"`
-	DimmedActiveTabContentKeys string `koanf:"dimmedActiveTabContentKeys,omitempty"`
+	ActiveTabContentKeys       string `yaml:"activeTabContentKeys"`
+	DimmedActiveTabContentKeys string `yaml:"dimmedActiveTabContentKeys"`
 
-	ActiveTabContentValues       string `koanf:"activeTabContentValues,omitempty"`
-	DimmedActiveTabContentValues string `koanf:"dimmedActiveTabContentValues,omitempty"`
+	ActiveTabContentValues       string `yaml:"activeTabContentValues"`
+	DimmedActiveTabContentValues string `yaml:"dimmedActiveTabContentValues"`
 
-	Paginator PaginatorColorSet `koanf:"paginator,omitempty"`
+	Paginator PaginatorColorSet `yaml:"paginator"`
 }
 
 type SyncBarColors struct {
-	Spinner       string       `koanf:"spinner,omitempty"`
-	InSyncState   TextColorSet `koanf:"inSyncState,omitempty"`
-	UnsyncedState TextColorSet `koanf:"unsyncedState,omitempty"`
-	StartingState TextColorSet `koanf:"startingState,omitempty"`
+	Spinner       string       `yaml:"spinner"`
+	InSyncState   TextColorSet `yaml:"inSyncState"`
+	UnsyncedState TextColorSet `yaml:"unsyncedState"`
+	StartingState TextColorSet `yaml:"startingState"`
 }
 
 type StatusLogColors struct {
-	Duration  TextColorSet `koanf:"duration,omitempty"`
-	Timestamp TextColorSet `koanf:"timestamp,omitempty"`
+	Duration  TextColorSet `yaml:"duration"`
+	Timestamp TextColorSet `yaml:"timestamp"`
 
-	OKStatus   TextColorSet `koanf:"okStatus,omitempty"`
-	NOKStatus  TextColorSet `koanf:"nokStatus,omitempty"`
-	WarnStatus TextColorSet `koanf:"warnStatus,omitempty"`
+	OKStatus   TextColorSet `yaml:"okStatus"`
+	NOKStatus  TextColorSet `yaml:"nokStatus"`
+	WarnStatus TextColorSet `yaml:"warnStatus"`
 
-	InfoLevel  TextColorSet `koanf:"infoLevel,omitempty"`
-	WarnLevel  TextColorSet `koanf:"warnLevel,omitempty"`
-	ErrorLevel TextColorSet `koanf:"errorLevel,omitempty"`
-	DebugLevel TextColorSet `koanf:"debugLevel,omitempty"`
+	InfoLevel  TextColorSet `yaml:"infoLevel"`
+	WarnLevel  TextColorSet `yaml:"warnLevel"`
+	ErrorLevel TextColorSet `yaml:"errorLevel"`
+	DebugLevel TextColorSet `yaml:"debugLevel"`
 }
 
 type StatusBarColors struct {
-	ResourceSection        TextColorSet `koanf:"resourceSection,omitempty"`
-	ResourceDetailsSection TextColorSet `koanf:"resourceDetails_section,omitempty"`
-	ContextSection         TextColorSet `koanf:"contextSection,omitempty"`
-	NamespaceSection       TextColorSet `koanf:"namespaceSection,omitempty"`
+	ResourceSection        TextColorSet `yaml:"resourceSection"`
+	ResourceDetailsSection TextColorSet `yaml:"resourceDetailsSection"`
+	ContextSection         TextColorSet `yaml:"contextSection"`
+	NamespaceSection       TextColorSet `yaml:"namespaceSection"`
 }
 
 var ThemeConfig Theme
