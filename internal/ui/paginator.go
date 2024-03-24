@@ -2,8 +2,11 @@ package ui
 
 import (
 	"github.com/charmbracelet/bubbles/paginator"
-	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/ui/style"
+)
+
+const (
+	paginatorDot = "•"
 )
 
 type paginatorModel struct {
@@ -14,21 +17,23 @@ func newPaginatorModel(itemsPerPage int) paginatorModel {
 	p := paginator.New()
 	p.Type = paginator.Dots
 	p.PerPage = itemsPerPage
-	p.ActiveDot = lipgloss.NewStyle().
-		Foreground(lipgloss.AdaptiveColor{Light: "235", Dark: "#ffb1b5"}).
-		Render("•")
-	p.InactiveDot = lipgloss.NewStyle().
-		Foreground(lipgloss.AdaptiveColor{Light: "250", Dark: "#624548"}).
-		Render("•")
+	p.ActiveDot = style.ActiveDotPaginatorStyle().
+		Render(paginatorDot)
+	p.InactiveDot = style.InactiveDotPaginatorStyle().
+		Render(paginatorDot)
 
 	return paginatorModel{
 		Model: p,
 	}
 }
 
-func (p paginatorModel) view() string {
+func (p paginatorModel) view(dimm bool) string {
+	if dimm {
+		p.ActiveDot = style.DimmedDotaginatorStyle().Render(paginatorDot)
+		p.InactiveDot = style.DimmedDotaginatorStyle().Render(paginatorDot)
+		return style.DimmedPaginatorStyle().
+			Render(p.View())
+	}
 	return style.PaginatorStyle().
-		// MarginRight(40).
-		MarginBottom(1).
 		Render(p.View())
 }

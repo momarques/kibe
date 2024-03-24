@@ -114,15 +114,20 @@ func (m CoreUI) showHelpLines(helpBindingLines ...[]key.Binding) []string {
 
 func (m CoreUI) composedView() string {
 	var helpBindingLines [][]key.Binding
+	var dimmMainPaginator bool
 
 	switch m.viewState {
 	case showTable:
+		dimmMainPaginator = false
+
 		helpBindingLines = [][]key.Binding{
 			m.table.firstHelpLineView(),
 			m.table.secondHelpLineView(),
 		}
 
 	case showTab:
+		dimmMainPaginator = true
+
 		switch m.tab.tabViewState {
 		case noContentSelected:
 			helpBindingLines = [][]key.Binding{
@@ -149,7 +154,7 @@ func (m CoreUI) composedView() string {
 
 	leftUtilityPanel := lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.table.paginator.view(),
+		m.table.paginator.view(dimmMainPaginator),
 		m.syncBarView(),
 	)
 

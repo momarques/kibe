@@ -19,10 +19,11 @@ type Theme struct {
 	Table TableColors `yaml:"table,omitempty"`
 	Tab   TabColors   `yaml:"tab,omitempty"`
 
-	SyncBar   SyncBarColors   `yaml:"syncBar,omitempty"`
-	Help      HelpColorSet    `yaml:"help,omitempty"`
-	StatusLog StatusLogColors `yaml:"statusLog,omitempty"`
-	StatusBar StatusBarColors `yaml:"statusBar,omitempty"`
+	Paginator PaginatorColorSet `yaml:"paginator,omitempty"`
+	SyncBar   SyncBarColors     `yaml:"syncBar,omitempty"`
+	Help      HelpColorSet      `yaml:"help,omitempty"`
+	StatusLog StatusLogColors   `yaml:"statusLog,omitempty"`
+	StatusBar StatusBarColors   `yaml:"statusBar,omitempty"`
 }
 
 type TextColorSet struct {
@@ -74,8 +75,6 @@ type TableColors struct {
 
 	ActiveSelected TextColorSet `yaml:"activeSelected,omitempty"`
 	DimmedSelected TextColorSet `yaml:"dimmedSelected,omitempty"`
-
-	Paginator PaginatorColorSet `yaml:"paginator,omitempty"`
 }
 
 type TabColors struct {
@@ -94,8 +93,6 @@ type TabColors struct {
 
 	ActiveTabContentValues       string `yaml:"activeTabContentValues,omitempty"`
 	DimmedActiveTabContentValues string `yaml:"dimmedActiveTabContentValues,omitempty"`
-
-	Paginator PaginatorColorSet `yaml:"paginator,omitempty"`
 }
 
 type SyncBarColors struct {

@@ -47,7 +47,27 @@ func dimmedTableSelectedStyle() lipgloss.Style {
 		Foreground(GetColor(ThemeConfig.Table.DimmedSelected.TXT))
 }
 
-func PaginatorStyle() lipgloss.Style { return lipgloss.NewStyle().MarginLeft(2) }
+func PaginatorStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		MarginLeft(2).
+		MarginBottom(1)
+}
+
+func DimmedPaginatorStyle() lipgloss.Style {
+	return PaginatorStyle().Foreground(GetColor(ThemeConfig.Paginator.Dimmed))
+}
+
+func ActiveDotPaginatorStyle() lipgloss.Style {
+	return lipgloss.NewStyle().Foreground(GetColor(ThemeConfig.Paginator.Active))
+}
+
+func InactiveDotPaginatorStyle() lipgloss.Style {
+	return lipgloss.NewStyle().Foreground(GetColor(ThemeConfig.Paginator.Inactive))
+}
+
+func DimmedDotaginatorStyle() lipgloss.Style {
+	return lipgloss.NewStyle().Foreground(GetColor(ThemeConfig.Paginator.Dimmed))
+}
 
 func NewTableStyle(dimm bool) table.Styles {
 	s := table.DefaultStyles()

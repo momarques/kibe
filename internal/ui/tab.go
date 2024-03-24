@@ -180,7 +180,7 @@ func (m CoreUI) tabView() string {
 		lipgloss.JoinVertical(
 			lipgloss.Left,
 			contentBlock.Render(content),
-			m.tab.paginator.view(),
+			m.tab.paginator.view(m.tab.dimm),
 		)))
 	return style.DocStyle().Render(doc.String())
 }

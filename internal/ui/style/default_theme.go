@@ -98,12 +98,6 @@ var defaultThemeConfig = &Theme{
 			BG:  "#616161",
 			TXT: "#222222",
 		},
-
-		Paginator: PaginatorColorSet{
-			Active:   "#ffffff",
-			Inactive: "#ffffff",
-			Dimmed:   "#ffffff",
-		},
 	},
 
 	Tab: TabColors{
@@ -133,12 +127,12 @@ var defaultThemeConfig = &Theme{
 		DimmedActiveTabContentKeys:   "#ffffff",
 		ActiveTabContentValues:       "#ffffff",
 		DimmedActiveTabContentValues: "#ffffff",
+	},
 
-		Paginator: PaginatorColorSet{
-			Active:   "#ffffff",
-			Inactive: "#ffffff",
-			Dimmed:   "#ffffff",
-		},
+	Paginator: PaginatorColorSet{
+		Active:   "#ffb1b5",
+		Inactive: "#624548",
+		Dimmed:   "#4b3e3b",
 	},
 
 	SyncBar: SyncBarColors{
