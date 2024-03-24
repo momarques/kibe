@@ -13,12 +13,18 @@ import (
 )
 
 type Namespace struct {
-	kind       string
+	id, kind   string
 	namespaces []corev1.Namespace
 }
 
 func NewNamespaceResource() Namespace { return Namespace{kind: "Namespace"} }
-func (n Namespace) Kind() string      { return n.kind }
+
+func (n Namespace) ID() string   { return n.id }
+func (n Namespace) Kind() string { return n.kind }
+func (n Namespace) SetID(id string) Resource {
+	n.id = id
+	return n
+}
 
 func (n Namespace) List(c *ClientReady) (Resource, error) {
 	namespaces, err := c.
@@ -61,6 +67,8 @@ func (n Namespace) namespaceFieldWidth() int {
 
 type SelectNamespace []list.Item
 type NamespaceSelected string
+
+func (n NamespaceSelected) String() string { return string(n) }
 
 func NewSelectNamespace(c *ClientReady) func() tea.Msg {
 	n, err := Namespace{}.List(c)

@@ -1,6 +1,8 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/table"
@@ -106,10 +108,14 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, tea.Quit
 
 			case key.Matches(msg, m.table.Describe):
-				selectedResource := m.table.SelectedRow()
+				m.client.ResourceSelected = m.client.SetID(m.table.SelectedRow()[0])
 
-				m.tab, cmd = m.tab.describeResource(m.client, selectedResource[0])
-				return m, cmd
+				m.tab, cmd = m.tab.describeResource(m.client)
+
+				return m, tea.Batch(cmd,
+					updateStatusBar(fmt.Sprintf("%s: %s", m.client.Kind(), m.client.ID()),
+						m.client.ContextSelected.String(),
+						m.client.NamespaceSelected.String()))
 
 			case key.Matches(msg, m.table.PreviousPage, m.table.NextPage):
 				m.table.paginator.Model, _ = m.table.paginator.Update(msg)

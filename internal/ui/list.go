@@ -70,15 +70,6 @@ func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewState = showTable
 		m.client = msg
 		return m, nil
-
-	case statusBarUpdated:
-		m.statusBar.SetContent(
-			"Resource", m.list.resource,
-			fmt.Sprintf("Context: %s", m.list.context),
-			fmt.Sprintf("Namespace: %s", m.list.namespace))
-
-		m.statusBar, cmd = m.statusBar.Update(msg)
-		cmds = append(cmds, cmd)
 	}
 
 	m.list.Model, cmd = m.list.Update(msg)

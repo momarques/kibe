@@ -17,11 +17,11 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func DescribePod(c *ClientReady, podID string) *corev1.Pod {
+func DescribePod(c *ClientReady) *corev1.Pod {
 	pod, err := c.
 		CoreV1().
-		Pods(string(c.NamespaceSelected)).
-		Get(context.Background(), podID, v1.GetOptions{})
+		Pods(c.NamespaceSelected.String()).
+		Get(context.Background(), c.ID(), v1.GetOptions{})
 	if err != nil {
 		logging.Log.Error(err)
 	}
@@ -43,8 +43,8 @@ type PodDescription struct {
 	Events         []string            `kibedescription:"Events"`
 }
 
-func (p Pod) Describe(c *ClientReady, podID string) ResourceDescription {
-	pod := DescribePod(c, podID)
+func (p Pod) Describe(c *ClientReady) ResourceDescription {
+	pod := DescribePod(c)
 
 	return PodDescription{
 		Overview:       newPodOverview(pod),

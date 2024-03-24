@@ -193,7 +193,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		m.ResetFilter()
 
 		s.client = kube.NewClientReady(string(msg))
-		return s.updateStatusBar()
+		return updateStatusBar(s.resource, s.context, s.namespace)
 
 	case kube.SelectNamespace:
 		m.Title = "Choose a namespace"
@@ -205,7 +205,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		m.ResetFilter()
 		s.client = s.client.WithNamespace(string(msg))
 
-		return s.updateStatusBar()
+		return updateStatusBar(s.resource, s.context, s.namespace)
 
 	case kube.SelectResource:
 		m.Title = "Choose a resource type"
@@ -218,7 +218,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 
 		s.client = s.client.WithResource(msg)
 		return tea.Batch(
-			s.updateStatusBar(),
+			updateStatusBar(s.resource, s.context, s.namespace),
 			s.updateHeader(fmt.Sprintf("%s interaction", msg.Kind())))
 
 	case tea.KeyMsg:

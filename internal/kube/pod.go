@@ -23,17 +23,23 @@ const (
 )
 
 type Pod struct {
-	kind string
-	pods []corev1.Pod
+	id, kind string
+	pods     []corev1.Pod
 }
 
-func NewPodResource() Pod  { return Pod{kind: "Pod"} }
+func NewPodResource() Pod { return Pod{kind: "Pod"} }
+
+func (p Pod) ID() string   { return p.id }
 func (p Pod) Kind() string { return p.kind }
+func (p Pod) SetID(id string) Resource {
+	p.id = id
+	return p
+}
 
 func (p Pod) List(c *ClientReady) (Resource, error) {
 	pods, err := c.
 		CoreV1().
-		Pods(string(c.NamespaceSelected)).
+		Pods(c.NamespaceSelected.String()).
 		List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)

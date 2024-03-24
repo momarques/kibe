@@ -8,12 +8,9 @@ import (
 
 type statusBarUpdated struct{ resource, context, namespace string }
 
-func (s listSelector) updateStatusBar() func() tea.Msg {
+func updateStatusBar(r, c, n string) func() tea.Msg {
 	return func() tea.Msg {
-		return statusBarUpdated{
-			resource:  s.resource,
-			context:   s.context,
-			namespace: s.namespace}
+		return statusBarUpdated{r, c, n}
 	}
 }
 

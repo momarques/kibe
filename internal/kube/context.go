@@ -23,6 +23,9 @@ func NewSelectContext() func() tea.Msg {
 }
 
 type ContextSelected string
+
+func (c ContextSelected) String() string { return string(c) }
+
 type ContextItem api.Context
 
 func (c ContextItem) Title() string       { return "Cluster: " + c.Cluster }

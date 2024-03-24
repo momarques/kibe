@@ -13,17 +13,23 @@ import (
 )
 
 type Service struct {
-	kind     string
+	id, kind string
 	services []corev1.Service
 }
 
 func NewServiceResource() Service { return Service{kind: "Service"} }
-func (s Service) Kind() string    { return s.kind }
+
+func (s Service) ID() string   { return s.id }
+func (s Service) Kind() string { return s.kind }
+func (s Service) SetID(id string) Resource {
+	s.id = id
+	return s
+}
 
 func (s Service) List(c *ClientReady) (Resource, error) {
 	services, err := c.
 		CoreV1().
-		Services(string(c.NamespaceSelected)).
+		Services(c.NamespaceSelected.String()).
 		List(context.Background(), v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)

@@ -45,6 +45,8 @@ func newTabModel() tabModel {
 }
 
 func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch m.tab.tabViewState {
 	case noContentSelected:
 		switch msg := msg.(type) {
@@ -52,7 +54,11 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			case key.Matches(msg, m.tab.Back):
 				m.viewState = showTable
-				return m.syncTable()
+				m, cmd = m.syncTable()
+				return m, tea.Batch(cmd,
+					updateStatusBar(m.client.Kind(),
+						m.client.ContextSelected.String(),
+						m.client.NamespaceSelected.String()))
 
 			case key.Matches(msg, m.tab.Quit):
 				return m, tea.Quit
@@ -202,8 +208,8 @@ type descriptionReady struct {
 	tabContent []string
 }
 
-func (t tabModel) describeResource(c *kube.ClientReady, resourceID string) (tabModel, tea.Cmd) {
-	t.ResourceDescription = c.ResourceSelected.Describe(c, resourceID)
+func (t tabModel) describeResource(c *kube.ClientReady) (tabModel, tea.Cmd) {
+	t.ResourceDescription = c.ResourceSelected.Describe(c)
 	return t, func() tea.Msg {
 		return descriptionReady{
 			t.ResourceDescription.TabNames(),

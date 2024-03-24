@@ -1,12 +1,15 @@
 package ui
 
 import (
+	"fmt"
+
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
+	"github.com/momarques/kibe/internal/logging"
 )
 
 type viewState int
@@ -61,11 +64,22 @@ func (m CoreUI) Init() tea.Cmd {
 }
 
 func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
 	case tea.QuitMsg:
 		return m, tea.Quit
 	case statusLogMessage:
 		return m.updateStatusLog(msg, -1), nil
+	case statusBarUpdated:
+		logging.Log.Info("status bar updated")
+		m.statusBar.SetContent(
+			"Resource", msg.resource,
+			fmt.Sprintf("Context: %s", msg.context),
+			fmt.Sprintf("Namespace: %s", msg.namespace))
+
+		m.statusBar, cmd = m.statusBar.Update(msg)
+		return m, cmd
 	}
 
 	switch m.viewState {

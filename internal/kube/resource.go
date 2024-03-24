@@ -17,8 +17,10 @@ var SupportedResources = []Resource{
 }
 
 type Resource interface {
-	Describe(*ClientReady, string) ResourceDescription
+	Describe(*ClientReady) ResourceDescription
+	ID() string
 	Kind() string
+	SetID(string) Resource
 
 	List(*ClientReady) (Resource, error)
 	Columns() []table.Column
