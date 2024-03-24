@@ -7,8 +7,8 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/logging"
 	core "github.com/momarques/kibe/internal/ui"
+	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/spf13/cobra"
-	"github.com/wesovilabs/koazee"
 )
 
 var RootCmd = &cobra.Command{
@@ -48,14 +48,15 @@ var testCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Used for testing layouts without needing to execute the whole program",
 	Run: func(cmd *cobra.Command, args []string) {
-		var t = []string{"teste 1", "teste 2", "teste 3", "teste 4", "teste 5", "teste 6"}
+		// themeConfigFilePath, _ := xdg.ConfigFile("kibe/theme.yaml")
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
 
-		stream := koazee.StreamOf(t)
-		fmt.Println(stream.Out().Val())
+		// fmt.Println(themeConfigFilePath)
 
-		stream = stream.Add("teste 7")
-		_, stream = stream.Pop()
-		fmt.Println(stream.Do().Out().Val())
+		fmt.Println(style.ThemeConfig)
+
 	},
 }
 

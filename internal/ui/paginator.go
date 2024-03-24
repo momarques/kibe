@@ -3,7 +3,7 @@ package ui
 import (
 	"github.com/charmbracelet/bubbles/paginator"
 	"github.com/charmbracelet/lipgloss"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	"github.com/momarques/kibe/internal/ui/style"
 )
 
 type paginatorModel struct {
@@ -27,8 +27,7 @@ func newPaginatorModel(itemsPerPage int) paginatorModel {
 }
 
 func (p paginatorModel) view() string {
-	return uistyles.PaginatorStyle.
-		Copy().
+	return style.PaginatorStyle().
 		// MarginRight(40).
 		MarginBottom(1).
 		Render(p.View())

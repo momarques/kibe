@@ -9,7 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
 )
 
@@ -36,7 +36,7 @@ type listSelector struct {
 
 func newListSelector() *listSelector {
 	sp := spinner.New(
-		spinner.WithStyle(uistyles.OKStatusMessage),
+		spinner.WithStyle(style.OKStatusMessage()),
 	)
 	sp.Spinner = spinner.Dot
 
@@ -57,11 +57,11 @@ func newItemDelegate(s *listSelector) list.DefaultDelegate {
 
 	d.UpdateFunc = s.update
 
-	d.Styles.SelectedTitle = uistyles.ListActiveSelectionTitleStyle.Copy()
-	d.Styles.SelectedDesc = uistyles.ListActiveSelectionDescStyle.Copy()
-	d.Styles.DimmedDesc = uistyles.ListDimmedDescStyle.Copy()
-	d.Styles.NormalDesc = uistyles.ListDimmedDescStyle.Copy()
-	d.Styles.NormalTitle = uistyles.ListNormalTitleStyle.Copy()
+	d.Styles.SelectedTitle = style.ListActiveSelectionTitleStyle()
+	d.Styles.SelectedDesc = style.ListActiveSelectionDescStyle()
+	d.Styles.DimmedDesc = style.ListDimmedDescStyle()
+	d.Styles.NormalDesc = style.ListDimmedDescStyle()
+	d.Styles.NormalTitle = style.ListNormalTitleStyle()
 
 	d.ShortHelpFunc = func() []key.Binding { return []key.Binding{s.chooseKey} }
 	d.FullHelpFunc = func() [][]key.Binding { return [][]key.Binding{{s.chooseKey}} }
@@ -127,7 +127,7 @@ func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cm
 			s.spinnerState = showSpinner
 
 			return tea.Batch(
-				m.NewStatusMessage(uistyles.StatusMessageStyle(
+				m.NewStatusMessage(style.StatusMessageStyle().Render(
 					"Context", s.context, "set")),
 				s.contextSelected(s.context),
 				s.spinner.Tick)
@@ -137,7 +137,7 @@ func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cm
 			s.spinnerState = showSpinner
 
 			return tea.Batch(
-				m.NewStatusMessage(uistyles.StatusMessageStyle(
+				m.NewStatusMessage(style.StatusMessageStyle().Render(
 					"Namespace", s.namespace, "selected")),
 				s.namespaceSelected(s.namespace),
 				s.spinner.Tick)
@@ -147,7 +147,7 @@ func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cm
 			s.spinnerState = showSpinner
 
 			return tea.Batch(
-				m.NewStatusMessage(uistyles.StatusMessageStyle(
+				m.NewStatusMessage(style.StatusMessageStyle().Render(
 					"Showing", s.resource+"s")),
 				s.resourceSelected(),
 				s.spinner.Tick)
@@ -168,7 +168,7 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 			s.spinnerState = showSpinner
 
 			return tea.Batch(
-				m.NewStatusMessage(uistyles.StatusMessageStyle(
+				m.NewStatusMessage(style.StatusMessageStyle().Render(
 					"Using current context", s.context)),
 				s.contextSelected(s.context),
 				s.spinner.Tick)
@@ -179,14 +179,13 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 			s.spinnerState = showSpinner
 
 			return tea.Batch(
-				m.NewStatusMessage(uistyles.StatusMessageStyle(
+				m.NewStatusMessage(style.StatusMessageStyle().Render(
 					"Using single existing context", s.context)),
 				s.contextSelected(s.context),
 				s.spinner.Tick)
 		}
 
 		s.spinnerState = hideSpinner
-
 		return m.SetItems(msg.Contexts)
 
 	case kube.ContextSelected:

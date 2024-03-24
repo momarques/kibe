@@ -11,7 +11,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/momarques/kibe/internal/logging"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -127,7 +127,7 @@ func (po PodOverview) TabContent() string {
 		[]string{fieldNames[5], po.ControlledBy},
 		[]string{fieldNames[6], po.QoSClass},
 	)
-	t.StyleFunc(uistyles.ColorizeTabKeys)
+	t.StyleFunc(style.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
@@ -152,11 +152,11 @@ func podConditionToString(condition corev1.PodCondition, _ int) string {
 
 	switch condition.Status {
 	case corev1.ConditionTrue:
-		return uistyles.OKStatusMessage.Render(questionCondition)
+		return style.OKStatusMessage().Render(questionCondition)
 	case corev1.ConditionFalse:
-		return uistyles.NOKStatusMessage.Render(questionCondition)
+		return style.NOKStatusMessage().Render(questionCondition)
 	case corev1.ConditionUnknown:
-		return uistyles.WarnStatusMessage.Render(questionCondition)
+		return style.WarnStatusMessage().Render(questionCondition)
 	}
 	return ""
 }
@@ -176,7 +176,7 @@ func (ps PodStatus) TabContent() string {
 		if col == 1 {
 			return lipgloss.NewStyle().Width(len(conditionsValue))
 		}
-		return uistyles.ColorizeTabKeys(row, col)
+		return style.ColorizeTabKeys(row, col)
 	})
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
@@ -187,7 +187,7 @@ type PodContainers []corev1.Container
 func (pc PodContainers) TabContent() string {
 	t := table.New()
 	t.Rows(pc.podContainerToTableRows()...)
-	t.StyleFunc(uistyles.ColorizeTabKeys)
+	t.StyleFunc(style.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
@@ -205,7 +205,7 @@ func (pn PodNodeSelector) TabContent() string {
 	t := table.New()
 
 	t.Rows(mapToTableRows(pn)...)
-	t.StyleFunc(uistyles.ColorizeTabKeys)
+	t.StyleFunc(style.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
@@ -223,7 +223,7 @@ func (pt PodTolerations) TabContent() string {
 	t := table.New()
 
 	t.Rows(pt.podTolerationsToTableRows()...)
-	t.StyleFunc(uistyles.ColorizeTabKeys)
+	t.StyleFunc(style.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }
@@ -270,7 +270,7 @@ func (pn PodNodeScheduling) TabContent() string {
 		"Node selectors": pn.NodeSelectors.TabContent(),
 		"Tolerations":    pn.Tolerations.TabContent(),
 	})...)
-	t.StyleFunc(uistyles.ColorizeTabKeys)
+	t.StyleFunc(style.ColorizeTabKeys)
 	t.Border(lipgloss.HiddenBorder())
 	return t.Render()
 }

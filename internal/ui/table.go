@@ -9,7 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
-	uistyles "github.com/momarques/kibe/internal/ui/styles"
+	"github.com/momarques/kibe/internal/ui/style"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
 
@@ -43,7 +43,7 @@ func newTableModel() tableModel {
 		table.WithFocused(true),
 	)
 
-	t.SetStyles(uistyles.NewTableStyle(false))
+	t.SetStyles(style.NewTableStyle(false))
 	t.SetHeight(
 		windowutil.ComputeHeightPercentage(tableViewHeightPercentage))
 
@@ -155,17 +155,17 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m CoreUI) tableView() string {
-	tableStyle := uistyles.TableStyle
+	tableStyle := style.TableStyle
 
 	if m.viewState == showTab {
-		tableStyle = uistyles.DimmedTableStyle
-		m.table.SetStyles(uistyles.NewTableStyle(true))
-		return tableStyle.Render(m.table.View())
+		tableStyle = style.DimmedTableStyle
+		m.table.SetStyles(style.NewTableStyle(true))
+		return tableStyle().Render(m.table.View())
 	}
 	if m.table.columns == nil {
 		return lipgloss.NewStyle().
 			Height((windowutil.ComputeHeightPercentage(tableViewHeightPercentage) + 3)).
 			Render("")
 	}
-	return tableStyle.Render(m.table.View())
+	return tableStyle().Render(m.table.View())
 }
