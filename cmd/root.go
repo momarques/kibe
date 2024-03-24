@@ -54,6 +54,7 @@ var testCmd = &cobra.Command{
 		// }
 
 		// fmt.Println(themeConfigFilePath)
+
 		fmt.Println(style.ThemeConfig)
 
 	},
