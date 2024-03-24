@@ -22,14 +22,6 @@ var (
 					MarginLeft(2).
 					MarginBottom(1)
 
-	SyncBarStatusStyle = ViewTitleStyle.Copy().
-				PaddingRight(0).
-				Width(10)
-
-	InSyncColor   = defaultThemeConfig.SyncBar.InSyncState.TXT
-	UnsyncedColor = defaultThemeConfig.SyncBar.UnsyncedState.TXT
-	StartingColor = defaultThemeConfig.SyncBar.StartingState.TXT
-
 	HelpStyle = lipgloss.NewStyle().
 			Foreground(GetColor(defaultThemeConfig.Help.ShortcutName.TXT)).
 			Background(GetColor(defaultThemeConfig.Help.ShortcutName.BG)).

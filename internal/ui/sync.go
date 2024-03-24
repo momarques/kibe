@@ -54,15 +54,15 @@ func (m CoreUI) changeSyncState(state syncState) CoreUI {
 	switch m.table.syncState {
 	case inSync:
 		m.syncBar.text = "in sync"
-		m.syncBar.bgColor = lipgloss.Color(style.InSyncColor)
+		m.syncBar.bgColor = style.InSyncColor
 		m.syncBar.spinnerState = showSpinner
 	case unsynced:
 		m.syncBar.text = "unsynced"
-		m.syncBar.bgColor = lipgloss.Color(style.UnsyncedColor)
+		m.syncBar.bgColor = style.UnsyncedColor
 		m.syncBar.spinnerState = hideSpinner
 	case starting:
 		m.syncBar.text = "starting"
-		m.syncBar.bgColor = lipgloss.Color(style.StartingColor)
+		m.syncBar.bgColor = style.StartingColor
 		m.syncBar.spinnerState = showSpinner
 	}
 	return m
@@ -92,7 +92,7 @@ func (s syncBarModel) spinnerView() string {
 }
 
 func (m CoreUI) syncBarView() string {
-	syncStyle := style.SyncBarStatusStyle.
+	syncStyle := style.SyncBarStatusStyle.Copy().
 		Foreground(m.syncBar.fgColor).
 		Background(m.syncBar.bgColor)
 

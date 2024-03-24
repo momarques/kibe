@@ -53,7 +53,7 @@ var defaultThemeConfig = &Theme{
 
 	MainHeader: HeaderColorSet{
 		Title: TextColorSet{
-			BG:  "#ffffff",
+			BG:  "#d65f50",
 			TXT: "#ffffff",
 		},
 		ItemCount: TextColorSet{
