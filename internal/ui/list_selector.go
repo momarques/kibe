@@ -186,7 +186,6 @@ func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
 		}
 
 		s.spinnerState = hideSpinner
-
 		return m.SetItems(msg.Contexts)
 
 	case kube.ContextSelected:

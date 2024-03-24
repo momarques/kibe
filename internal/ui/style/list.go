@@ -1,6 +1,8 @@
 package style
 
-import "github.com/charmbracelet/lipgloss"
+import (
+	"github.com/charmbracelet/lipgloss"
+)
 
 func AppStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Padding(1, 2)

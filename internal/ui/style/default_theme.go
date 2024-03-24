@@ -26,28 +26,28 @@ var defaultThemeConfig = &Theme{
 		},
 
 		ActiveSelectionTitle: TextColorSet{
-			BG:  "#d28169",
-			TXT: "#ffffff",
+			// BG:  "#d28169",
+			TXT: "#f79980",
 		},
 		NormalTitle: TextColorSet{
 			// BG:  "#ffffff",
-			TXT: "#f8f3e8",
+			TXT: "#a1a09c",
 		},
 		// DimmedTitle: TextColorSet{
 		// 	BG:  "#ffffff",
 		// 	TXT: "#ffffff",
 		// },
 		ActiveSelectionDescription: TextColorSet{
-			BG:  "#9f614f",
-			TXT: "#ffffff",
+			// BG:  "#9f614f",
+			TXT: "#f79980",
 		},
 		NormalDescription: TextColorSet{
 			// BG:  "#ffffff",
-			TXT: "#8d6f62",
+			TXT: "#a1a09c",
 		},
 		DimmedDescription: TextColorSet{
 			// BG:  "transparent",
-			TXT: "#8d6f62",
+			TXT: "#4b3a34",
 		},
 	},
 
