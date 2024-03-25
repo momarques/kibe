@@ -25,7 +25,7 @@ type tableContent struct {
 
 func newTableContent() tableContent {
 	return tableContent{
-		syncState: unsynced,
+		syncState: starting,
 		paginator: newPaginatorModel(15),
 	}
 }
@@ -56,12 +56,19 @@ func newTableModel() tableModel {
 	}
 }
 
-func (m tableModel) applyTableItems() (tableModel, tea.Cmd) {
+func (m tableModel) applyTableItems(r kube.TableResponse) (tableModel, tea.Cmd) {
+	m.rows = r.Rows
+	m.columns = r.Columns
 	m.SetColumns(m.columns)
 
+	m.paginator.SetTotalPages(len(m.rows))
+	return m, m.updateHeader(len(m.rows))
+}
+
+func (m tableModel) applyPageChanges() tableModel {
 	start, end := m.paginator.GetSliceBounds(len(m.rows))
 	m.SetRows(m.rows[start:end])
-	return m, m.updateHeader(len(m.rows))
+	return m
 }
 
 func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
@@ -73,12 +80,27 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 			return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
 		}
 
-		m.table.rows = response.Rows
-		m.table.columns = response.Columns
+		m.table, cmd = m.table.applyTableItems(response)
+		m.table = m.table.applyPageChanges()
 
-		m.table.paginator.SetTotalPages(len(m.table.rows))
+		m = m.changeSyncState(inSync)
+		return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)), cmd
+	}
 
-		m.table, cmd = m.table.applyTableItems()
+	return m, nil
+}
+
+func (m CoreUI) updateOnTableResponseAsync() (CoreUI, tea.Cmd) {
+	var cmd tea.Cmd
+
+	if response, ok := <-m.table.response; ok {
+		if response.Err != nil {
+			m = m.changeSyncState(unsynced)
+			return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
+		}
+
+		m.table, cmd = m.table.applyTableItems(response)
+		m.table = m.table.applyPageChanges()
 
 		m = m.changeSyncState(inSync)
 		return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)), cmd
@@ -120,9 +142,9 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case key.Matches(msg, m.table.PreviousPage, m.table.NextPage):
 				m.table.paginator.Model, _ = m.table.paginator.Update(msg)
-				m.table, cmd = m.table.applyTableItems()
+				m.table = m.table.applyPageChanges()
 
-				return m, cmd
+				return m, nil
 			}
 
 		case descriptionReady:
@@ -135,7 +157,7 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case syncStarted:
-			m, cmd = m.updateOnTableResponse()
+			m, cmd = m.updateOnTableResponseAsync()
 			cmds = append(cmds, cmd)
 			m, cmd = m.syncTable()
 			cmds = append(cmds, cmd)
@@ -149,6 +171,19 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case unsynced:
 		return m.syncTable()
+
+	case starting:
+		response := m.client.FetchTableView()
+		m.table, cmd = m.table.applyTableItems(response)
+		cmds = append(cmds, cmd)
+
+		m.table = m.table.applyPageChanges()
+
+		m = m.changeSyncState(inSync)
+		m, cmd = m.syncTable()
+		cmds = append(cmds, cmd)
+
+		return m, tea.Batch(cmds...)
 	}
 
 	m.table.Model, cmd = m.table.Update(msg)

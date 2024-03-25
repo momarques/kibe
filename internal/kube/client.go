@@ -100,7 +100,20 @@ func (c *ClientReady) WithResource(r Resource) *ClientReady {
 	return c
 }
 
-func (c *ClientReady) FetchTableView(responseCh chan TableResponse) {
+func (c *ClientReady) FetchTableView() TableResponse {
+	var now = time.Now()
+
+	resource, err := c.ResourceSelected.List(c)
+
+	return TableResponse{
+		Columns:       resource.Columns(),
+		Rows:          resource.Rows(),
+		FetchDuration: time.Since(now),
+		Err:           err,
+	}
+}
+
+func (c *ClientReady) FetchTableViewAsync(responseCh chan TableResponse) {
 	var now = time.Now()
 
 	resource, err := c.ResourceSelected.List(c)

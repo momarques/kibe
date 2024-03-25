@@ -72,7 +72,7 @@ func (m CoreUI) syncTable() (CoreUI, tea.Cmd) {
 	m = m.changeSyncState(syncing)
 
 	go func() {
-		m.client.FetchTableView(m.table.response)
+		m.client.FetchTableViewAsync(m.table.response)
 	}()
 
 	return m, tea.Batch(
