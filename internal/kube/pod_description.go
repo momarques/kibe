@@ -278,6 +278,7 @@ func (pn PodNodeScheduling) TabContent() string {
 func (pd PodDescription) SubContent(subContentIndex int) []string {
 	t := reflect.TypeFor[PodDescription]()
 	field := t.Field(subContentIndex)
+
 	if field.Name == "Volumes" {
 		return lo.Map(pd.Volumes,
 			func(item corev1.Volume, index int) string {

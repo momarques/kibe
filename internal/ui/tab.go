@@ -73,7 +73,6 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return m, nil
 
 			case key.Matches(msg, m.tab.Choose):
-				m.tab.tabViewState = contentSelected
 				m.tab = m.tab.fetchSubContent(msg)
 				return m, nil
 			}
@@ -222,7 +221,10 @@ func (t tabModel) describeResource(c *kube.ClientReady) (tabModel, tea.Cmd) {
 
 func (t tabModel) fetchSubContent(msg tea.Msg) tabModel {
 	t.TabSubContent = t.ResourceDescription.SubContent(t.activeTab)
-	t.paginator.SetTotalPages(len(t.TabSubContent))
-	t.paginator.Model, _ = t.paginator.Update(msg)
+	if len(t.TabSubContent) > 0 {
+		t.tabViewState = contentSelected
+		t.paginator.SetTotalPages(len(t.TabSubContent))
+		t.paginator.Model, _ = t.paginator.Update(msg)
+	}
 	return t
 }
