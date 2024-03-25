@@ -167,12 +167,14 @@ func (m CoreUI) tabView() string {
 	var content string
 	var contentBlock lipgloss.Style = lipgloss.NewStyle().
 		Height(windowutil.ComputeHeightPercentage(tabContentHeightPercentage))
+	var paginatorView string = "\n"
 
 	switch m.tab.tabViewState {
 	case noContentSelected:
 		content = m.tab.TabContent[m.tab.activeTab]
 	case contentSelected:
 		content = m.tab.TabSubContent[m.tab.activeSubContent]
+		paginatorView = m.tab.paginator.view(m.tab.dimm)
 	}
 
 	doc.WriteString(tabs)
@@ -181,7 +183,7 @@ func (m CoreUI) tabView() string {
 		lipgloss.JoinVertical(
 			lipgloss.Left,
 			contentBlock.Render(content),
-			m.tab.paginator.view(m.tab.dimm),
+			paginatorView,
 		)))
 	return style.DocStyle().Render(doc.String())
 }
