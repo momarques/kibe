@@ -9,7 +9,10 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
+	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
+
+const blankSpaceHeightPercentage int = 3
 
 type viewState int
 
@@ -114,6 +117,10 @@ func (m CoreUI) composedView() string {
 	var helpBindingLines [][]key.Binding
 	var dimmMainPaginator bool
 
+	blankSpace := lipgloss.NewStyle().
+		Height(windowutil.ComputeHeightPercentage(blankSpaceHeightPercentage)).
+		Render("")
+
 	switch m.viewState {
 	case showTable:
 		dimmMainPaginator = false
@@ -169,6 +176,7 @@ func (m CoreUI) composedView() string {
 		m.tableView(),
 		lipgloss.JoinVertical(lipgloss.Left,
 			tabPanel,
+			blankSpace,
 			bottomPanel,
 		),
 		m.statusBar.View())

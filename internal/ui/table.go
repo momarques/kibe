@@ -26,7 +26,7 @@ type tableContent struct {
 func newTableContent() tableContent {
 	return tableContent{
 		syncState: starting,
-		paginator: newPaginatorModel(15),
+		paginator: newPaginatorModel((windowutil.ComputeHeightPercentage(tableViewHeightPercentage))),
 	}
 }
 
