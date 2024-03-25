@@ -4,6 +4,7 @@ import (
 	"regexp"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/samber/lo"
 )
 
 func ColorizeTable(row, col int) lipgloss.Style {
@@ -14,12 +15,29 @@ func ColorizeTable(row, col int) lipgloss.Style {
 	return lipgloss.NewStyle()
 }
 
-func ColorizeTableWithFn(row, col int) lipgloss.Style {
-	switch {
-	case col == 0:
-		return ColorizeTabKey()
+func measureContentWidth(agg int, item string, index int) int {
+	itemSize := len(item)
+	if itemSize > agg {
+		return itemSize
 	}
-	return lipgloss.NewStyle()
+	return agg
+}
+
+func FormatTableWithFn(keys, content []string) func(int, int) lipgloss.Style {
+	contentWidth := lo.Reduce(content, measureContentWidth, 10)
+	keysWidth := lo.Reduce(keys, measureContentWidth, 20)
+
+	return func(row, col int) lipgloss.Style {
+		switch {
+		case col == 0:
+			return ColorizeTabKey().
+				Width(contentWidth)
+		case col == 1:
+			return lipgloss.NewStyle().
+				Width(keysWidth)
+		}
+		return lipgloss.NewStyle()
+	}
 }
 
 func ColorizeTabKey() lipgloss.Style {

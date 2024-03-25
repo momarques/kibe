@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/charmbracelet/glamour"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/momarques/kibe/internal/logging"
+	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -66,17 +68,30 @@ func printCinder(v *corev1.CinderVolumeSource) string {
 }
 
 func printConfigMap(v *corev1.ConfigMapVolumeSource) string {
+	t := table.New()
+
 	items := lo.Map(v.Items, func(item corev1.KeyToPath, _ int) string {
 		return fmt.Sprintf("%s:%s:%d", item.Key, item.Path, item.Mode)
 	})
 
-	vs := fmt.Sprintf("Type: \tConfigMap\n"+
-		"Name: \t%s\n"+
-		"Items: \t%s\n"+
-		"DefaultMode: \t%v\n"+
-		"Optional: \t%v\n",
-		v.Name, strings.Join(items, " :: "), *v.DefaultMode, v.Optional)
-	return vs
+	keys := []string{
+		"Type:",
+		"Name:",
+		"Items:",
+		"DefaultMode:",
+		"Optional:",
+	}
+
+	t.Rows(
+		[]string{keys[0], "ConfigMap"},
+		[]string{keys[1], v.Name},
+		[]string{keys[2], strings.Join(items, "\n")},
+		[]string{keys[3], fmt.Sprintf("%v", *v.DefaultMode)},
+		[]string{keys[4], fmt.Sprintf("%v", v.Optional)},
+	)
+	t.StyleFunc(style.FormatTableWithFn(keys, items))
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
 }
 
 func printDownwardAPI(v *corev1.DownwardAPIVolumeSource) string {
@@ -375,7 +390,9 @@ type VolumeDetails struct {
 func (pv PodVolumes) fetchVolumeSourcesAsString() []map[string]string {
 	return lo.Map(pv, func(item corev1.Volume, _ int) map[string]string {
 		return map[string]string{
-			item.Name: printVolumeSource(item.VolumeSource),
+			item.Name: lipgloss.NewStyle().
+				// Width(100).
+				Render(printVolumeSource(item.VolumeSource)),
 		}
 	})
 }
@@ -387,18 +404,10 @@ func (pv PodVolumes) TabContent(page int) string {
 	}
 	volumeDetails := lo.Entries(volumes[page])[0]
 
-	renderer, err := glamour.NewTermRenderer(
-		glamour.WithWordWrap(60),
-		glamour.WithStyles(glamour.DarkStyleConfig),
+	return lipgloss.JoinVertical(
+		lipgloss.Left,
+		style.CoreHeaderTitleStyle().
+			Render(volumeDetails.Key),
+		volumeDetails.Value,
 	)
-	if err != nil {
-		logging.Log.Error(err)
-	}
-	out, err := renderer.Render(
-		fmt.Sprintf("# %s\n ```yaml\n%s``` \n", volumeDetails.Key, volumeDetails.Value))
-
-	if err != nil {
-		logging.Log.Error(err)
-	}
-	return out
 }

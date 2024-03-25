@@ -167,6 +167,7 @@ func (m CoreUI) tabView() string {
 	var content string
 	var contentBlock lipgloss.Style = lipgloss.NewStyle().
 		Height(windowutil.ComputeHeightPercentage(tabContentHeightPercentage))
+		// Width(100)
 	var paginatorView string = "\n"
 
 	switch m.tab.tabViewState {
@@ -185,7 +186,8 @@ func (m CoreUI) tabView() string {
 			contentBlock.Render(content),
 			paginatorView,
 		)))
-	return style.DocStyle().Render(doc.String())
+	return style.DocStyle().
+		Render(doc.String())
 }
 
 func (t tabModel) getTabPositions(index int) (bool, bool, bool) {
