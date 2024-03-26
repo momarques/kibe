@@ -68,24 +68,16 @@ func printCinder(v *corev1.CinderVolumeSource) string {
 }
 
 func printConfigMap(v *corev1.ConfigMapVolumeSource) string {
-	t := table.New()
-
+	keys := []string{"Type:", "Name:", "Items:", "DefaultMode:", "Optional:"}
 	items := lo.Map(v.Items, func(item corev1.KeyToPath, _ int) string {
 		return fmt.Sprintf("%s:%s:%d", item.Key, item.Path, item.Mode)
 	})
 
-	keys := []string{
-		"Type:",
-		"Name:",
-		"Items:",
-		"DefaultMode:",
-		"Optional:",
-	}
-
+	t := table.New()
 	t.Rows(
 		[]string{keys[0], "ConfigMap"},
 		[]string{keys[1], v.Name},
-		[]string{keys[2], strings.Join(items, "\n")},
+		[]string{keys[2], strings.Join(items, " :: ")},
 		[]string{keys[3], fmt.Sprintf("%v", *v.DefaultMode)},
 		[]string{keys[4], fmt.Sprintf("%v", v.Optional)},
 	)
@@ -95,11 +87,20 @@ func printConfigMap(v *corev1.ConfigMapVolumeSource) string {
 }
 
 func printDownwardAPI(v *corev1.DownwardAPIVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tDownwardAPI\n"+
-		"Items: \t%v\n"+
-		"DefaultMode: \t%v\n",
-		v.Items, v.DefaultMode)
-	return vs
+	keys := []string{"Type:", "Items:", "DefaultMode:"}
+	items := lo.Map(v.Items, func(item corev1.DownwardAPIVolumeFile, _ int) string {
+		return fmt.Sprintf("%s:%s:%d", item.FieldRef, item.Path, *item.Mode)
+	})
+
+	t := table.New()
+	t.Rows(
+		[]string{keys[0], "DownwardAPI"},
+		[]string{keys[1], strings.Join(items, " :: ")},
+		[]string{keys[2], fmt.Sprintf("%v", v.DefaultMode)},
+	)
+	t.StyleFunc(style.FormatTableWithFn(keys, items))
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
 }
 
 func printEmptyDir(v *corev1.EmptyDirVolumeSource) string {
@@ -215,34 +216,54 @@ func printPortworxVolume(v *corev1.PortworxVolumeSource) string {
 }
 
 func printProjected(v *corev1.ProjectedVolumeSource) string {
+	keys := []string{"Type:", "Sources:", "DefaultMode:"}
+
 	sources := lo.Map(v.Sources, func(item corev1.VolumeProjection, _ int) string {
 		if item.ConfigMap != nil {
-			return fmt.Sprintf("    ConfigMapName: \t%s\n"+
-				"        ConfigMapOptionalName: \t%v\n",
-				item.ConfigMap.Name, item.ConfigMap.Optional)
+			// subKeys := style.ColorizeSlice([]string{"ConfigMapName: ", "ConfigMapOptionalName: "})
+			subKeys := []string{"ConfigMapName", "ConfigMapOptionalName"}
+			subValues := []string{
+				item.ConfigMap.Name,
+				fmt.Sprintf("%v", item.ConfigMap.Optional),
+			}
+			return style.FormatSubTable(subKeys, subValues)
+
 		} else if item.DownwardAPI != nil {
-			return "DownwardAPI: \ttrue\n"
+			subKeys := []string{"DownwardAPI"}
+			subValues := []string{"true"}
+			return style.FormatSubTable(subKeys, subValues)
+
 		} else if item.Secret != nil {
-			return fmt.Sprintf("    SecretName: \t%s\n"+
-				"        SecretOptionalName: \t%v\n",
-				item.Secret.Name, item.Secret.Optional)
+			subKeys := []string{"DownwardAPI"}
+			subValues := []string{"true"}
+			return style.FormatSubTable(subKeys, subValues)
+
 		} else if item.ServiceAccountToken != nil {
-			return fmt.Sprintf("    TokenExpirationSeconds: \t%d\n"+
-				"        TokenPath: \t%v\n",
-				*item.ServiceAccountToken.ExpirationSeconds, item.ServiceAccountToken.Path)
+			subKeys := []string{"TokenExpirationSeconds", "TokenPath"}
+			subValues := []string{
+				fmt.Sprintf("%v", *item.ServiceAccountToken.ExpirationSeconds),
+				item.ServiceAccountToken.Path,
+			}
+			return style.FormatSubTable(subKeys, subValues)
+
 		} else if item.ClusterTrustBundle != nil {
-			return fmt.Sprintf("    Cluster: \t%s\n", *item.ClusterTrustBundle.Name)
+			subKeys := []string{"Cluster"}
+			subValues := []string{*item.ClusterTrustBundle.Name}
+			return style.FormatSubTable(subKeys, subValues)
 		}
 		logging.Log.Error("Unknown projected source")
 		return ""
 	})
 
-	vs := fmt.Sprintf("Type: \tProjected\n"+
-		"Sources: \t%v\n"+
-		"DefaultMode: \t%v\n",
-		sources, *v.DefaultMode)
-
-	return vs
+	t := table.New()
+	t.Rows(
+		[]string{keys[0], "DownwardAPI"},
+		[]string{keys[1], strings.Join(sources, "")},
+		[]string{keys[2], fmt.Sprintf("%v", *v.DefaultMode)},
+	)
+	t.StyleFunc(style.FormatTableWithFn(keys, sources))
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
 }
 
 func printQuobyte(v *corev1.QuobyteVolumeSource) string {
