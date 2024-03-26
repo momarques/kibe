@@ -85,6 +85,8 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 			switch {
 			case key.Matches(msg, m.tab.Back):
 				m.tab.tabViewState = noContentSelected
+				m.tab.paginator.Page = 0
+				m.tab.paginator.SetTotalPages(0)
 				return m, nil
 
 			case key.Matches(msg, m.tab.Quit):
