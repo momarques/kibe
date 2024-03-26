@@ -5,339 +5,334 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 )
 
+func value(v any) string {
+	return fmt.Sprintf("%v", v)
+}
+
 func printAWSElasticBlockStore(v *corev1.AWSElasticBlockStoreVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tAWSElasticBlockStoreVolumeSource\n"+
-		"VolumeID: \t%v\n"+
-		"FSType: \t%v\n"+
-		"Partition: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.VolumeID, v.FSType, v.Partition, v.ReadOnly)
-	return vs
+	keys := []string{
+		"Type", "VolumeID", "FSType",
+		"Partition", "ReadOnly",
+	}
+	content := []string{
+		"AWSElasticBlockStoreVolumeSource", v.VolumeID, v.FSType,
+		value(v.Partition), value(v.ReadOnly)}
+
+	return style.FormatTable(keys, content)
 }
 
 func printAzureDisk(v *corev1.AzureDiskVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tAzureDisk\n"+
-		"DiskName: \t%v\n"+
-		"DataDiskURI: \t%v\n"+
-		"CachingMode: \t%v\n"+
-		"Kind: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.DiskName, v.DataDiskURI, v.CachingMode, v.Kind, v.ReadOnly)
-	return vs
+	keys := []string{
+		"Type", "DiskName", "DataDiskURI",
+		"CachingMode", "Kind", "ReadOnly",
+	}
+	content := []string{
+		"AzureDisk", v.DiskName, v.DataDiskURI,
+		value(v.CachingMode), value(v.Kind), value(v.ReadOnly),
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printCSI(v *corev1.CSIVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tCSI\n"+
-		"Driver: \t%v\n"+
-		"ReadOnly: \t%v\n"+
-		"VolumeAttributes: \t%v\n"+
-		"NodePublishSecretRef: \t%v\n"+
-		"FSType: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.Driver, v.ReadOnly, v.VolumeAttributes, v.NodePublishSecretRef, v.FSType, v.ReadOnly)
-	return vs
+	keys := []string{
+		"Type", "Driver", "ReadOnly",
+		"VolumeAttributes", "NodePublishSecretRef", "FSType",
+	}
+	content := []string{
+		"CSI", v.Driver, value(v.ReadOnly),
+		value(v.VolumeAttributes), v.NodePublishSecretRef.Name, *v.FSType,
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printCephFS(v *corev1.CephFSVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tCephFS\n"+
-		"Monitors: \t%v\n"+
-		"Path: \t%v\n"+
-		"User: \t%v\n"+
-		"SecretFile: \t%v\n"+
-		"SecretRef: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.Monitors, v.Path, v.User, v.SecretFile, v.SecretRef, v.ReadOnly)
-	return vs
+	keys := []string{
+		"Type", "Monitors", "Path",
+		"User", "SecretFile", "SecretRef", "ReadOnly",
+	}
+	content := []string{
+		"CephFS", strings.Join(v.Monitors, ":"), v.Path,
+		v.User, v.SecretFile, v.SecretRef.Name, value(v.ReadOnly),
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printCinder(v *corev1.CinderVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tCinder\n"+
-		"VolumeID: \t%v\n"+
-		"FSType: \t%v\n"+
-		"ReadOnly: \t%v\n"+
-		"SecretRef: \t%v\n",
-		v.VolumeID, v.FSType, v.ReadOnly, v.SecretRef)
-	return vs
+	keys := []string{
+		"Type", "VolumeID", "FSType",
+		"ReadOnly", "SecretRef",
+	}
+	content := []string{
+		"Cinder", v.VolumeID, v.FSType,
+		value(v.ReadOnly), v.SecretRef.Name,
+	}
+
+	return style.FormatTable(keys, content)
+}
+
+func formatKeyToPath(item corev1.KeyToPath, _ int) string {
+	return fmt.Sprintf("%s:%s:%d", item.Key, item.Path, item.Mode)
 }
 
 func printConfigMap(v *corev1.ConfigMapVolumeSource) string {
-	keys := []string{"Type:", "Name:", "Items:", "DefaultMode:", "Optional:"}
-	items := lo.Map(v.Items, func(item corev1.KeyToPath, _ int) string {
-		return fmt.Sprintf("%s:%s:%d", item.Key, item.Path, item.Mode)
-	})
+	keys := []string{
+		"Type", "Name", "Items",
+		"DefaultMode", "Optional",
+	}
 
-	t := table.New()
-	t.Rows(
-		[]string{keys[0], "ConfigMap"},
-		[]string{keys[1], v.Name},
-		[]string{keys[2], strings.Join(items, " :: ")},
-		[]string{keys[3], fmt.Sprintf("%v", *v.DefaultMode)},
-		[]string{keys[4], fmt.Sprintf("%v", v.Optional)},
-	)
-	t.StyleFunc(style.FormatTableWithFn(keys, items))
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
+	configMaps := lo.Map(v.Items, formatKeyToPath)
+	content := []string{
+		"ConfigMap", v.Name, strings.Join(configMaps, " | "),
+		value(*v.DefaultMode), value(v.Optional),
+	}
+	return style.FormatTable(keys, content)
+}
+
+func formatDownwardAPIVolumeSource(item corev1.DownwardAPIVolumeFile, _ int) string {
+	return fmt.Sprintf("%s:%s:%d", item.FieldRef, item.Path, *item.Mode)
 }
 
 func printDownwardAPI(v *corev1.DownwardAPIVolumeSource) string {
-	keys := []string{"Type:", "Items:", "DefaultMode:"}
-	items := lo.Map(v.Items, func(item corev1.DownwardAPIVolumeFile, _ int) string {
-		return fmt.Sprintf("%s:%s:%d", item.FieldRef, item.Path, *item.Mode)
-	})
+	keys := []string{"Type", "Items", "DefaultMode"}
 
-	t := table.New()
-	t.Rows(
-		[]string{keys[0], "DownwardAPI"},
-		[]string{keys[1], strings.Join(items, " :: ")},
-		[]string{keys[2], fmt.Sprintf("%v", v.DefaultMode)},
-	)
-	t.StyleFunc(style.FormatTableWithFn(keys, items))
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
+	volumeFiles := lo.Map(v.Items, formatDownwardAPIVolumeSource)
+	content := []string{"DownwardAPI", strings.Join(volumeFiles, " | "), value(v.DefaultMode)}
+
+	return style.FormatTable(keys, content)
 }
 
 func printEmptyDir(v *corev1.EmptyDirVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tEmptyDir\n"+
-		"Medium: \t%v\n"+
-		"SizeLimit: \t%v\n",
-		v.Medium, v.SizeLimit)
-	return vs
+	keys := []string{"Type", "Medium", "SizeLimit"}
+	content := []string{"EmptyDir", value(v.Medium), v.SizeLimit.String()}
+
+	return style.FormatTable(keys, content)
 }
 
 func printEphemeral(v *corev1.EphemeralVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tEphemeral\n"+
-		"VolumeClaimTemplate: \t%v\n",
-		v.VolumeClaimTemplate)
-	return vs
+	keys := []string{
+		"Type", "VolumeClaimTemplateName", "VolumeClaimTemplateNamespace",
+	}
+	content := []string{
+		"Ephemeral", v.VolumeClaimTemplate.Name, v.VolumeClaimTemplate.Namespace,
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printFC(v *corev1.FCVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tFC\n"+
-		"TargetWWNs: \t%v\n"+
-		"Lun: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.TargetWWNs, v.Lun, v.ReadOnly)
-	return vs
+	keys := []string{"Type", "TargetWWNs", "Lun", "ReadOnly"}
+	content := []string{
+		"FC", strings.Join(v.TargetWWNs, " | "), value(v.Lun), value(v.ReadOnly),
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printFlexVolume(v *corev1.FlexVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tFlexVolume\n"+
-		"Driver: \t%v\n"+
-		"FSType: \t%v\n"+
-		"SecretRef: \t%v\n"+
-		"ReadOnly: \t%v\n"+
-		"Options: \t%v\n",
-		v.Driver, v.FSType, v.SecretRef, v.ReadOnly, v.Options)
-	return vs
+	keys := []string{
+		"Type", "Driver", "FSType",
+		"SecretRef", "ReadOnly", "Options",
+	}
+	content := []string{
+		"FlexVolume", v.Driver, v.FSType,
+		v.SecretRef.Name, value(v.ReadOnly), value(v.Options),
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printFlocker(v *corev1.FlockerVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tFlocker\n"+
-		"DatasetName: \t%v\n",
-		v.DatasetName)
-	return vs
+	keys := []string{"Type", "DatasetName"}
+	content := []string{"Flocker", v.DatasetName}
+
+	return style.FormatTable(keys, content)
 }
 
 func printGCEPersistentDisk(v *corev1.GCEPersistentDiskVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tGCEPersistentDisk\n"+
-		"PDName: \t%v\n"+
-		"FSType: \t%v\n"+
-		"Partition: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.PDName, v.FSType, v.Partition, v.ReadOnly)
-	return vs
+	keys := []string{"Type", "PDName", "FSType", "Partition", "ReadOnly"}
+	content := []string{
+		"GCEPersistentDisk", v.PDName, v.FSType, value(v.Partition), value(v.ReadOnly),
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printGitRepo(v *corev1.GitRepoVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tGitRepo\n"+
-		"Repository: \t%v\n"+
-		"Revision: \t%v\n"+
-		"Directory: \t%v\n",
-		v.Repository, v.Revision, v.Directory)
-	return vs
+	keys := []string{"Type", "Repository", "Revision", "Directory"}
+	content := []string{"GitRepo", v.Repository, v.Revision, v.Directory}
+
+	return style.FormatTable(keys, content)
 }
 
 func printGlusterfs(v *corev1.GlusterfsVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tGlusterfs\n"+
-		"EndpointsName: \t%v\n"+
-		"Path: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.EndpointsName, v.Path, v.ReadOnly)
-	return vs
+	keys := []string{"Type", "EndpointsName", "Path", "ReadOnly"}
+	content := []string{"Glusterfs", v.EndpointsName, v.Path, value(v.ReadOnly)}
+
+	return style.FormatTable(keys, content)
 }
 
 func printHostPath(v *corev1.HostPathVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tHostPath\n"+
-		"Path: \t%v\n"+
-		"HostPathType: \t%v\n",
-		v.Path, *v.Type)
-	return vs
+	keys := []string{"Type", "Path", "HostPathType"}
+	content := []string{"HostPath", v.Path, value(*v.Type)}
+
+	return style.FormatTable(keys, content)
 }
 
 func printNFS(v *corev1.NFSVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tNFS\n"+
-		"Server: \t%v\n"+
-		"Path: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.Server, v.Path, v.ReadOnly)
-	return vs
+	keys := []string{"Type", "Server", "Path", "ReadOnly"}
+	content := []string{"NFS", v.Server, v.Path, value(v.ReadOnly)}
+
+	return style.FormatTable(keys, content)
 }
 
 func printPersistentVolumeClaim(v *corev1.PersistentVolumeClaimVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tPersistentVolumeClaim\n"+
-		"ClaimName: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.ClaimName, v.ReadOnly)
-	return vs
+	keys := []string{"Type", "ClaimName", "ReadOnly"}
+	content := []string{"PersistentVolumeClaim", v.ClaimName, value(v.ReadOnly)}
+
+	return style.FormatTable(keys, content)
 }
 
 func printPhotonPersistentDisk(v *corev1.PhotonPersistentDiskVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tPhotonPersistentDisk\n"+
-		"PdID: \t%v\n"+
-		"FSType: \t%v\n",
-		v.PdID, v.FSType)
-	return vs
+	keys := []string{"Type", "PdID", "FSType"}
+	content := []string{"PhotonPersistentDisk", v.PdID, v.FSType}
+
+	return style.FormatTable(keys, content)
 }
 
 func printPortworxVolume(v *corev1.PortworxVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tPortworxVolume\n"+
-		"VolumeID: \t%v\n"+
-		"FSType: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.VolumeID, v.FSType, v.ReadOnly)
-	return vs
+	keys := []string{"Type", "VolumeID", "FSType", "ReadOnly"}
+	content := []string{"PortworxVolume", v.VolumeID, v.FSType, value(v.ReadOnly)}
+
+	return style.FormatTable(keys, content)
+}
+
+func extractVolumeProjection(item corev1.VolumeProjection, _ int) string {
+	if item.ConfigMap != nil {
+		subKeys := []string{"ConfigMapName", "ConfigMapOptionalName"}
+		subValues := []string{item.ConfigMap.Name, value(item.ConfigMap.Optional)}
+		return style.FormatSubTable(subKeys, subValues)
+
+	} else if item.DownwardAPI != nil {
+		subKeys := []string{"DownwardAPI"}
+		subValues := []string{"true"}
+		return style.FormatSubTable(subKeys, subValues)
+
+	} else if item.Secret != nil {
+		subKeys := []string{"DownwardAPI"}
+		subValues := []string{"true"}
+		return style.FormatSubTable(subKeys, subValues)
+
+	} else if item.ServiceAccountToken != nil {
+		subKeys := []string{"TokenExpirationSeconds", "TokenPath"}
+		subValues := []string{
+			value(*item.ServiceAccountToken.ExpirationSeconds),
+			item.ServiceAccountToken.Path,
+		}
+		return style.FormatSubTable(subKeys, subValues)
+
+	} else if item.ClusterTrustBundle != nil {
+		subKeys := []string{"Cluster"}
+		subValues := []string{*item.ClusterTrustBundle.Name}
+		return style.FormatSubTable(subKeys, subValues)
+	}
+	logging.Log.Error("Unknown projected source")
+	return ""
 }
 
 func printProjected(v *corev1.ProjectedVolumeSource) string {
-	keys := []string{"Type:", "Sources:", "DefaultMode:"}
+	keys := []string{"Type", "Sources", "DefaultMode"}
 
-	sources := lo.Map(v.Sources, func(item corev1.VolumeProjection, _ int) string {
-		if item.ConfigMap != nil {
-			// subKeys := style.ColorizeSlice([]string{"ConfigMapName: ", "ConfigMapOptionalName: "})
-			subKeys := []string{"ConfigMapName", "ConfigMapOptionalName"}
-			subValues := []string{
-				item.ConfigMap.Name,
-				fmt.Sprintf("%v", item.ConfigMap.Optional),
-			}
-			return style.FormatSubTable(subKeys, subValues)
+	sources := lo.Map(v.Sources, extractVolumeProjection)
+	content := []string{"DownwardAPI", strings.Join(sources, ""), value(*v.DefaultMode)}
 
-		} else if item.DownwardAPI != nil {
-			subKeys := []string{"DownwardAPI"}
-			subValues := []string{"true"}
-			return style.FormatSubTable(subKeys, subValues)
-
-		} else if item.Secret != nil {
-			subKeys := []string{"DownwardAPI"}
-			subValues := []string{"true"}
-			return style.FormatSubTable(subKeys, subValues)
-
-		} else if item.ServiceAccountToken != nil {
-			subKeys := []string{"TokenExpirationSeconds", "TokenPath"}
-			subValues := []string{
-				fmt.Sprintf("%v", *item.ServiceAccountToken.ExpirationSeconds),
-				item.ServiceAccountToken.Path,
-			}
-			return style.FormatSubTable(subKeys, subValues)
-
-		} else if item.ClusterTrustBundle != nil {
-			subKeys := []string{"Cluster"}
-			subValues := []string{*item.ClusterTrustBundle.Name}
-			return style.FormatSubTable(subKeys, subValues)
-		}
-		logging.Log.Error("Unknown projected source")
-		return ""
-	})
-
-	t := table.New()
-	t.Rows(
-		[]string{keys[0], "DownwardAPI"},
-		[]string{keys[1], strings.Join(sources, "")},
-		[]string{keys[2], fmt.Sprintf("%v", *v.DefaultMode)},
-	)
-	t.StyleFunc(style.FormatTableWithFn(keys, sources))
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
+	return style.FormatTable(keys, content)
 }
 
 func printQuobyte(v *corev1.QuobyteVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tQuobyte\n"+
-		"Registry: \t%v\n"+
-		"Volume: \t%v\n"+
-		"ReadOnly: \t%v\n"+
-		"User: \t%v\n"+
-		"Group: \t%v\n"+
-		"Tenant: \t%v\n",
-		v.Registry, v.Volume, v.ReadOnly, v.User, v.Group, v.Tenant)
-	return vs
+	keys := []string{
+		"Type", "Registry", "Volume",
+		"ReadOnly", "User", "Group", "Tenant",
+	}
+	content := []string{
+		"Quobyte", v.Registry, v.Volume,
+		value(v.ReadOnly), v.User, v.Group, v.Tenant,
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printRBD(v *corev1.RBDVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tRBD\n"+
-		"CephMonitors: \t%v\n"+
-		"RBDImage: \t%v\n"+
-		"FSType: \t%v\n"+
-		"RadosPool: \t%v\n"+
-		"RBDKeyring: \t%v\n"+
-		"RBDUser: \t%v\n"+
-		"Keyring: \t%v\n"+
-		"SecretRef: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.CephMonitors, v.RBDImage, v.FSType, v.RBDPool, v.Keyring, v.RadosUser, v.Keyring, v.SecretRef, v.ReadOnly)
-	return vs
+	keys := []string{
+		"Type", "CephMonitors", "RBDImage",
+		"FSType", "RadosPool", "RBDKeyring",
+		"RBDUser", "Keyring", "SecretRef", "ReadOnly",
+	}
+	content := []string{
+		"RBD", strings.Join(v.CephMonitors, " | "), v.RBDImage,
+		v.FSType, v.RBDPool, v.Keyring,
+		v.RadosUser, v.Keyring, v.SecretRef.Name, value(v.ReadOnly),
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printScaleIO(v *corev1.ScaleIOVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tScaleIO\n"+
-		"Gateway: \t%v\n"+
-		"System: \t%v\n"+
-		"SecretRef: \t%v\n"+
-		"SSLEnabled: \t%v\n"+
-		"ProtectionDomain: \t%v\n"+
-		"StoragePool: \t%v\n"+
-		"VolumeName: \t%v\n"+
-		"FSType: \t%v\n"+
-		"ReadOnly: \t%v\n",
-		v.Gateway, v.System, v.SecretRef, v.SSLEnabled, v.ProtectionDomain, v.StoragePool, v.VolumeName, v.FSType, v.ReadOnly)
-	return vs
+	keys := []string{
+		"Type", "Gateway", "System",
+		"SecretRef", "SSLEnabled", "ProtectionDomain",
+		"StoragePool", "VolumeName", "FSType", "ReadOnly",
+	}
+	content := []string{
+		"ScaleIO", v.Gateway, v.System,
+		v.SecretRef.Name, value(v.SSLEnabled), v.ProtectionDomain,
+		v.StoragePool, v.VolumeName, v.FSType, value(v.ReadOnly),
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printSecret(v *corev1.SecretVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tSecret\n"+
-		"SecretName: \t%v\n"+
-		"Items: \t%v\n"+
-		"DefaultMode: \t%v\n"+
-		"Optional: \t%v\n",
-		v.SecretName, v.Items, *v.DefaultMode, v.Optional)
-	return vs
+	keys := []string{"Type", "SecretName", "Items", "DefaultMode", "Optional"}
+	secrets := lo.Map(v.Items, formatKeyToPath)
+	content := []string{
+		"Secret", v.SecretName, strings.Join(secrets, " | "), value(*v.DefaultMode), value(v.Optional),
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printStorageOS(v *corev1.StorageOSVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tStorageOS\n"+
-		"VolumeName: \t%v\n"+
-		"VolumeNamespace: \t%v\n"+
-		"FSType: \t%v\n"+
-		"ReadOnly: \t%v\n"+
-		"SecretRef: \t%v\n"+
-		"LocalObjectReference: \t%v\n",
-		v.VolumeName, v.VolumeNamespace, v.FSType, v.ReadOnly, v.SecretRef, v.SecretRef.Name)
-	return vs
+	keys := []string{
+		"Type", "VolumeName", "VolumeNamespace",
+		"FSType", "ReadOnly", "SecretRef", "LocalObjectReference",
+	}
+	content := []string{
+		"StorageOS", v.VolumeName, v.VolumeNamespace,
+		v.FSType, value(v.ReadOnly), v.SecretRef.Name, v.SecretRef.Name,
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printVsphereVolume(v *corev1.VsphereVirtualDiskVolumeSource) string {
-	vs := fmt.Sprintf("Type: \tVsphereVolume\n"+
-		"VolumePath: \t%v\n"+
-		"FSType: \t%v\n"+
-		"StoragePolicyName: \t%v\n"+
-		"StoragePolicyID: \t%v\n",
-		v.VolumePath, v.FSType, v.StoragePolicyName, v.StoragePolicyID)
-	return vs
+	keys := []string{
+		"Type", "VolumePath", "FSType",
+		"StoragePolicyName", "StoragePolicyID",
+	}
+	content := []string{
+		"VsphereVolume", v.VolumePath, v.FSType, v.StoragePolicyName, v.StoragePolicyID,
+	}
+
+	return style.FormatTable(keys, content)
 }
 
 func printVolumeSource(v corev1.VolumeSource) string {

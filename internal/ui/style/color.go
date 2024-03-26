@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/charmbracelet/lipgloss/table"
 	"github.com/samber/lo"
 )
 
@@ -25,14 +26,6 @@ func measureContentWidth(agg int, item string, index int) int {
 	return agg
 }
 
-func FormatSubTable(keys, content []string) string {
-	keys = ColorizeSlice(keys)
-	concatenated := lo.Map(keys, func(item string, index int) string {
-		return fmt.Sprintf("%s -> %s", item, content[index])
-	})
-	return strings.Join(concatenated, " | ") + "\n"
-}
-
 func FormatTableWithFn(keys, content []string) func(int, int) lipgloss.Style {
 	contentWidth := lo.Reduce(content, measureContentWidth, 20)
 	keysWidth := lo.Reduce(keys, measureContentWidth, 15)
@@ -48,6 +41,27 @@ func FormatTableWithFn(keys, content []string) func(int, int) lipgloss.Style {
 		}
 		return lipgloss.NewStyle()
 	}
+}
+
+func FormatTable(keys, content []string) string {
+	rows := lo.Map(keys,
+		func(item string, index int) []string {
+			return []string{item + ":", content[index]}
+		})
+
+	t := table.New()
+	t.Rows(rows...)
+	t.StyleFunc(FormatTableWithFn(keys, content))
+	t.Border(lipgloss.HiddenBorder())
+	return t.Render()
+}
+
+func FormatSubTable(keys, content []string) string {
+	keys = ColorizeSlice(keys)
+	concatenated := lo.Map(keys, func(item string, index int) string {
+		return fmt.Sprintf("%s -> %s", item, content[index])
+	})
+	return strings.Join(concatenated, " | ") + "\n"
 }
 
 func ColorizeTabKey() lipgloss.Style {
