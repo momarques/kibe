@@ -397,12 +397,6 @@ func printVolumeSource(v corev1.VolumeSource) string {
 
 type PodVolumes []corev1.Volume
 
-type VolumeDetails struct {
-	Name    string
-	Source  string
-	Details interface{}
-}
-
 func (pv PodVolumes) fetchVolumeSourcesAsString() []map[string]string {
 	return lo.Map(pv, func(item corev1.Volume, _ int) map[string]string {
 		return map[string]string{

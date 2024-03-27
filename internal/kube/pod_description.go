@@ -68,7 +68,7 @@ func (pd PodDescription) TabContent() []string {
 		pd.Labels.TabContent(),
 		pd.Annotations.TabContent(),
 		pd.Volumes.TabContent(0),
-		pd.Containers.TabContent(),
+		pd.Containers.TabContent(0),
 		pd.NodeScheduling.TabContent(),
 		"",
 	}
@@ -162,41 +162,12 @@ func podConditionToString(condition corev1.PodCondition, _ int) string {
 }
 
 func (ps PodStatus) TabContent() string {
-	fieldNames := LookupStructFieldNames(reflect.TypeOf(ps))
+	keys := LookupStructFieldNames(reflect.TypeOf(ps))
 
 	conditionsValue := strings.Join(ps.Conditions, " -> ")
+	content := []string{ps.Start.String(), ps.Status, conditionsValue}
 
-	t := table.New()
-	t.Rows(
-		[]string{fieldNames[0], ps.Start.String()},
-		[]string{fieldNames[1], ps.Status},
-		[]string{fieldNames[2], conditionsValue},
-	)
-	t.StyleFunc(func(row, col int) lipgloss.Style {
-		if col == 1 {
-			return lipgloss.NewStyle().Width(len(conditionsValue))
-		}
-		return style.ColorizeTable(row, col)
-	})
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
-}
-
-type PodContainers []corev1.Container
-
-func (pc PodContainers) TabContent() string {
-	t := table.New()
-	t.Rows(pc.podContainerToTableRows()...)
-	t.StyleFunc(style.ColorizeTable)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
-}
-
-func (pc PodContainers) podContainerToTableRows() [][]string {
-	return lo.Map(pc,
-		func(c corev1.Container, index int) []string {
-			return []string{fmt.Sprintf("Container %d", index), c.Name}
-		})
+	return style.FormatTable(keys, content)
 }
 
 type PodNodeSelector map[string]string
@@ -266,10 +237,16 @@ func (pd PodDescription) SubContent(subContentIndex int) []string {
 	t := reflect.TypeFor[PodDescription]()
 	field := t.Field(subContentIndex)
 
-	if field.Name == "Volumes" {
+	switch field.Name {
+	case "Volumes":
 		return lo.Map(pd.Volumes,
 			func(item corev1.Volume, index int) string {
 				return pd.Volumes.TabContent(index)
+			})
+	case "Containers":
+		return lo.Map(pd.Containers,
+			func(item corev1.Container, index int) string {
+				return pd.Containers.TabContent(index)
 			})
 	}
 	return []string{}

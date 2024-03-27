@@ -91,6 +91,13 @@ func GetColor(c string) lipgloss.TerminalColor {
 	}
 }
 
+func FormatCommand(cmds []string) string {
+	return lipgloss.NewStyle().
+		Italic(true).
+		Foreground(GetColor(ThemeConfig.Tab.ActiveTabContentKeys)).
+		Render(strings.Join(cmds, " "))
+}
+
 // func colorizeInt(string) string {
 // 	return ""
 // }
