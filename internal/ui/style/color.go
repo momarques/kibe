@@ -28,7 +28,7 @@ func measureContentWidth(agg int, item string, index int) int {
 
 func FormatTableWithFn(keys, content []string) func(int, int) lipgloss.Style {
 	contentWidth := lo.Reduce(content, measureContentWidth, 20)
-	keysWidth := lo.Reduce(keys, measureContentWidth, 16)
+	keysWidth := lo.Reduce(keys, measureContentWidth, 16) + 2
 
 	return func(row, col int) lipgloss.Style {
 		switch {
