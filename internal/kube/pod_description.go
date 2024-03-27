@@ -8,8 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
@@ -78,13 +76,13 @@ func (pd PodDescription) TabContent() []string {
 //
 // This object must return the whole content in a single formatted string
 type PodOverview struct {
-	Name           string   `kibedescription:"Name:"`
-	Namespace      string   `kibedescription:"Namespace:"`
-	ServiceAccount string   `kibedescription:"Service Account:"`
-	IP             net.IP   `kibedescription:"IP:"`
-	IPs            []net.IP `kibedescription:"IPs:"`
-	ControlledBy   string   `kibedescription:"Controlled by:"`
-	QoSClass       string   `kibedescription:"QoS Class:"`
+	Name           string   `kibedescription:"Name"`
+	Namespace      string   `kibedescription:"Namespace"`
+	ServiceAccount string   `kibedescription:"Service Account"`
+	IP             net.IP   `kibedescription:"IP"`
+	IPs            []net.IP `kibedescription:"IPs"`
+	ControlledBy   string   `kibedescription:"Controlled by"`
+	QoSClass       string   `kibedescription:"QoS Class"`
 }
 
 func getPodOwner(pod *corev1.Pod) string {
@@ -110,33 +108,21 @@ func newPodOverview(pod *corev1.Pod) PodOverview {
 }
 
 func (po PodOverview) TabContent() string {
-	ips := lo.Map(po.IPs,
-		func(item net.IP, _ int) string {
-			return item.String()
-		})
+	keys := LookupStructFieldNames(reflect.TypeOf(po))
 
-	fieldNames := LookupStructFieldNames(reflect.TypeOf(po))
-
-	t := table.New()
-	t.Rows(
-		[]string{fieldNames[0], po.Name},
-		[]string{fieldNames[1], po.Namespace},
-		[]string{fieldNames[2], po.ServiceAccount},
-		[]string{fieldNames[3], po.IP.String()},
-		[]string{fieldNames[4], strings.Join(ips, ",")},
-		[]string{fieldNames[5], po.ControlledBy},
-		[]string{fieldNames[6], po.QoSClass},
-	)
-	t.StyleFunc(style.ColorizeTable)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
+	ips := lo.Map(po.IPs, func(item net.IP, _ int) string { return item.String() })
+	content := []string{
+		po.Name, po.Namespace, po.ServiceAccount,
+		po.IP.String(), strings.Join(ips, ","), po.ControlledBy, po.QoSClass,
+	}
+	return style.FormatTable(keys, content)
 }
 
 // PodStatus provides historic status information from the pod
 type PodStatus struct {
-	Start      time.Time `kibedescription:"Started at:"`
-	Status     string    `kibedescription:"Status:"`
-	Conditions []string  `kibedescription:"Conditions:"`
+	Start      time.Time `kibedescription:"Started at"`
+	Status     string    `kibedescription:"Status"`
+	Conditions []string  `kibedescription:"Conditions"`
 }
 
 func newPodStatus(pod *corev1.Pod) PodStatus {
@@ -211,9 +197,9 @@ func (pt PodTolerations) TabContent() string {
 }
 
 type PodNodeScheduling struct {
-	NodeName      string          `kibedescription:"Node Name:"`
-	NodeSelectors PodNodeSelector `kibedescription:"Node Selectors:"`
-	Tolerations   PodTolerations  `kibedescription:"Tolerations:"`
+	NodeName      string          `kibedescription:"Node Name"`
+	NodeSelectors PodNodeSelector `kibedescription:"Node Selectors"`
+	Tolerations   PodTolerations  `kibedescription:"Tolerations"`
 }
 
 func newPodNodeScheduling(pod *corev1.Pod) PodNodeScheduling {
