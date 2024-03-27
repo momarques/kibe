@@ -28,7 +28,7 @@ func measureContentWidth(agg int, item string, index int) int {
 
 func FormatTableWithFn(keys, content []string) func(int, int) lipgloss.Style {
 	contentWidth := lo.Reduce(content, measureContentWidth, 20)
-	keysWidth := lo.Reduce(keys, measureContentWidth, 15)
+	keysWidth := lo.Reduce(keys, measureContentWidth, 16)
 
 	return func(row, col int) lipgloss.Style {
 		switch {
@@ -61,7 +61,7 @@ func FormatSubTable(keys, content []string) string {
 	concatenated := lo.Map(keys, func(item string, index int) string {
 		return fmt.Sprintf("%s -> %s", item, content[index])
 	})
-	return strings.Join(concatenated, " | ") + "\n"
+	return strings.Join(concatenated, "\n")
 }
 
 func ColorizeTabKey() lipgloss.Style {

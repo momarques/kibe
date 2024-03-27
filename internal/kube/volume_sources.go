@@ -252,7 +252,7 @@ func printProjected(v *corev1.ProjectedVolumeSource) string {
 	keys := []string{"Type", "Sources", "DefaultMode"}
 
 	sources := lo.Map(v.Sources, extractVolumeProjection)
-	content := []string{"DownwardAPI", strings.Join(sources, ""), value(*v.DefaultMode)}
+	content := []string{"Projected", strings.Join(sources, "\n"), value(*v.DefaultMode)}
 
 	return style.FormatTable(keys, content)
 }
@@ -407,7 +407,6 @@ func (pv PodVolumes) fetchVolumeSourcesAsString() []map[string]string {
 	return lo.Map(pv, func(item corev1.Volume, _ int) map[string]string {
 		return map[string]string{
 			item.Name: lipgloss.NewStyle().
-				// Width(100).
 				Render(printVolumeSource(item.VolumeSource)),
 		}
 	})

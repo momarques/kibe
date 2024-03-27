@@ -212,23 +212,7 @@ func (pn PodNodeSelector) TabContent() string {
 
 type PodTolerations []corev1.Toleration
 
-func (pt PodTolerations) podTolerationsToTableRows() [][]string {
-	return lo.Map(pt,
-		func(t corev1.Toleration, index int) []string {
-			return []string{t.Key, prettyPrintTolerations(t)}
-		})
-}
-
-func (pt PodTolerations) TabContent() string {
-	t := table.New()
-
-	t.Rows(pt.podTolerationsToTableRows()...)
-	t.StyleFunc(style.ColorizeTable)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
-}
-
-func prettyPrintTolerations(t corev1.Toleration) string {
+func prettyPrintTolerations(t corev1.Toleration, _ int) string {
 	toleration := strings.Builder{}
 
 	if !lo.IsEmpty(t.Value) {
@@ -247,6 +231,16 @@ func prettyPrintTolerations(t corev1.Toleration) string {
 	return toleration.String()
 }
 
+func (pt PodTolerations) TabContent() string {
+	keys := lo.Map(pt,
+		func(t corev1.Toleration, index int) string {
+			return t.Key
+		})
+	content := lo.Map(pt, prettyPrintTolerations)
+
+	return style.FormatSubTable(keys, content)
+}
+
 type PodNodeScheduling struct {
 	NodeName      string          `kibedescription:"Node Name:"`
 	NodeSelectors PodNodeSelector `kibedescription:"Node Selectors:"`
@@ -262,17 +256,12 @@ func newPodNodeScheduling(pod *corev1.Pod) PodNodeScheduling {
 }
 
 func (pn PodNodeScheduling) TabContent() string {
+	keys := []string{"Node name", "Node selectors", "Tolerations"}
+	content := []string{
+		pn.NodeName, pn.NodeSelectors.TabContent(), pn.Tolerations.TabContent(),
+	}
 
-	t := table.New()
-
-	t.Rows(mapToTableRows(map[string]string{
-		"Node name":      pn.NodeName,
-		"Node selectors": pn.NodeSelectors.TabContent(),
-		"Tolerations":    pn.Tolerations.TabContent(),
-	})...)
-	t.StyleFunc(style.ColorizeTable)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
+	return style.FormatTable(keys, content)
 }
 
 func (pd PodDescription) SubContent(subContentIndex int) []string {
