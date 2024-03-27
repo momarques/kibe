@@ -14,14 +14,13 @@ type PodContainers []corev1.Container
 func printContainerPorts(ports []corev1.ContainerPort) string {
 	formattedPorts := lo.Map(ports, func(item corev1.ContainerPort, _ int) string {
 		portValues := lo.Compact([]string{item.Name, value(item.Protocol), item.HostIP, value(item.HostPort), value(item.ContainerPort)})
-		return strings.Join(portValues, ":")
+		return strings.Join(portValues, "::")
 	})
 	return strings.Join(formattedPorts, "\n")
 }
 
 func printContainerDetails(c corev1.Container) string {
 	keys := []string{
-		"Name",
 		"Image",
 		"ImagePullPolicy",
 		"WorkingDir",
@@ -47,7 +46,6 @@ func printContainerDetails(c corev1.Container) string {
 		"RestartPolicy",
 	}
 	content := []string{
-		c.Name,
 		c.Image,
 		value(c.ImagePullPolicy),
 		c.WorkingDir,
