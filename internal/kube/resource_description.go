@@ -1,8 +1,6 @@
 package kube
 
 import (
-	"github.com/charmbracelet/lipgloss"
-	"github.com/charmbracelet/lipgloss/table"
 	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
 )
@@ -17,29 +15,18 @@ type ResourceDescription interface {
 type ResourceLabels map[string]string
 
 func (rl ResourceLabels) TabContent() string {
-	t := table.New()
-	t.Rows(
-		mapToTableRows(
-			mapKeysToYamlKeys(rl))...)
-	t.StyleFunc(style.ColorizeTable)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
+	keys := lo.Keys(rl)
+	content := lo.Values(rl)
+
+	return style.FormatTable(keys, content)
 }
 
 // ResourceAnnotations provides a map of annotations from the resource
 type ResourceAnnotations map[string]string
 
 func (ra ResourceAnnotations) TabContent() string {
-	t := table.New()
-	t.Rows(mapToTableRows(
-		mapKeysToYamlKeys(ra))...)
-	t.StyleFunc(style.ColorizeTable)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
-}
+	keys := lo.Keys(ra)
+	content := lo.Values(ra)
 
-func mapKeysToYamlKeys(m map[string]string) map[string]string {
-	return lo.MapKeys(m, func(value string, key string) string {
-		return key + ":"
-	})
+	return style.FormatTable(keys, content)
 }

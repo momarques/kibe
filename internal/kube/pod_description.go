@@ -202,12 +202,10 @@ func (pc PodContainers) podContainerToTableRows() [][]string {
 type PodNodeSelector map[string]string
 
 func (pn PodNodeSelector) TabContent() string {
-	t := table.New()
+	keys := lo.Keys(pn)
+	content := lo.Values(pn)
 
-	t.Rows(mapToTableRows(pn)...)
-	t.StyleFunc(style.ColorizeTable)
-	t.Border(lipgloss.HiddenBorder())
-	return t.Render()
+	return style.FormatSubTable(keys, content)
 }
 
 type PodTolerations []corev1.Toleration
