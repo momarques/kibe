@@ -25,16 +25,15 @@ func printEnvVarSource(env *corev1.EnvVarSource) string {
 		return fmt.Sprintf("%s.%s", s1, s2)
 	}
 
-	if env.ConfigMapKeyRef != nil {
+	switch {
+	case env.ConfigMapKeyRef != nil:
 		return format(env.ConfigMapKeyRef.Name, env.ConfigMapKeyRef.Key)
-	} else if env.FieldRef != nil {
+	case env.FieldRef != nil:
 		return format(env.FieldRef.APIVersion, env.FieldRef.FieldPath)
-	} else if env.ResourceFieldRef != nil {
+	case env.ResourceFieldRef != nil:
 		return format(env.ResourceFieldRef.ContainerName, env.ResourceFieldRef.Resource)
-	} else if env.SecretKeyRef != nil {
+	case env.SecretKeyRef != nil:
 		return format(env.SecretKeyRef.Name, env.SecretKeyRef.Key)
-	} else {
-		return ""
 	}
 }
 
@@ -48,6 +47,25 @@ func printContainerEnvs(envs []corev1.EnvVar) string {
 		return basicFormat
 	})
 	return strings.Join(envStrings, "\n")
+}
+
+func printContainerEnvFrom(envFrom []corev1.EnvFromSource) string {
+	envs := lo.Map(envFrom, func(item corev1.EnvFromSource, _ int) string {
+		var prefix string = item.Prefix
+		var refName string
+
+		switch {
+		case item.ConfigMapRef != nil:
+			refName = item.ConfigMapRef.Name
+		case item.SecretRef != nil:
+			refName = item.SecretRef.Name
+		}
+		if prefix != "" {
+			refName = prefix + " " + refName
+		}
+		return refName
+	})
+	return strings.Join(envs, "\n")
 }
 
 func printContainerDetails(c corev1.Container) string {
@@ -84,7 +102,7 @@ func printContainerDetails(c corev1.Container) string {
 		style.FormatCommand(c.Args),
 		printContainerPorts(c.Ports),
 		printContainerEnvs(c.Env),
-		value(c.EnvFrom),
+		printContainerEnvFrom(c.EnvFrom),
 		value(c.Resources),
 		value(c.VolumeMounts),
 		value(c.VolumeDevices),
