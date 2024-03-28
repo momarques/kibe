@@ -17,14 +17,32 @@ For developers, SREs, Platform Engineers or whatever role in which you are respo
 
 If you are both, the command is as delicious as a kibe with lemon or ketchup!  
 
+## Installation
+
+Install it via Homebrew:
+
+```shell
+brew tap momarques/kibe
+brew install kibe
+```
+
+Or via Go:
+
+```shell
+go install github.com/momarques/kibe
+```
+
+```shell
+go install github.com/momarques/kibe@$specific_version
+```
+
 ## Usage
 
 Just call for a `kibe` and put some ketchup!
 
 <img src="assets/kibe_command.png" alt="drawing" width="300"/>
 
-The interface has different kind of views, which can be a list, a table, etc. To interact with these views, just follow the help located below. It shows every key binding you need to know to execute operations.
-
+The interface has different kind of views, which can be a list, a table, etc. To interact with these views, just follow the help located below. It shows every key binding you need to know to execute all operations.
 
 ## Why?
 
