@@ -1,6 +1,7 @@
 package kube
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
@@ -17,6 +18,36 @@ func printContainerPorts(ports []corev1.ContainerPort) string {
 		return strings.Join(portValues, "::")
 	})
 	return strings.Join(formattedPorts, "\n")
+}
+
+func printEnvVarSource(env *corev1.EnvVarSource) string {
+	format := func(s1, s2 string) string {
+		return fmt.Sprintf("%s.%s", s1, s2)
+	}
+
+	if env.ConfigMapKeyRef != nil {
+		return format(env.ConfigMapKeyRef.Name, env.ConfigMapKeyRef.Key)
+	} else if env.FieldRef != nil {
+		return format(env.FieldRef.APIVersion, env.FieldRef.FieldPath)
+	} else if env.ResourceFieldRef != nil {
+		return format(env.ResourceFieldRef.ContainerName, env.ResourceFieldRef.Resource)
+	} else if env.SecretKeyRef != nil {
+		return format(env.SecretKeyRef.Name, env.SecretKeyRef.Key)
+	} else {
+		return ""
+	}
+}
+
+func printContainerEnvs(envs []corev1.EnvVar) string {
+	envStrings := lo.Map(envs, func(item corev1.EnvVar, _ int) string {
+		if item.ValueFrom != nil {
+			return fmt.Sprintf("%s: %s", item.Name, printEnvVarSource(item.ValueFrom))
+		}
+
+		basicFormat := fmt.Sprintf("%s=%s", item.Name, item.Value)
+		return basicFormat
+	})
+	return strings.Join(envStrings, "\n")
 }
 
 func printContainerDetails(c corev1.Container) string {
@@ -52,7 +83,7 @@ func printContainerDetails(c corev1.Container) string {
 		style.FormatCommand(c.Command),
 		style.FormatCommand(c.Args),
 		printContainerPorts(c.Ports),
-		value(c.Env),
+		printContainerEnvs(c.Env),
 		value(c.EnvFrom),
 		value(c.Resources),
 		value(c.VolumeMounts),
