@@ -35,6 +35,7 @@ func printEnvVarSource(env *corev1.EnvVarSource) string {
 	case env.SecretKeyRef != nil:
 		return format(env.SecretKeyRef.Name, env.SecretKeyRef.Key)
 	}
+	return ""
 }
 
 func printContainerEnvs(envs []corev1.EnvVar) string {
