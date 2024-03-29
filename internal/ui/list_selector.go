@@ -9,6 +9,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
+	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
 )
@@ -55,7 +56,7 @@ func newListSelector() *listSelector {
 func newItemDelegate(s *listSelector) list.DefaultDelegate {
 	d := list.NewDefaultDelegate()
 
-	d.UpdateFunc = s.update
+	// d.UpdateFunc = s.update
 
 	d.Styles.SelectedTitle = style.ListActiveSelectionTitleStyle()
 	d.Styles.SelectedDesc = style.ListActiveSelectionDescStyle()
@@ -88,143 +89,144 @@ func (s listSelector) resourceSelected() func() tea.Msg {
 	return func() tea.Msg { return r }
 }
 
-func (s listSelector) clientReady() func() tea.Msg {
-	return func() tea.Msg { return s.client }
+func (m CoreUI) clientReady() func() tea.Msg {
+	return func() tea.Msg { return m.client }
 }
 
-func (s *listSelector) updateClientState() tea.Cmd {
-	if s.context != "" && s.namespace != "" && s.resource != "" {
-		s.clientState = ready
+func (m CoreUI) updateClientState() tea.Cmd {
+	if m.list.context != "" && m.list.namespace != "" && m.list.resource != "" {
+		logging.Log.Info("ready ")
+		m.list.clientState = ready
 	}
 
-	switch s.clientState {
+	switch m.list.clientState {
 	case ready:
-		return s.clientReady()
+		return m.clientReady()
 
 	case notReady:
-		if s.context == "" {
+		if m.list.context == "" {
 			return kube.NewSelectContext()
 		}
 
-		if s.namespace == "" {
-			return kube.NewSelectNamespace(s.client)
+		if m.list.namespace == "" {
+			return kube.NewSelectNamespace(m.client)
 		}
 
-		if s.resource == "" {
-			return kube.NewSelectResource(s.client)
+		if m.list.resource == "" {
+			return kube.NewSelectResource(m.client)
 		}
 	}
 	return nil
 }
 
-func (s *listSelector) updateWithKeyStroke(msg tea.KeyMsg, m *list.Model) tea.Cmd {
+func (m CoreUI) updateWithKeyStroke(msg tea.KeyMsg) (CoreUI, tea.Cmd) {
 	switch {
-	case key.Matches(msg, s.chooseKey):
-		switch i := m.SelectedItem().(type) {
+	case key.Matches(msg, m.list.chooseKey):
+		switch i := m.list.SelectedItem().(type) {
 
 		case kube.ContextItem:
-			s.context = i.FilterValue()
-			s.spinnerState = showSpinner
+			m.list.context = i.FilterValue()
+			m.list.spinnerState = showSpinner
 
-			return tea.Batch(
-				m.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Context", s.context, "set")),
-				s.contextSelected(s.context),
-				s.spinner.Tick)
+			return m, tea.Batch(
+				m.list.NewStatusMessage(style.StatusMessageStyle().Render(
+					"Context", m.list.context, "set")),
+				m.list.contextSelected(m.list.context),
+				m.list.spinner.Tick)
 
 		case kube.NamespaceItem:
-			s.namespace = i.FilterValue()
-			s.spinnerState = showSpinner
+			m.list.namespace = i.FilterValue()
+			m.list.spinnerState = showSpinner
 
-			return tea.Batch(
-				m.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Namespace", s.namespace, "selected")),
-				s.namespaceSelected(s.namespace),
-				s.spinner.Tick)
+			return m, tea.Batch(
+				m.list.NewStatusMessage(style.StatusMessageStyle().Render(
+					"Namespace", m.list.namespace, "selected")),
+				m.list.namespaceSelected(m.list.namespace),
+				m.list.spinner.Tick)
 
 		case kube.ResourceItem:
-			s.resource = i.FilterValue()
-			s.spinnerState = showSpinner
+			m.list.resource = i.FilterValue()
+			m.list.spinnerState = showSpinner
 
-			return tea.Batch(
-				m.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Showing", s.resource+"s")),
-				s.resourceSelected(),
-				s.spinner.Tick)
+			return m, tea.Batch(
+				m.list.NewStatusMessage(style.StatusMessageStyle().Render(
+					"Showing", m.list.resource+"s")),
+				m.list.resourceSelected(),
+				m.list.spinner.Tick)
 		}
 	}
-	return nil
+	return m, nil
 }
 
-func (s *listSelector) update(msg tea.Msg, m *list.Model) tea.Cmd {
+func (m CoreUI) updateListSelector(msg tea.Msg) (CoreUI, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case kube.SelectContext:
-		m.Title = "Choose a context to connect"
-		if s.useCurrentContext && msg.CurrentContext != "" && len(msg.Contexts) > 0 {
-			m.Title = "Skipping context selection"
+		m.list.Title = "Choose a context to connect"
+		if m.list.useCurrentContext && msg.CurrentContext != "" && len(msg.Contexts) > 0 {
+			m.list.Title = "Skipping context selection"
 
-			s.context = msg.CurrentContext
-			s.spinnerState = showSpinner
+			m.list.context = msg.CurrentContext
+			m.list.spinnerState = showSpinner
 
-			return tea.Batch(
-				m.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Using current context", s.context)),
-				s.contextSelected(s.context),
-				s.spinner.Tick)
+			return m, tea.Batch(
+				m.list.NewStatusMessage(style.StatusMessageStyle().Render(
+					"Using current context", m.list.context)),
+				m.list.contextSelected(m.list.context),
+				m.list.spinner.Tick)
 		}
 
 		if len(msg.Contexts) == 1 {
-			s.context = msg.Contexts[0].FilterValue()
-			s.spinnerState = showSpinner
+			m.list.context = msg.Contexts[0].FilterValue()
+			m.list.spinnerState = showSpinner
 
-			return tea.Batch(
-				m.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Using single existing context", s.context)),
-				s.contextSelected(s.context),
-				s.spinner.Tick)
+			return m, tea.Batch(
+				m.list.NewStatusMessage(style.StatusMessageStyle().Render(
+					"Using single existing context", m.list.context)),
+				m.list.contextSelected(m.list.context),
+				m.list.spinner.Tick)
 		}
 
-		s.spinnerState = hideSpinner
-		return m.SetItems(msg.Contexts)
+		m.list.spinnerState = hideSpinner
+		return m, m.list.SetItems(msg.Contexts)
 
 	case kube.ContextSelected:
-		m.ResetFilter()
+		m.list.ResetFilter()
+		m.client = m.client.WithContext(string(msg))
 
-		s.client = kube.NewClientReady(string(msg))
-		return updateStatusBar(s.resource, s.context, s.namespace)
+		return m, updateStatusBar(m.list.resource, m.list.context, m.list.namespace)
 
 	case kube.SelectNamespace:
-		m.Title = "Choose a namespace"
-		s.spinnerState = hideSpinner
+		m.list.Title = "Choose a namespace"
+		m.list.spinnerState = hideSpinner
 
-		return m.SetItems(msg)
+		return m, m.list.SetItems(msg)
 
 	case kube.NamespaceSelected:
-		m.ResetFilter()
-		s.client = s.client.WithNamespace(string(msg))
+		m.list.ResetFilter()
+		m.client = m.client.WithNamespace(string(msg))
 
-		return updateStatusBar(s.resource, s.context, s.namespace)
+		return m, updateStatusBar(m.list.resource, m.list.context, m.list.namespace)
 
 	case kube.SelectResource:
-		m.Title = "Choose a resource type"
-		s.spinnerState = hideSpinner
+		m.list.Title = "Choose a resource type"
+		m.list.spinnerState = hideSpinner
 
-		return m.SetItems(msg.Resources)
+		return m, m.list.SetItems(msg.Resources)
 
 	case kube.ResourceSelected:
-		m.ResetFilter()
+		m.list.ResetFilter()
+		m.client = m.client.WithResource(msg)
 
-		s.client = s.client.WithResource(msg)
-		return tea.Batch(
-			updateStatusBar(s.resource, s.context, s.namespace),
-			s.updateHeader(fmt.Sprintf("%s interaction", msg.Kind())))
+		return m, tea.Batch(
+			updateStatusBar(m.list.resource, m.list.context, m.list.namespace),
+			m.list.updateHeader(fmt.Sprintf("%s interaction", msg.Kind())))
 
 	case tea.KeyMsg:
-		return s.updateWithKeyStroke(msg, m)
+		return m.updateWithKeyStroke(msg)
 
 	}
-	return tea.Batch(
-		s.updateClientState(),
-		s.spinner.Tick)
+	return m, tea.Batch(
+		m.updateClientState(),
+		m.list.spinner.Tick)
 }

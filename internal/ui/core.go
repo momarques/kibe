@@ -49,6 +49,8 @@ func NewUI() CoreUI {
 	return CoreUI{
 		viewState: showList,
 
+		client: kube.NewClientReady(),
+
 		globalKeys: newGlobalKeyMap(),
 		keys:       setKeys(table.tableKeyMap, tab.tabKeyMap),
 		list:       newListModel(),
@@ -64,7 +66,6 @@ func NewUI() CoreUI {
 }
 
 func (m CoreUI) Init() tea.Cmd {
-
 	return tea.SetWindowTitle("Kibe UI")
 }
 
@@ -92,22 +93,25 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.globalKeys.SelectContext):
 			m.list.context = ""
 			m.list.useCurrentContext = false
-			m.client.ContextSelected = ""
+			m.list.client.ContextSelected = ""
 			m.viewState = showList
+			m.table.syncState = starting
 
 			return m, kube.NewSelectContext()
 
 		case key.Matches(msg, m.globalKeys.SelectNamespace):
 			m.list.namespace = ""
-			m.client.NamespaceSelected = ""
+			m.list.client.NamespaceSelected = ""
 			m.viewState = showList
+			m.table.syncState = starting
 
 			return m, kube.NewSelectNamespace(m.client)
 
 		case key.Matches(msg, m.globalKeys.SelectResource):
 			m.list.resource = ""
-			m.client.ResourceSelected = nil
+			m.list.client.ResourceSelected = nil
 			m.viewState = showList
+			m.table.syncState = starting
 
 			return m, kube.NewSelectResource(m.client)
 		}

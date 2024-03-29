@@ -80,11 +80,14 @@ type ClientReady struct {
 	TableResponse
 }
 
-func NewClientReady(context string) *ClientReady {
-	return &ClientReady{
-		Clientset:       NewKubeClient(context),
-		ContextSelected: ContextSelected(context),
-	}
+func NewClientReady() *ClientReady {
+	return &ClientReady{}
+}
+
+func (c *ClientReady) WithContext(context string) *ClientReady {
+	c.Clientset = NewKubeClient(context)
+	c.ContextSelected = ContextSelected(context)
+	return c
 }
 
 func (c *ClientReady) WithNamespace(namespace string) *ClientReady {
@@ -101,6 +104,7 @@ func (c *ClientReady) WithResource(r Resource) *ClientReady {
 }
 
 func (c *ClientReady) FetchTableView() TableResponse {
+	logging.Log.Info("client ", c)
 	var now = time.Now()
 
 	resource, err := c.ResourceSelected.List(c)

@@ -71,6 +71,8 @@ func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 	}
 
+	m, cmd = m.updateListSelector(msg)
+	cmds = append(cmds, cmd)
 	m.list.Model, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
 

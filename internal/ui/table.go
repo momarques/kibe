@@ -73,21 +73,19 @@ func (m tableModel) applyPageChanges() tableModel {
 
 func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
+	var cmds []tea.Cmd
 
-	if response, ok := <-m.table.response; ok {
-		if response.Err != nil {
-			m = m.changeSyncState(unsynced)
-			return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
-		}
+	response := m.client.FetchTableView()
+	m.table, cmd = m.table.applyTableItems(response)
+	cmds = append(cmds, cmd)
 
-		m.table, cmd = m.table.applyTableItems(response)
-		m.table = m.table.applyPageChanges()
+	m.table = m.table.applyPageChanges()
 
-		m = m.changeSyncState(inSync)
-		return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)), cmd
-	}
+	m = m.changeSyncState(inSync)
+	m, cmd = m.syncTable()
+	cmds = append(cmds, cmd)
 
-	return m, nil
+	return m, tea.Batch(cmds...)
 }
 
 func (m CoreUI) updateOnTableResponseAsync() (CoreUI, tea.Cmd) {
@@ -173,17 +171,7 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.syncTable()
 
 	case starting:
-		response := m.client.FetchTableView()
-		m.table, cmd = m.table.applyTableItems(response)
-		cmds = append(cmds, cmd)
-
-		m.table = m.table.applyPageChanges()
-
-		m = m.changeSyncState(inSync)
-		m, cmd = m.syncTable()
-		cmds = append(cmds, cmd)
-
-		return m, tea.Batch(cmds...)
+		return m.updateOnTableResponse()
 	}
 
 	m.table.Model, cmd = m.table.Update(msg)
