@@ -93,7 +93,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.globalKeys.SelectContext):
 			m.list.context = ""
 			m.list.useCurrentContext = false
-			m.list.client.ContextSelected = ""
+			m.client.ContextSelected = ""
 			m.viewState = showList
 			m.table.syncState = starting
 
@@ -101,7 +101,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, m.globalKeys.SelectNamespace):
 			m.list.namespace = ""
-			m.list.client.NamespaceSelected = ""
+			m.client.NamespaceSelected = ""
 			m.viewState = showList
 			m.table.syncState = starting
 
@@ -109,7 +109,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, m.globalKeys.SelectResource):
 			m.list.resource = ""
-			m.list.client.ResourceSelected = nil
+			m.client.ResourceSelected = nil
 			m.viewState = showList
 			m.table.syncState = starting
 

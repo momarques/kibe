@@ -25,7 +25,6 @@ type listSelector struct {
 	clientState
 	spinnerState
 
-	client    *kube.ClientReady
 	spinner   spinner.Model
 	chooseKey key.Binding
 
