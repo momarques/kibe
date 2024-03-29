@@ -88,7 +88,29 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, m.globalKeys.Quit):
 			return m, tea.Quit
+
+		case key.Matches(msg, m.globalKeys.SelectContext):
+			m.list.context = ""
+			m.client.ContextSelected = ""
+			m.viewState = showList
+
+			return m, kube.NewSelectContext()
+
+		case key.Matches(msg, m.globalKeys.SelectNamespace):
+			m.list.namespace = ""
+			m.client.NamespaceSelected = ""
+			m.viewState = showList
+
+			return m, kube.NewSelectNamespace(m.client)
+
+		case key.Matches(msg, m.globalKeys.SelectResource):
+			m.list.resource = ""
+			m.client.ResourceSelected = nil
+			m.viewState = showList
+
+			return m, kube.NewSelectResource(m.client)
 		}
+
 	}
 
 	switch m.viewState {

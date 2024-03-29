@@ -9,12 +9,20 @@ import (
 )
 
 type globalKeyMap struct {
+	SelectContext   key.Binding
+	SelectNamespace key.Binding
+	SelectResource  key.Binding
+
 	Quit key.Binding
 	Help key.Binding
 }
 
 func newGlobalKeyMap() globalKeyMap {
 	return globalKeyMap{
+		SelectContext:   bindings.New("select context", "C", "shift+c"),
+		SelectNamespace: bindings.New("select namespace", "N", "shift+n"),
+		SelectResource:  bindings.New("select resource", "R", "shift+r"),
+
 		Help: bindings.New("help", "?", "h"),
 		Quit: bindings.New("quit", "q", "ctrl+c"),
 	}
@@ -22,7 +30,7 @@ func newGlobalKeyMap() globalKeyMap {
 
 func (k globalKeyMap) fullHelp() []key.Binding {
 	return []key.Binding{
-		k.Help, k.Quit,
+		k.SelectContext, k.SelectNamespace, k.SelectResource, k.Help, k.Quit,
 	}
 }
 
