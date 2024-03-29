@@ -62,6 +62,7 @@ func NewUI() CoreUI {
 }
 
 func (m CoreUI) Init() tea.Cmd {
+
 	return tea.SetWindowTitle("Kibe UI")
 }
 
