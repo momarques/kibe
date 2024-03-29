@@ -91,6 +91,7 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, m.globalKeys.SelectContext):
 			m.list.context = ""
+			m.list.useCurrentContext = false
 			m.client.ContextSelected = ""
 			m.viewState = showList
 
