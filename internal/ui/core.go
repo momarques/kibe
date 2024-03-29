@@ -29,10 +29,11 @@ type CoreUI struct {
 
 	client *kube.ClientReady
 
-	keys  enabledKeys
-	list  listModel
-	tab   tabModel
-	table tableModel
+	globalKeys globalKeyMap
+	keys       enabledKeys
+	list       listModel
+	tab        tabModel
+	table      tableModel
 
 	header    headerModel
 	help      help.Model
@@ -48,10 +49,11 @@ func NewUI() CoreUI {
 	return CoreUI{
 		viewState: showList,
 
-		keys:  setKeys(table.tableKeyMap, tab.tabKeyMap),
-		list:  newListModel(),
-		tab:   tab,
-		table: table,
+		globalKeys: newGlobalKeyMap(),
+		keys:       setKeys(table.tableKeyMap, tab.tabKeyMap),
+		list:       newListModel(),
+		tab:        tab,
+		table:      table,
 
 		header:    headerModel{},
 		help:      help.New(),
@@ -82,6 +84,11 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		m.statusBar, cmd = m.statusBar.Update(msg)
 		return m, cmd
+	case tea.KeyMsg:
+		switch {
+		case key.Matches(msg, m.globalKeys.Quit):
+			return m, tea.Quit
+		}
 	}
 
 	switch m.viewState {
@@ -102,20 +109,20 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m CoreUI) showHelpLines(helpBindingLines ...[]key.Binding) []string {
-	var helpLines []string
-
+func (m CoreUI) showGlobalHelpLines() string {
 	helpStyle := lipgloss.NewStyle().MarginBottom(1)
+	return helpStyle.Render(
+		m.help.ShortHelpView(m.globalKeys.fullHelp()))
+}
 
-	for _, line := range helpBindingLines {
-		helpLines = append(helpLines, helpStyle.Render(
-			m.help.ShortHelpView(line)))
-	}
-	return helpLines
+func (m CoreUI) showContextHelpLines(helpBindingLines []key.Binding) string {
+	helpStyle := lipgloss.NewStyle().MarginBottom(1)
+	return helpStyle.Render(
+		m.help.ShortHelpView(helpBindingLines))
 }
 
 func (m CoreUI) composedView() string {
-	var helpBindingLines [][]key.Binding
+	var helpBindingLines []key.Binding
 	var dimmMainPaginator bool
 
 	blankSpace := lipgloss.NewStyle().
@@ -125,26 +132,16 @@ func (m CoreUI) composedView() string {
 	switch m.viewState {
 	case showTable:
 		dimmMainPaginator = false
-
-		helpBindingLines = [][]key.Binding{
-			m.table.firstHelpLineView(),
-			m.table.secondHelpLineView(),
-		}
+		helpBindingLines = m.table.fullHelp()
 
 	case showTab:
 		dimmMainPaginator = true
 
 		switch m.tab.tabViewState {
 		case noContentSelected:
-			helpBindingLines = [][]key.Binding{
-				m.tab.firstHelpLineView(),
-				m.tab.secondHelpLineView(),
-			}
+			helpBindingLines = m.tab.fullHelp()
 		case contentSelected:
-			helpBindingLines = [][]key.Binding{
-				m.tab.firstHelpLineViewWithContentSelected(),
-				m.tab.secondHelpLineView(),
-			}
+			helpBindingLines = m.tab.fullHelpWithContentSelected()
 		}
 	}
 
@@ -156,7 +153,9 @@ func (m CoreUI) composedView() string {
 
 	helpView := lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.showHelpLines(helpBindingLines...)...)
+		m.showContextHelpLines(helpBindingLines),
+		m.showGlobalHelpLines(),
+	)
 
 	leftUtilityPanel := lipgloss.JoinVertical(
 		lipgloss.Left,

@@ -8,6 +8,24 @@ import (
 	"github.com/samber/lo"
 )
 
+type globalKeyMap struct {
+	Quit key.Binding
+	Help key.Binding
+}
+
+func newGlobalKeyMap() globalKeyMap {
+	return globalKeyMap{
+		Help: bindings.New("help", "?", "h"),
+		Quit: bindings.New("quit", "q", "ctrl+c"),
+	}
+}
+
+func (k globalKeyMap) fullHelp() []key.Binding {
+	return []key.Binding{
+		k.Help, k.Quit,
+	}
+}
+
 type tableKeyMap struct {
 	Up           key.Binding
 	Down         key.Binding
@@ -31,24 +49,13 @@ func newTableKeyMap() tableKeyMap {
 		PreviousPage: bindings.New("previous page", "left"),
 		NextPage:     bindings.New("next page", "right"),
 		Describe:     bindings.New("describe resource", "enter", "d"),
-
-		Help: bindings.New("help", "?", "h"),
-		Quit: bindings.New("quit", "q", "ctrl+c"),
 	}
 }
 
 func (k tableKeyMap) fullHelp() []key.Binding {
 	return []key.Binding{
-		k.Up, k.Down, k.PreviousPage, k.NextPage, k.Describe, k.Help, k.Quit,
+		k.Up, k.Down, k.PreviousPage, k.NextPage, k.Describe,
 	}
-}
-
-func (k tableKeyMap) firstHelpLineView() []key.Binding {
-	return []key.Binding{k.Up, k.Down, k.PreviousPage, k.NextPage}
-}
-
-func (k tableKeyMap) secondHelpLineView() []key.Binding {
-	return []key.Binding{k.Describe, k.Help, k.Quit}
 }
 
 type tabKeyMap struct {
@@ -59,49 +66,29 @@ type tabKeyMap struct {
 
 	Choose key.Binding
 	Back   key.Binding
-
-	Quit key.Binding
-	Help key.Binding
 }
 
 func newTabKeyMap() tabKeyMap {
 	return tabKeyMap{
-		PreviousTab: bindings.New("previous tab", "left", "shift+tab"),
-		NextTab:     bindings.New("next tab", "right", "tab"),
-
+		PreviousTab:     bindings.New("previous tab", "left", "shift+tab"),
+		NextTab:         bindings.New("next tab", "right", "tab"),
 		PreviousContent: bindings.New("previous content", "left"),
 		NextContent:     bindings.New("next content", "right"),
-
-		Choose: bindings.New("choose", "enter"),
-		Back:   bindings.New("go back", "esc"),
-
-		Help: bindings.New("help", "?", "h"),
-		Quit: bindings.New("quit", "q", "ctrl+c"),
+		Choose:          bindings.New("choose", "enter"),
+		Back:            bindings.New("go back", "esc"),
 	}
 }
 
 func (k tabKeyMap) fullHelp() []key.Binding {
 	return []key.Binding{
-		k.PreviousTab, k.NextTab, k.Choose, k.Back, k.Help, k.Quit,
+		k.PreviousTab, k.NextTab, k.Choose, k.Back,
 	}
 }
 
 func (k tabKeyMap) fullHelpWithContentSelected() []key.Binding {
 	return []key.Binding{
-		k.PreviousContent, k.NextContent, k.Choose, k.Back, k.Help, k.Quit,
+		k.PreviousContent, k.NextContent, k.Choose, k.Back,
 	}
-}
-
-func (k tabKeyMap) firstHelpLineView() []key.Binding {
-	return []key.Binding{k.PreviousTab, k.NextTab, k.Choose}
-}
-
-func (k tabKeyMap) secondHelpLineView() []key.Binding {
-	return []key.Binding{k.Back, k.Help, k.Quit}
-}
-
-func (k tabKeyMap) firstHelpLineViewWithContentSelected() []key.Binding {
-	return []key.Binding{k.PreviousContent, k.NextContent, k.Choose}
 }
 
 type enabledKeys map[bool][]key.Binding

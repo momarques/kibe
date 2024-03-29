@@ -61,9 +61,6 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.client.ContextSelected.String(),
 						m.client.NamespaceSelected.String()))
 
-			case key.Matches(msg, m.tab.Quit):
-				return m, tea.Quit
-
 			case key.Matches(msg, m.tab.NextTab):
 				m.tab.activeTab = min(m.tab.activeTab+1, len(m.tab.Tabs)-1)
 				return m, nil
@@ -88,9 +85,6 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.tab.paginator.Page = 0
 				m.tab.activeSubContent = 0
 				return m, nil
-
-			case key.Matches(msg, m.tab.Quit):
-				return m, tea.Quit
 
 			case key.Matches(msg, m.tab.NextContent):
 				m.tab.paginator.Model, _ = m.tab.paginator.Update(msg)
