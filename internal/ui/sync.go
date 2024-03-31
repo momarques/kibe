@@ -6,7 +6,6 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/ui/style"
 )
 
@@ -14,9 +13,10 @@ type syncState int
 
 const (
 	inSync syncState = iota
-	unsynced
+	notSynced
 	syncing
 	starting
+	paused
 )
 
 type syncStarted time.Time
@@ -26,6 +26,8 @@ func (s syncStarted) Cmd() func() tea.Msg {
 		return s
 	}
 }
+
+type syncFinished time.Time
 
 type syncBarModel struct {
 	spinnerState
@@ -37,13 +39,12 @@ type syncBarModel struct {
 }
 
 func newSyncBarModel() syncBarModel {
-	sp := spinner.New(
-		spinner.WithStyle(style.OKStatusMessage()),
-	)
-	sp.Spinner = spinner.Dot
 	return syncBarModel{
-		fgColor:      lipgloss.Color("#ffffff"),
-		spinner:      sp,
+		fgColor: lipgloss.Color("#ffffff"),
+		spinner: spinner.New(
+			spinner.WithSpinner(spinner.Dot),
+			spinner.WithStyle(style.OKStatusMessage()),
+		),
 		spinnerState: hideSpinner,
 	}
 }
@@ -56,31 +57,33 @@ func (m CoreUI) changeSyncState(state syncState) CoreUI {
 		m.syncBar.text = "in sync"
 		m.syncBar.bgColor = style.InSyncColor()
 		m.syncBar.spinnerState = showSpinner
-	case unsynced:
-		m.syncBar.text = "unsynced"
-		m.syncBar.bgColor = style.UnsyncedColor()
+	case notSynced:
+		m.syncBar.text = "not synced"
+		m.syncBar.bgColor = style.NotSyncedColor()
 		m.syncBar.spinnerState = hideSpinner
 	case starting:
 		m.syncBar.text = "starting"
 		m.syncBar.bgColor = style.StartingColor()
 		m.syncBar.spinnerState = showSpinner
+	case paused:
+		m.syncBar.text = "paused"
+		m.syncBar.bgColor = style.PausedColor()
+		m.syncBar.spinnerState = hideSpinner
 	}
 	return m
 }
 
 func (m CoreUI) syncTable() (CoreUI, tea.Cmd) {
-	m = m.changeSyncState(syncing)
-
 	go func() {
 		m.client.FetchTableViewAsync(m.table.response)
 	}()
 
+	m = m.changeSyncState(syncing)
+
 	return m, tea.Batch(
 		m.logProcess(m.client.LogOperation()),
 		m.syncBar.spinner.Tick,
-		tea.Tick(kube.ResquestTimeout, func(t time.Time) tea.Msg {
-			return syncStarted(time.Now())
-		}),
+		syncStarted(time.Now()).Cmd(),
 	)
 }
 

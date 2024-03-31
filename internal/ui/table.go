@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/spinner"
@@ -9,6 +10,7 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
+	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 )
@@ -25,7 +27,6 @@ type tableContent struct {
 
 func newTableContent() tableContent {
 	return tableContent{
-		syncState: starting,
 		paginator: newPaginatorModel((windowutil.ComputeHeightPercentage(tableViewHeightPercentage))),
 	}
 }
@@ -88,23 +89,27 @@ func (m CoreUI) updateOnTableResponse() (CoreUI, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m CoreUI) updateOnTableResponseAsync() (CoreUI, tea.Cmd) {
+func (m CoreUI) checkTableResponseAsync() (CoreUI, tea.Cmd) {
+	if response, ok := <-m.table.response; ok {
+		return m.updateTableWithAsyncResponse(response)
+	}
+	return m, nil
+}
+
+func (m CoreUI) updateTableWithAsyncResponse(response kube.TableResponse) (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
 
-	if response, ok := <-m.table.response; ok {
-		if response.Err != nil {
-			m = m.changeSyncState(unsynced)
-			return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
-		}
-
-		m.table, cmd = m.table.applyTableItems(response)
-		m.table = m.table.applyPageChanges()
-
-		m = m.changeSyncState(inSync)
-		return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)), cmd
+	if response.Err != nil {
+		m = m.changeSyncState(notSynced)
+		return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
 	}
 
-	return m, nil
+	m.table, cmd = m.table.applyTableItems(response)
+	m.table = m.table.applyPageChanges()
+
+	m = m.changeSyncState(inSync)
+	return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)),
+		cmd
 }
 
 func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -155,7 +160,16 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case syncStarted:
-			m, cmd = m.updateOnTableResponseAsync()
+			logging.Log.Info("syncStarted")
+			return m, tea.Tick(kube.ResquestTimeout,
+				func(t time.Time) tea.Msg {
+					return syncFinished(time.Now())
+				})
+
+		case syncFinished:
+			logging.Log.Info("syncFinished")
+
+			m, cmd = m.checkTableResponseAsync()
 			cmds = append(cmds, cmd)
 			m, cmd = m.syncTable()
 			cmds = append(cmds, cmd)
@@ -167,11 +181,17 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, cmd
 		}
 
-	case unsynced:
+	case notSynced:
+		logging.Log.Info("not synced")
 		return m.syncTable()
 
 	case starting:
+		logging.Log.Info("starting")
 		return m.updateOnTableResponse()
+
+	case paused:
+		logging.Log.Info("paused")
+		return m, nil
 	}
 
 	m.table.Model, cmd = m.table.Update(msg)

@@ -229,3 +229,35 @@ func (m CoreUI) updateListSelector(msg tea.Msg) (CoreUI, tea.Cmd) {
 		m.updateClientState(),
 		m.list.spinner.Tick)
 }
+
+func (m CoreUI) cancelTableSync() CoreUI {
+	logging.Log.Info("canceling table sync")
+	m.client.Cancel()
+	m.table.syncState = paused
+	return m
+}
+
+func (m CoreUI) clearContextSelection() CoreUI {
+	m.list.context = ""
+	m.list.useCurrentContext = false
+	m.list.clientState = notReady
+	m.client.ContextSelected = ""
+	m.viewState = showList
+	return m.clearNamespaceSelection()
+}
+
+func (m CoreUI) clearNamespaceSelection() CoreUI {
+	m.list.namespace = ""
+	m.list.clientState = notReady
+	m.client.NamespaceSelected = ""
+	m.viewState = showList
+	return m.cancelTableSync()
+}
+
+func (m CoreUI) clearResourceSelection() CoreUI {
+	m.list.resource = ""
+	m.list.clientState = notReady
+	m.client.ResourceSelected = nil
+	m.viewState = showList
+	return m.cancelTableSync()
+}

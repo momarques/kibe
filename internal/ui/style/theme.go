@@ -96,10 +96,11 @@ type TabColors struct {
 }
 
 type SyncBarColors struct {
-	Spinner       string       `yaml:"spinner,omitempty"`
-	InSyncState   TextColorSet `yaml:"inSyncState,omitempty"`
-	UnsyncedState TextColorSet `yaml:"unsyncedState,omitempty"`
-	StartingState TextColorSet `yaml:"startingState,omitempty"`
+	Spinner        string       `yaml:"spinner,omitempty"`
+	InSyncState    TextColorSet `yaml:"inSyncState,omitempty"`
+	NotSyncedState TextColorSet `yaml:"notSyncedState,omitempty"`
+	StartingState  TextColorSet `yaml:"startingState,omitempty"`
+	PausedState    TextColorSet `yaml:"pausedState,omitempty"`
 }
 
 type StatusLogColors struct {
