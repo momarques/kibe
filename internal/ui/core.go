@@ -73,10 +73,13 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
+
 	case tea.QuitMsg:
 		return m, tea.Quit
+
 	case statusLogMessage:
 		return m.updateStatusLog(msg, -1), nil
+
 	case statusBarUpdated:
 		m.statusBar.SetContent(
 			"Resource", msg.resource,
@@ -91,29 +94,13 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case key.Matches(msg, m.globalKeys.SelectContext):
-			m.list.context = ""
-			m.list.useCurrentContext = false
-			m.client.ContextSelected = ""
-			m.viewState = showList
-			m.table.syncState = starting
-
-			return m, kube.NewSelectContext()
+			return m.clearContextSelection(), nil
 
 		case key.Matches(msg, m.globalKeys.SelectNamespace):
-			m.list.namespace = ""
-			m.client.NamespaceSelected = ""
-			m.viewState = showList
-			m.table.syncState = starting
-
-			return m, kube.NewSelectNamespace(m.client)
+			return m.clearNamespaceSelection(), nil
 
 		case key.Matches(msg, m.globalKeys.SelectResource):
-			m.list.resource = ""
-			m.client.ResourceSelected = nil
-			m.viewState = showList
-			m.table.syncState = starting
-
-			return m, kube.NewSelectResource(m.client)
+			return m.clearResourceSelection(), nil
 		}
 
 	}
