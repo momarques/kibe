@@ -83,21 +83,24 @@ type ClientReady struct {
 	TableResponse
 }
 
-func NewClientReady() *ClientReady {
-	ctx, ctxFn := context.WithCancel(context.Background())
-	return &ClientReady{
-		Ctx:    ctx,
-		Cancel: ctxFn,
-	}
+func NewClientReady(ctx context.Context) ClientReady {
+	client := ClientReady{}
+	client.Ctx, client.Cancel = context.WithCancel(ctx)
+	return client
 }
 
-func (c *ClientReady) WithContext(context string) *ClientReady {
-	c.Clientset = NewKubeClient(context)
-	c.ContextSelected = ContextSelected(context)
+func (c ClientReady) WithContext(ctx context.Context) ClientReady {
+	c.Ctx, c.Cancel = context.WithCancel(ctx)
 	return c
 }
 
-func (c *ClientReady) WithNamespace(namespace string) *ClientReady {
+func (c ClientReady) WithClusterContext(clusterContext string) ClientReady {
+	c.Clientset = NewKubeClient(clusterContext)
+	c.ContextSelected = ContextSelected(clusterContext)
+	return c
+}
+
+func (c ClientReady) WithNamespace(namespace string) ClientReady {
 	if namespace == "" {
 		namespace = "default"
 	}
@@ -105,12 +108,12 @@ func (c *ClientReady) WithNamespace(namespace string) *ClientReady {
 	return c
 }
 
-func (c *ClientReady) WithResource(r Resource) *ClientReady {
+func (c ClientReady) WithResource(r Resource) ClientReady {
 	c.ResourceSelected = r
 	return c
 }
 
-func (c *ClientReady) FetchTableView() TableResponse {
+func (c ClientReady) FetchTableView() TableResponse {
 	logging.Log.Info("client ", c)
 	var now = time.Now()
 
@@ -124,7 +127,7 @@ func (c *ClientReady) FetchTableView() TableResponse {
 	}
 }
 
-func (c *ClientReady) FetchTableViewAsync(responseCh chan TableResponse) {
+func (c ClientReady) FetchTableViewAsync(responseCh chan TableResponse) {
 	var now = time.Now()
 
 	resource, err := c.ResourceSelected.List(c)

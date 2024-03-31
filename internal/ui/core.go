@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -27,7 +28,7 @@ type CoreUI struct {
 
 	height int
 
-	client *kube.ClientReady
+	client kube.ClientReady
 
 	globalKeys globalKeyMap
 	keys       enabledKeys
@@ -49,7 +50,7 @@ func NewUI() CoreUI {
 	return CoreUI{
 		viewState: showList,
 
-		client: kube.NewClientReady(),
+		client: kube.NewClientReady(context.Background()),
 
 		globalKeys: newGlobalKeyMap(),
 		keys:       setKeys(table.tableKeyMap, tab.tabKeyMap),

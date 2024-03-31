@@ -1,6 +1,7 @@
 package ui
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -89,7 +90,7 @@ func (s listSelector) resourceSelected() func() tea.Msg {
 }
 
 func (m CoreUI) clientReady() func() tea.Msg {
-	return func() tea.Msg { return m.client }
+	return func() tea.Msg { return m.client.WithContext(context.Background()) }
 }
 
 func (m CoreUI) updateClientState() tea.Cmd {
@@ -191,7 +192,7 @@ func (m CoreUI) updateListSelector(msg tea.Msg) (CoreUI, tea.Cmd) {
 
 	case kube.ContextSelected:
 		m.list.ResetFilter()
-		m.client = m.client.WithContext(string(msg))
+		m.client = m.client.WithClusterContext(string(msg))
 
 		return m, updateStatusBar(m.list.resource, m.list.context, m.list.namespace)
 

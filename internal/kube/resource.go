@@ -17,19 +17,19 @@ var SupportedResources = []Resource{
 }
 
 type Resource interface {
-	Describe(*ClientReady) ResourceDescription
+	Describe(ClientReady) ResourceDescription
 	ID() string
 	Kind() string
 	SetID(string) Resource
 
-	List(*ClientReady) (Resource, error)
+	List(ClientReady) (Resource, error)
 	Columns() []table.Column
 	Rows() []table.Row
 }
 
 type SelectResource struct{ Resources []list.Item }
 
-func NewSelectResource(c *ClientReady) func() tea.Msg {
+func NewSelectResource(c ClientReady) func() tea.Msg {
 	return func() tea.Msg {
 		return SelectResource{
 			Resources: ListAvailableResources(c)}
@@ -58,7 +58,7 @@ func newResourceList(apiList []*v1.APIResourceList) []list.Item {
 	return resourceList
 }
 
-func ListAvailableResources(c *ClientReady) []list.Item {
+func ListAvailableResources(c ClientReady) []list.Item {
 	apiList, err := c.ServerPreferredResources()
 	if err != nil {
 		logging.Log.Error(err)

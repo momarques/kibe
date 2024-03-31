@@ -37,7 +37,7 @@ func newListModel() listModel {
 	}
 }
 
-func (m CoreUI) startingTable(c *kube.ClientReady) (CoreUI, tea.Cmd) {
+func (m CoreUI) startingTable(c kube.ClientReady) (CoreUI, tea.Cmd) {
 	m.viewState = showTable
 	m.table.syncState = starting
 	m.client = c
@@ -72,7 +72,7 @@ func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.header.text = msg
 		return m, nil
 
-	case *kube.ClientReady:
+	case kube.ClientReady:
 		return m.startingTable(msg)
 	}
 

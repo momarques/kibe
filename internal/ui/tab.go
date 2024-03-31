@@ -209,7 +209,7 @@ type descriptionReady struct {
 	tabContent []string
 }
 
-func (t tabModel) describeResource(c *kube.ClientReady) (tabModel, tea.Cmd) {
+func (t tabModel) describeResource(c kube.ClientReady) (tabModel, tea.Cmd) {
 	t.ResourceDescription = c.ResourceSelected.Describe(c)
 	return t, func() tea.Msg {
 		return descriptionReady{

@@ -14,7 +14,7 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func DescribePod(c *ClientReady) *corev1.Pod {
+func DescribePod(c ClientReady) *corev1.Pod {
 	pod, err := c.
 		CoreV1().
 		Pods(c.NamespaceSelected.String()).
@@ -40,7 +40,7 @@ type PodDescription struct {
 	Events         []string            `kibedescription:"Events"`
 }
 
-func (p Pod) Describe(c *ClientReady) ResourceDescription {
+func (p Pod) Describe(c ClientReady) ResourceDescription {
 	pod := DescribePod(c)
 
 	return PodDescription{

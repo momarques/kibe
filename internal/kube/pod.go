@@ -35,7 +35,7 @@ func (p Pod) SetID(id string) Resource {
 	return p
 }
 
-func (p Pod) List(c *ClientReady) (Resource, error) {
+func (p Pod) List(c ClientReady) (Resource, error) {
 	pods, err := c.
 		CoreV1().
 		Pods(c.NamespaceSelected.String()).

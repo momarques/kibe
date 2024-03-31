@@ -26,7 +26,7 @@ func (n Namespace) SetID(id string) Resource {
 	return n
 }
 
-func (n Namespace) List(c *ClientReady) (Resource, error) {
+func (n Namespace) List(c ClientReady) (Resource, error) {
 	namespaces, err := c.
 		CoreV1().
 		Namespaces().
@@ -70,7 +70,7 @@ type NamespaceSelected string
 
 func (n NamespaceSelected) String() string { return string(n) }
 
-func NewSelectNamespace(c *ClientReady) func() tea.Msg {
+func NewSelectNamespace(c ClientReady) func() tea.Msg {
 	n, err := Namespace{}.List(c)
 	if err != nil {
 		logging.Log.Error(err)
