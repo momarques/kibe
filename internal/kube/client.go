@@ -1,6 +1,7 @@
 package kube
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"time"
@@ -77,11 +78,17 @@ type ClientReady struct {
 	NamespaceSelected
 	ResourceSelected
 
+	Ctx    context.Context
+	Cancel context.CancelFunc
 	TableResponse
 }
 
 func NewClientReady() *ClientReady {
-	return &ClientReady{}
+	ctx, ctxFn := context.WithCancel(context.Background())
+	return &ClientReady{
+		Ctx:    ctx,
+		Cancel: ctxFn,
+	}
 }
 
 func (c *ClientReady) WithContext(context string) *ClientReady {
