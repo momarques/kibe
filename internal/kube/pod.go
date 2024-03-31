@@ -1,13 +1,11 @@
 package kube
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
-	"github.com/momarques/kibe/internal/ui/style"
 	windowutil "github.com/momarques/kibe/internal/ui/window_util"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
@@ -41,7 +39,7 @@ func (p Pod) List(c *ClientReady) (Resource, error) {
 	pods, err := c.
 		CoreV1().
 		Pods(c.NamespaceSelected.String()).
-		List(context.Background(), v1.ListOptions{})
+		List(c.Ctx, v1.ListOptions{})
 	if err != nil {
 		logging.Log.Error(err)
 	}
@@ -49,43 +47,28 @@ func (p Pod) List(c *ClientReady) (Resource, error) {
 	return p, err
 }
 
-var (
-	nameColumnWidth     int = windowutil.ComputeWidthPercentage(nameColumnWidthPercentage)
-	readyColumnWidth    int = windowutil.ComputeWidthPercentage(readyColumnWidthPercentage)
-	statusColumnWidth   int = windowutil.ComputeWidthPercentage(statusColumnWidthPercentage)
-	restartsColumnWidth int = windowutil.ComputeWidthPercentage(restartsColumnWidthPercentage)
-	nodeColumnWidth     int = windowutil.ComputeWidthPercentage(nodeColumnWidthPercentage)
-	ageColumnWidth      int = windowutil.ComputeWidthPercentage(ageColumnWidthPercentage)
-)
-
 func (p Pod) Columns() (podAttributes []table.Column) {
 
 	return append(podAttributes,
-		table.Column{Title: "Name", Width: nameColumnWidth},
-		table.Column{Title: "Ready", Width: readyColumnWidth},
-		table.Column{Title: "Status", Width: statusColumnWidth},
-		table.Column{Title: "Restarts", Width: restartsColumnWidth},
-		table.Column{Title: "Node", Width: nodeColumnWidth},
-		table.Column{Title: "Age", Width: ageColumnWidth},
+		table.Column{
+			Title: "Name",
+			Width: windowutil.ComputeWidthPercentage(nameColumnWidthPercentage)},
+		table.Column{
+			Title: "Ready",
+			Width: windowutil.ComputeWidthPercentage(readyColumnWidthPercentage)},
+		table.Column{
+			Title: "Status",
+			Width: windowutil.ComputeWidthPercentage(statusColumnWidthPercentage)},
+		table.Column{
+			Title: "Restarts",
+			Width: windowutil.ComputeWidthPercentage(restartsColumnWidthPercentage)},
+		table.Column{
+			Title: "Node",
+			Width: windowutil.ComputeWidthPercentage(nodeColumnWidthPercentage)},
+		table.Column{
+			Title: "Age",
+			Width: windowutil.ComputeWidthPercentage(ageColumnWidthPercentage)},
 	)
-}
-
-func podPhaseColor(p corev1.PodPhase) string {
-	pString := string(p)
-
-	switch p {
-	case corev1.PodRunning, corev1.PodSucceeded:
-		return style.OKStatusMessage().
-			Render(pString)
-	case corev1.PodPending:
-		return style.WarnStatusMessage().Render(pString)
-	case corev1.PodFailed:
-		return style.NOKStatusMessage().Render(pString)
-	case corev1.PodUnknown:
-		return style.NoneStatusMessage().Render(pString)
-	}
-
-	return pString
 }
 
 func (p Pod) Rows() (podRows []table.Row) {
