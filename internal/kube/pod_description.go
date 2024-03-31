@@ -1,7 +1,6 @@
 package kube
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"reflect"
@@ -19,7 +18,7 @@ func DescribePod(c *ClientReady) *corev1.Pod {
 	pod, err := c.
 		CoreV1().
 		Pods(c.NamespaceSelected.String()).
-		Get(context.Background(), c.ID(), v1.GetOptions{})
+		Get(c.Ctx, c.ID(), v1.GetOptions{})
 	if err != nil {
 		logging.Log.Error(err)
 	}
@@ -92,18 +91,19 @@ func getPodOwner(pod *corev1.Pod) string {
 	return ""
 }
 
+func parseIP(item corev1.PodIP, _ int) net.IP {
+	return net.ParseIP(item.IP)
+}
+
 func newPodOverview(pod *corev1.Pod) PodOverview {
 	return PodOverview{
 		Name:           pod.Name,
 		Namespace:      pod.Namespace,
 		ServiceAccount: pod.Spec.ServiceAccountName,
 		IP:             net.ParseIP(pod.Status.PodIP),
-		IPs: lo.Map(pod.Status.PodIPs,
-			func(item corev1.PodIP, _ int) net.IP {
-				return net.ParseIP(item.IP)
-			}),
-		ControlledBy: getPodOwner(pod),
-		QoSClass:     string(pod.Status.QOSClass),
+		IPs:            lo.Map(pod.Status.PodIPs, parseIP),
+		ControlledBy:   getPodOwner(pod),
+		QoSClass:       string(pod.Status.QOSClass),
 	}
 }
 
@@ -125,14 +125,6 @@ type PodStatus struct {
 	Conditions []string  `kibedescription:"Conditions"`
 }
 
-func newPodStatus(pod *corev1.Pod) PodStatus {
-	return PodStatus{
-		Start:      pod.CreationTimestamp.Time,
-		Status:     string(pod.Status.Phase),
-		Conditions: lo.Map(pod.Status.Conditions, podConditionToString),
-	}
-}
-
 func podConditionToString(condition corev1.PodCondition, _ int) string {
 	questionCondition := fmt.Sprintf("%s?", condition.Type)
 
@@ -145,6 +137,14 @@ func podConditionToString(condition corev1.PodCondition, _ int) string {
 		return style.WarnStatusMessage().Render(questionCondition)
 	}
 	return ""
+}
+
+func newPodStatus(pod *corev1.Pod) PodStatus {
+	return PodStatus{
+		Start:      pod.CreationTimestamp.Time,
+		Status:     string(pod.Status.Phase),
+		Conditions: lo.Map(pod.Status.Conditions, podConditionToString),
+	}
 }
 
 func (ps PodStatus) TabContent() string {
