@@ -6,6 +6,7 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 )
 
@@ -50,6 +51,9 @@ func newSyncBarModel() syncBarModel {
 }
 
 func (m CoreUI) changeSyncState(state syncState) CoreUI {
+	logging.Log.
+		WithField("state", state).
+		Debug("changing state")
 	m.table.syncState = state
 
 	switch m.table.syncState {

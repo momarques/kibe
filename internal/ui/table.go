@@ -27,7 +27,6 @@ type tableContent struct {
 
 func newTableContent() tableContent {
 	return tableContent{
-		syncState: starting,
 		paginator: newPaginatorModel((windowutil.ComputeHeightPercentage(tableViewHeightPercentage))),
 	}
 }
@@ -136,7 +135,6 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			case key.Matches(msg, m.table.Describe):
 				m.client.ResourceSelected = m.client.SetID(m.table.SelectedRow()[0])
-
 				m.tab, cmd = m.tab.describeResource(m.client)
 
 				return m, tea.Batch(cmd,
@@ -161,14 +159,17 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case syncStarted:
-			logging.Log.Info("syncStarted")
+			logging.Log.
+				WithField("sync state", m.table.syncState).
+				Debug("syncStarted")
 			return m, tea.Tick(kube.ResquestTimeout,
 				func(t time.Time) tea.Msg {
 					return syncFinished(time.Now())
 				})
 
 		case syncFinished:
-			logging.Log.Info("syncFinished")
+			logging.Log.
+				Debug("syncFinished")
 
 			m, cmd = m.checkTableResponseAsync()
 			cmds = append(cmds, cmd)
@@ -183,15 +184,21 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case notSynced:
-		logging.Log.Info("not synced")
+		logging.Log.
+			Debug("table not synced")
+
 		return m.syncTable()
 
 	case starting:
-		logging.Log.Info("starting")
+		logging.Log.
+			Debug("starting table sync")
+
 		return m.updateOnTableResponse()
 
 	case paused:
-		logging.Log.Info("paused")
+		logging.Log.
+			Debug("table sync paused")
+
 		return m, nil
 	}
 
@@ -201,12 +208,13 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m CoreUI) tableView() string {
 	tableStyle := style.TableStyle
-
 	if m.viewState == showTab {
 		tableStyle = style.DimmedTableStyle
 		m.table.SetStyles(style.NewTableStyle(true))
+
 		return tableStyle().Render(m.table.View())
 	}
+
 	if m.table.columns == nil {
 		return lipgloss.NewStyle().
 			Height((windowutil.ComputeHeightPercentage(tableViewHeightPercentage) + 3)).

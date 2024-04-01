@@ -114,7 +114,11 @@ func (c ClientReady) WithResource(r Resource) ClientReady {
 }
 
 func (c ClientReady) FetchTableView() TableResponse {
-	logging.Log.Info("client ", c)
+	logging.Log.
+		WithField("context", c.ContextSelected).
+		WithField("namespace", c.NamespaceSelected).
+		WithField("resource", c.ResourceSelected).
+		Debug("fetching table view synchronously")
 	var now = time.Now()
 
 	resource, err := c.ResourceSelected.List(c)
@@ -128,6 +132,12 @@ func (c ClientReady) FetchTableView() TableResponse {
 }
 
 func (c ClientReady) FetchTableViewAsync(responseCh chan TableResponse) {
+	logging.Log.
+		WithField("context", c.ContextSelected).
+		WithField("namespace", c.NamespaceSelected).
+		WithField("resource", c.ResourceSelected).
+		WithField("channel", responseCh).
+		Debug("will fetch table view asynchronously")
 	var now = time.Now()
 
 	resource, err := c.ResourceSelected.List(c)

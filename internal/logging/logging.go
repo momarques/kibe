@@ -15,4 +15,7 @@ func init() {
 		panic(err)
 	}
 	Log.Out = file
+	if os.Getenv("DEBUG") == "1" {
+		Log.Level = logrus.DebugLevel
+	}
 }

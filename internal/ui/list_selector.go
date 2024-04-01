@@ -95,12 +95,16 @@ func (m CoreUI) clientReady() func() tea.Msg {
 
 func (m CoreUI) updateClientState() tea.Cmd {
 	if m.list.context != "" && m.list.namespace != "" && m.list.resource != "" {
-		logging.Log.Info("ready ")
 		m.list.clientState = ready
 	}
 
 	switch m.list.clientState {
 	case ready:
+		logging.Log.
+			WithField("context", m.client.ContextSelected).
+			WithField("namespace", m.client.NamespaceSelected).
+			WithField("resource", m.client.ResourceSelected).
+			Debug("client is ready")
 		return m.clientReady()
 
 	case notReady:
@@ -232,9 +236,17 @@ func (m CoreUI) updateListSelector(msg tea.Msg) (CoreUI, tea.Cmd) {
 }
 
 func (m CoreUI) cancelTableSync() CoreUI {
-	logging.Log.Info("canceling table sync")
+	logging.Log.
+		WithField("context", m.client.ContextSelected).
+		WithField("namespace", m.client.NamespaceSelected).
+		WithField("resource", m.client.ResourceSelected).
+		Debug("canceling table sync")
+
 	m.client.Cancel()
 	m.table.syncState = paused
+	m.table.response = make(chan kube.TableResponse)
+	m.table.columns = nil
+	m.table.rows = nil
 	return m
 }
 
