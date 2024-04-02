@@ -2,55 +2,56 @@ package style
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/ui/style/theme"
 )
 
 func AppStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Padding(1, 2)
 }
 
-func ListActiveSelectionTitleStyle() lipgloss.Style {
+func ClientConfigActiveSelectionTitleStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Background(GetColor(ThemeConfig.List.ActiveSelectionTitle.BG)).
-		Foreground(GetColor(ThemeConfig.List.ActiveSelectionTitle.TXT)).
+		Background(theme.GetColor(theme.Selected.ClientConfig.ActiveSelectionTitle.BG)).
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.ActiveSelectionTitle.TXT)).
 		Padding(0, 1, 0, 1).Bold(true)
 }
 
-func ListActiveSelectionDescStyle() lipgloss.Style {
+func ClientConfigActiveSelectionDescStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Background(GetColor(ThemeConfig.List.ActiveSelectionDescription.BG)).
-		Foreground(GetColor(ThemeConfig.List.ActiveSelectionDescription.TXT)).
+		Background(theme.GetColor(theme.Selected.ClientConfig.ActiveSelectionDescription.BG)).
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.ActiveSelectionDescription.TXT)).
 		Padding(0, 1, 0, 1)
 }
 
-func ListDimmedDescStyle() lipgloss.Style {
+func ClientConfigDimmedDescStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Foreground(GetColor(ThemeConfig.List.DimmedDescription.TXT)).
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.DimmedDescription.TXT)).
 		Padding(0, 0, 0, 2)
 }
 
-func ListNormalTitleStyle() lipgloss.Style {
+func ClientConfigNormalTitleStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Foreground(GetColor(ThemeConfig.List.NormalTitle.TXT)).
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.NormalTitle.TXT)).
 		Padding(0, 0, 0, 2)
 }
 
-func ListFilterPromptStyle() lipgloss.Style {
+func ClientConfigFilterPromptStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Foreground(GetColor(ThemeConfig.List.Header.FilterPrompt.TXT))
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.Header.FilterPrompt.TXT))
 }
 
-func ListHeaderTitleStyle() lipgloss.Style {
+func ClientConfigHeaderTitleStyle() lipgloss.Style {
 	return ViewTitleStyle.
-		Foreground(GetColor(ThemeConfig.List.Header.Title.TXT)).
-		Background(GetColor(ThemeConfig.List.Header.Title.BG))
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.Header.Title.TXT)).
+		Background(theme.GetColor(theme.Selected.ClientConfig.Header.Title.BG))
 }
 
 func StatusMessageStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Foreground(GetColor(ThemeConfig.List.StatusMessage.TXT))
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.StatusMessage.TXT))
 }
 
-func ListFilterCursorStyle() lipgloss.Style {
+func ClientConfigFilterCursorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Foreground(GetColor(ThemeConfig.List.Header.FilterCursor.TXT))
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.Header.FilterCursor.TXT))
 }

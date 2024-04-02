@@ -1,7 +1,7 @@
-package style
+package theme
 
-var defaultThemeConfig = &Theme{
-	List: ListColors{
+var defaultTheme = &Theme{
+	ClientConfig: ClientConfigColors{
 		Header: HeaderColorSet{
 			Title: TextColorSet{
 				BG:  "#d65f50",

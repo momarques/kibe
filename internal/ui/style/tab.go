@@ -2,11 +2,12 @@ package style
 
 import (
 	"github.com/charmbracelet/lipgloss"
-	windowutil "github.com/momarques/kibe/internal/ui/window_util"
+	"github.com/momarques/kibe/internal/ui/style/theme"
+	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
 var (
-	WindowWidth, WindowHeight = windowutil.GetWindowSize()
+	WindowWidth, WindowHeight = window.GetWindowSize()
 	inactiveTabBorder         = tabBorderWithBottom("┴", "─", "┴")
 	activeTabBorder           = tabBorderWithBottom("┘", " ", "└")
 )
@@ -14,30 +15,30 @@ var (
 func inactiveTabStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Border(inactiveTabBorder, true).
-		BorderForeground(GetColor(ThemeConfig.Tab.InactiveTabBorder)).
+		BorderForeground(theme.GetColor(theme.Selected.Tab.InactiveTabBorder)).
 		Padding(0, 1)
 }
 
 func activeTabStyle() lipgloss.Style {
 	return inactiveTabStyle().
 		Border(activeTabBorder, true).
-		Background(GetColor(ThemeConfig.Tab.ActiveTab.BG)).
-		Foreground(GetColor(ThemeConfig.Tab.ActiveTab.TXT))
+		Background(theme.GetColor(theme.Selected.Tab.ActiveTab.BG)).
+		Foreground(theme.GetColor(theme.Selected.Tab.ActiveTab.TXT))
 }
 
 func dimmedInactiveTabStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Border(inactiveTabBorder, true).
 		Padding(0, 1).
-		BorderForeground(GetColor(ThemeConfig.Tab.DimmedInactiveTabBorder)).
-		Foreground(GetColor(ThemeConfig.Tab.DimmedActiveTab.TXT))
+		BorderForeground(theme.GetColor(theme.Selected.Tab.DimmedInactiveTabBorder)).
+		Foreground(theme.GetColor(theme.Selected.Tab.DimmedActiveTab.TXT))
 }
 
 func dimmedActiveTabStyle() lipgloss.Style {
 	return dimmedInactiveTabStyle().
 		Border(activeTabBorder, true).
-		Background(GetColor(ThemeConfig.Tab.DimmedActiveTab.BG)).
-		Foreground(GetColor(ThemeConfig.Tab.DimmedActiveTab.TXT))
+		Background(theme.GetColor(theme.Selected.Tab.DimmedActiveTab.BG)).
+		Foreground(theme.GetColor(theme.Selected.Tab.DimmedActiveTab.TXT))
 }
 
 func DocStyle() lipgloss.Style {
@@ -48,7 +49,7 @@ func DocStyle() lipgloss.Style {
 
 func windowStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		BorderForeground(GetColor(ThemeConfig.Tab.ActiveTabBorder)).
+		BorderForeground(theme.GetColor(theme.Selected.Tab.ActiveTabBorder)).
 		Padding(1, 0).
 		Border(lipgloss.NormalBorder()).
 		UnsetBorderTop()
@@ -56,7 +57,7 @@ func windowStyle() lipgloss.Style {
 
 func dimmedWindowStyle() lipgloss.Style {
 	return windowStyle().
-		BorderForeground(GetColor(ThemeConfig.Tab.DimmedInactiveTabBorder))
+		BorderForeground(theme.GetColor(theme.Selected.Tab.DimmedInactiveTabBorder))
 }
 
 func tabBorderWithBottom(left, middle, right string) lipgloss.Border {
