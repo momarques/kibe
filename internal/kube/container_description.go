@@ -6,6 +6,7 @@ import (
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/ui/style"
+	"github.com/momarques/kibe/internal/ui/style/theme"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -99,8 +100,8 @@ func printContainerDetails(c corev1.Container) string {
 		c.Image,
 		value(c.ImagePullPolicy),
 		c.WorkingDir,
-		style.FormatCommand(c.Command),
-		style.FormatCommand(c.Args),
+		theme.FormatCommand(c.Command),
+		theme.FormatCommand(c.Args),
 		printContainerPorts(c.Ports),
 		printContainerEnvs(c.Env),
 		printContainerEnvFrom(c.EnvFrom),
@@ -120,7 +121,7 @@ func printContainerDetails(c corev1.Container) string {
 		value(c.ResizePolicy),
 		value(c.RestartPolicy)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func (pc PodContainers) fetchContainersAsString() []map[string]string {

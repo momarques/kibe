@@ -1,18 +1,12 @@
 package ui
 
 import (
+	"fmt"
+
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 )
-
-type statusBarUpdated struct{ resource, context, namespace string }
-
-func updateStatusBar(r, c, n string) func() tea.Msg {
-	return func() tea.Msg {
-		return statusBarUpdated{r, c, n}
-	}
-}
 
 func newStatusBarModel() statusbar.Model {
 	s := statusbar.New(
@@ -35,4 +29,24 @@ func newStatusBarModel() statusbar.Model {
 	)
 	s.SetContent("Resource", "", "", "")
 	return s
+}
+
+type statusBarUpdated struct{ resource, context, namespace string }
+
+func updateStatusBar(r, c, n string) func() tea.Msg {
+	return func() tea.Msg {
+		return statusBarUpdated{r, c, n}
+	}
+}
+
+func (m CoreUI) updateStatusBar(msg statusBarUpdated) (CoreUI, tea.Cmd) {
+	var cmd tea.Cmd
+
+	m.statusBar.SetContent(
+		"Resource", msg.resource,
+		fmt.Sprintf("Context: %s", msg.context),
+		fmt.Sprintf("Namespace: %s", msg.namespace))
+
+	m.statusBar, cmd = m.statusBar.Update(msg)
+	return m, cmd
 }

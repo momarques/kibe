@@ -12,7 +12,7 @@ import (
 	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
-	windowutil "github.com/momarques/kibe/internal/ui/window_util"
+	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
 const tableViewHeightPercentage int = 32
@@ -27,7 +27,7 @@ type tableContent struct {
 
 func newTableContent() tableContent {
 	return tableContent{
-		paginator: newPaginatorModel((windowutil.ComputeHeightPercentage(tableViewHeightPercentage))),
+		paginator: newPaginatorModel((window.ComputeHeightPercentage(tableViewHeightPercentage))),
 	}
 }
 
@@ -46,7 +46,7 @@ func newTableModel() tableModel {
 
 	t.SetStyles(style.NewTableStyle(false))
 	t.SetHeight(
-		windowutil.ComputeHeightPercentage(tableViewHeightPercentage))
+		window.ComputeHeightPercentage(tableViewHeightPercentage))
 
 	return tableModel{
 		Model: t,
@@ -115,6 +115,8 @@ func (m CoreUI) updateTableWithAsyncResponse(response kube.TableResponse) (CoreU
 func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
+
+	m.keys = m.keys.setEnabled(m.table.fullHelp()...)
 
 	switch m.table.syncState {
 	case inSync, syncing:
@@ -217,7 +219,7 @@ func (m CoreUI) tableView() string {
 
 	if m.table.columns == nil {
 		return lipgloss.NewStyle().
-			Height((windowutil.ComputeHeightPercentage(tableViewHeightPercentage) + 3)).
+			Height((window.ComputeHeightPercentage(tableViewHeightPercentage) + 3)).
 			Render("")
 	}
 	return tableStyle().Render(m.table.View())
