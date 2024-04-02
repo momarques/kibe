@@ -1,4 +1,4 @@
-package windowutil
+package window
 
 import (
 	"fmt"

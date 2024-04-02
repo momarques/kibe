@@ -2,7 +2,6 @@ package ui
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
@@ -10,7 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
-	windowutil "github.com/momarques/kibe/internal/ui/window_util"
+	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
 const blankSpaceHeightPercentage int = 3
@@ -18,7 +17,7 @@ const blankSpaceHeightPercentage int = 3
 type viewState int
 
 const (
-	showList viewState = iota
+	showClientConfig viewState = iota
 	showTable
 	showTab
 )
@@ -30,11 +29,11 @@ type CoreUI struct {
 
 	client kube.ClientReady
 
-	globalKeys globalKeyMap
-	keys       enabledKeys
-	list       listModel
-	tab        tabModel
-	table      tableModel
+	globalKeys   globalKeyMap
+	keys         enabledKeys
+	clientConfig clientConfigModel
+	tab          tabModel
+	table        tableModel
 
 	header    headerModel
 	help      help.Model
@@ -48,15 +47,15 @@ func NewUI() CoreUI {
 	table := newTableModel()
 
 	return CoreUI{
-		viewState: showList,
+		viewState: showClientConfig,
 
 		client: kube.NewClientReady(context.Background()),
 
-		globalKeys: newGlobalKeyMap(),
-		keys:       setKeys(table.tableKeyMap, tab.tabKeyMap),
-		list:       newListModel(),
-		tab:        tab,
-		table:      table,
+		globalKeys:   newGlobalKeyMap(),
+		keys:         setKeys(table.tableKeyMap, tab.tabKeyMap),
+		clientConfig: newClientConfigModel(),
+		tab:          tab,
+		table:        table,
 
 		header:    headerModel{},
 		help:      help.New(),
@@ -71,8 +70,6 @@ func (m CoreUI) Init() tea.Cmd {
 }
 
 func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-	var cmd tea.Cmd
-
 	switch msg := msg.(type) {
 
 	case tea.QuitMsg:
@@ -82,13 +79,8 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.updateStatusLog(msg, -1), nil
 
 	case statusBarUpdated:
-		m.statusBar.SetContent(
-			"Resource", msg.resource,
-			fmt.Sprintf("Context: %s", msg.context),
-			fmt.Sprintf("Namespace: %s", msg.namespace))
+		return m.updateStatusBar(msg)
 
-		m.statusBar, cmd = m.statusBar.Update(msg)
-		return m, cmd
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, m.globalKeys.Quit):
@@ -107,21 +99,20 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	switch m.viewState {
-	case showList:
-		return m.updateList(msg)
+	case showClientConfig:
+		return m.updateClientConfig(msg)
 	case showTable:
-		m.keys = m.keys.setEnabled(m.table.fullHelp()...)
 		return m.updateTable(msg)
 	case showTab:
-		switch m.tab.tabViewState {
-		case contentSelected:
-			m.keys = m.keys.setEnabled(m.tab.fullHelp()...)
-		case noContentSelected:
-			m.keys = m.keys.setEnabled(m.tab.fullHelpWithContentSelected()...)
-		}
 		return m.updateTab(msg)
 	}
 	return m, nil
+}
+
+func (m CoreUI) showSpecificViewHelpLines(helpBindingLines []key.Binding) string {
+	helpStyle := lipgloss.NewStyle().MarginBottom(1)
+	return helpStyle.Render(
+		m.help.ShortHelpView(helpBindingLines))
 }
 
 func (m CoreUI) showGlobalHelpLines() string {
@@ -130,18 +121,12 @@ func (m CoreUI) showGlobalHelpLines() string {
 		m.help.ShortHelpView(m.globalKeys.fullHelp()))
 }
 
-func (m CoreUI) showContextHelpLines(helpBindingLines []key.Binding) string {
-	helpStyle := lipgloss.NewStyle().MarginBottom(1)
-	return helpStyle.Render(
-		m.help.ShortHelpView(helpBindingLines))
-}
-
 func (m CoreUI) composedView() string {
 	var helpBindingLines []key.Binding
 	var dimmMainPaginator bool
 
 	blankSpace := lipgloss.NewStyle().
-		Height(windowutil.ComputeHeightPercentage(blankSpaceHeightPercentage)).
+		Height(window.ComputeHeightPercentage(blankSpaceHeightPercentage)).
 		Render("")
 
 	switch m.viewState {
@@ -168,7 +153,7 @@ func (m CoreUI) composedView() string {
 
 	helpView := lipgloss.JoinVertical(
 		lipgloss.Left,
-		m.showContextHelpLines(helpBindingLines),
+		m.showSpecificViewHelpLines(helpBindingLines),
 		m.showGlobalHelpLines(),
 	)
 
@@ -200,8 +185,8 @@ func (m CoreUI) composedView() string {
 func (m CoreUI) View() string {
 	switch m.viewState {
 
-	case showList:
-		return m.listView()
+	case showClientConfig:
+		return m.clientConfigView()
 
 	case showTable, showTab:
 		return m.composedView()

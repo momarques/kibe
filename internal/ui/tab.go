@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/ui/style"
-	windowutil "github.com/momarques/kibe/internal/ui/window_util"
+	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
 const tabViewHiddenHeightPercentage int = 42
@@ -50,6 +50,8 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch m.tab.tabViewState {
 	case noContentSelected:
+		m.keys = m.keys.setEnabled(m.tab.fullHelpWithContentSelected()...)
+
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
@@ -77,6 +79,8 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case contentSelected:
+		m.keys = m.keys.setEnabled(m.tab.fullHelp()...)
+
 		switch msg := msg.(type) {
 		case tea.KeyMsg:
 			switch {
@@ -139,7 +143,7 @@ func (m CoreUI) formatTabs() []string {
 func (m CoreUI) tabView() string {
 	if m.tab.Tabs == nil {
 		return lipgloss.NewStyle().
-			Height(windowutil.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
+			Height(window.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
 			Width(103).
 			Render("")
 	}
@@ -162,7 +166,7 @@ func (m CoreUI) tabView() string {
 
 	var content string
 	var contentBlock lipgloss.Style = lipgloss.NewStyle().
-		Height(windowutil.ComputeHeightPercentage(tabContentHeightPercentage))
+		Height(window.ComputeHeightPercentage(tabContentHeightPercentage))
 		// Width(100)
 	var paginatorView string = "\n"
 

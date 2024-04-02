@@ -12,28 +12,28 @@ import (
 	"github.com/momarques/kibe/internal/ui/style"
 )
 
-type listModel struct {
+type clientConfigModel struct {
 	list.Model
-	*listSelector
+	clientConfigSelector
 }
 
-func newListModel() listModel {
-	selector := newListSelector()
+func newClientConfigModel() clientConfigModel {
+	selector := newClientConfigSelector()
 
 	l := list.New(
 		[]list.Item{},
 		newItemDelegate(selector), 0, 0)
 
-	l.Styles.Title = style.ListHeaderTitleStyle()
+	l.Styles.Title = style.ClientConfigHeaderTitleStyle()
 	l.Styles.HelpStyle = style.HelpStyle()
-	l.Styles.FilterPrompt = style.ListFilterPromptStyle()
-	l.Styles.FilterCursor = style.ListFilterCursorStyle()
+	l.Styles.FilterPrompt = style.ClientConfigFilterPromptStyle()
+	l.Styles.FilterCursor = style.ClientConfigFilterCursorStyle()
 	l.InfiniteScrolling = false
 	l.KeyMap.Quit = bindings.New("quit", "q", "ctrl+c")
-	return listModel{
+	return clientConfigModel{
 		Model: l,
 
-		listSelector: selector,
+		clientConfigSelector: selector,
 	}
 }
 
@@ -44,7 +44,7 @@ func (m CoreUI) startingTable(c kube.ClientReady) (CoreUI, tea.Cmd) {
 	return m, nil
 }
 
-func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m CoreUI) updateClientConfig(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
@@ -53,19 +53,19 @@ func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 		h, v := style.
 			AppStyle().
 			GetFrameSize()
-		m.list.SetSize(msg.Width-h, msg.Height-v)
+		m.clientConfig.SetSize(msg.Width-h, msg.Height-v)
 
 		m.height = msg.Height
 		m.statusBar.SetSize(msg.Width)
 		return m, nil
 
 	case tea.KeyMsg:
-		if m.list.FilterState() == list.Filtering {
+		if m.clientConfig.FilterState() == list.Filtering {
 			break
 		}
 
 	case spinner.TickMsg:
-		m.list.spinner, cmd = m.list.spinner.Update(msg)
+		m.clientConfig.spinner, cmd = m.clientConfig.spinner.Update(msg)
 		return m, cmd
 
 	case headerTitleUpdated:
@@ -76,24 +76,24 @@ func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m.startingTable(msg)
 	}
 
-	m, cmd = m.updateListSelector(msg)
+	m, cmd = m.clientConfigSelection(msg)
 	cmds = append(cmds, cmd)
-	m.list.Model, cmd = m.list.Update(msg)
+	m.clientConfig.Model, cmd = m.clientConfig.Update(msg)
 	cmds = append(cmds, cmd)
 
 	return m, tea.Batch(cmds...)
 }
 
-func (m CoreUI) listView() string {
-	if m.list.spinnerState == showSpinner {
+func (m CoreUI) clientConfigView() string {
+	if m.clientConfig.spinnerState == showSpinner {
 		return lipgloss.JoinVertical(
 			lipgloss.Top,
 			fmt.Sprintf("%s%s",
-				m.list.spinner.View(),
-				m.list.View()),
+				m.clientConfig.spinner.View(),
+				m.clientConfig.View()),
 			m.statusBar.View())
 	}
 	return lipgloss.JoinVertical(
-		lipgloss.Top, m.list.View(),
+		lipgloss.Top, m.clientConfig.View(),
 		m.statusBar.View())
 }

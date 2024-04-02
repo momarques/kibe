@@ -1,7 +1,7 @@
 package kube
 
 import (
-	"github.com/momarques/kibe/internal/ui/style"
+	"github.com/momarques/kibe/internal/ui/style/theme"
 	"github.com/samber/lo"
 )
 
@@ -18,7 +18,7 @@ func (rl ResourceLabels) TabContent() string {
 	keys := lo.Keys(rl)
 	content := lo.Values(rl)
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 // ResourceAnnotations provides a map of annotations from the resource
@@ -28,5 +28,5 @@ func (ra ResourceAnnotations) TabContent() string {
 	keys := lo.Keys(ra)
 	content := lo.Values(ra)
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }

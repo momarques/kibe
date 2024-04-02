@@ -1,4 +1,4 @@
-package style
+package theme
 
 import (
 	"log"
@@ -12,7 +12,7 @@ import (
 )
 
 type Theme struct {
-	List ListColors `yaml:"list,omitempty"`
+	ClientConfig ClientConfigColors `yaml:"clientConfig,omitempty"`
 
 	MainHeader HeaderColorSet `yaml:"mainHeader,omitempty"`
 
@@ -50,7 +50,7 @@ type PaginatorColorSet struct {
 	Dimmed   string `yaml:"dimmed,omitempty"`
 }
 
-type ListColors struct {
+type ClientConfigColors struct {
 	Header        HeaderColorSet `yaml:"header,omitempty"`
 	StatusMessage TextColorSet   `yaml:"statusMessage,omitempty"`
 
@@ -124,7 +124,7 @@ type StatusBarColors struct {
 	NamespaceSection       TextColorSet `yaml:"namespaceSection,omitempty"`
 }
 
-var ThemeConfig Theme
+var Selected Theme
 
 func (t *Theme) Marshal() []byte {
 	out, err := yaml.Marshal(t)
@@ -139,7 +139,7 @@ func createConfig(filePath string) error {
 	if err != nil {
 		return err
 	}
-	_, err = file.Write(defaultThemeConfig.Marshal())
+	_, err = file.Write(defaultTheme.Marshal())
 	return err
 }
 
@@ -156,7 +156,7 @@ func loadConfig(filePath string) error {
 		}
 	}
 
-	if err := k.Unmarshal("", &ThemeConfig); err != nil {
+	if err := k.Unmarshal("", &Selected); err != nil {
 		return err
 	}
 	return nil

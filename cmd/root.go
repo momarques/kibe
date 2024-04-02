@@ -7,7 +7,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/logging"
 	core "github.com/momarques/kibe/internal/ui"
-	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/spf13/cobra"
 )
 
@@ -47,17 +46,7 @@ var runCmd = &cobra.Command{
 var testCmd = &cobra.Command{
 	Use:   "test",
 	Short: "Used for testing layouts without needing to execute the whole program",
-	Run: func(cmd *cobra.Command, args []string) {
-		// themeConfigFilePath, _ := xdg.ConfigFile("kibe/theme.yaml")
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-
-		// fmt.Println(themeConfigFilePath)
-
-		fmt.Println(style.ThemeConfig)
-
-	},
+	Run:   func(cmd *cobra.Command, args []string) {},
 }
 
 func init() {

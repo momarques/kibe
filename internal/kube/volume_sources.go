@@ -7,6 +7,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
+	"github.com/momarques/kibe/internal/ui/style/theme"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 )
@@ -24,7 +25,7 @@ func printAWSElasticBlockStore(v *corev1.AWSElasticBlockStoreVolumeSource) strin
 		"AWSElasticBlockStoreVolumeSource", v.VolumeID, v.FSType,
 		value(v.Partition), value(v.ReadOnly)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printAzureDisk(v *corev1.AzureDiskVolumeSource) string {
@@ -37,7 +38,7 @@ func printAzureDisk(v *corev1.AzureDiskVolumeSource) string {
 		value(v.CachingMode), value(v.Kind), value(v.ReadOnly),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printCSI(v *corev1.CSIVolumeSource) string {
@@ -50,7 +51,7 @@ func printCSI(v *corev1.CSIVolumeSource) string {
 		value(v.VolumeAttributes), v.NodePublishSecretRef.Name, *v.FSType,
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printCephFS(v *corev1.CephFSVolumeSource) string {
@@ -63,7 +64,7 @@ func printCephFS(v *corev1.CephFSVolumeSource) string {
 		v.User, v.SecretFile, v.SecretRef.Name, value(v.ReadOnly),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printCinder(v *corev1.CinderVolumeSource) string {
@@ -76,7 +77,7 @@ func printCinder(v *corev1.CinderVolumeSource) string {
 		value(v.ReadOnly), v.SecretRef.Name,
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func formatKeyToPath(item corev1.KeyToPath, _ int) string {
@@ -94,7 +95,7 @@ func printConfigMap(v *corev1.ConfigMapVolumeSource) string {
 		"ConfigMap", v.Name, strings.Join(configMaps, " | "),
 		value(*v.DefaultMode), value(v.Optional),
 	}
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func formatDownwardAPIVolumeSource(item corev1.DownwardAPIVolumeFile, _ int) string {
@@ -107,14 +108,14 @@ func printDownwardAPI(v *corev1.DownwardAPIVolumeSource) string {
 	volumeFiles := lo.Map(v.Items, formatDownwardAPIVolumeSource)
 	content := []string{"DownwardAPI", strings.Join(volumeFiles, " | "), value(v.DefaultMode)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printEmptyDir(v *corev1.EmptyDirVolumeSource) string {
 	keys := []string{"Type", "Medium", "SizeLimit"}
 	content := []string{"EmptyDir", value(v.Medium), v.SizeLimit.String()}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printEphemeral(v *corev1.EphemeralVolumeSource) string {
@@ -125,7 +126,7 @@ func printEphemeral(v *corev1.EphemeralVolumeSource) string {
 		"Ephemeral", v.VolumeClaimTemplate.Name, v.VolumeClaimTemplate.Namespace,
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printFC(v *corev1.FCVolumeSource) string {
@@ -134,7 +135,7 @@ func printFC(v *corev1.FCVolumeSource) string {
 		"FC", strings.Join(v.TargetWWNs, " | "), value(v.Lun), value(v.ReadOnly),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printFlexVolume(v *corev1.FlexVolumeSource) string {
@@ -147,14 +148,14 @@ func printFlexVolume(v *corev1.FlexVolumeSource) string {
 		v.SecretRef.Name, value(v.ReadOnly), value(v.Options),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printFlocker(v *corev1.FlockerVolumeSource) string {
 	keys := []string{"Type", "DatasetName"}
 	content := []string{"Flocker", v.DatasetName}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printGCEPersistentDisk(v *corev1.GCEPersistentDiskVolumeSource) string {
@@ -163,73 +164,73 @@ func printGCEPersistentDisk(v *corev1.GCEPersistentDiskVolumeSource) string {
 		"GCEPersistentDisk", v.PDName, v.FSType, value(v.Partition), value(v.ReadOnly),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printGitRepo(v *corev1.GitRepoVolumeSource) string {
 	keys := []string{"Type", "Repository", "Revision", "Directory"}
 	content := []string{"GitRepo", v.Repository, v.Revision, v.Directory}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printGlusterfs(v *corev1.GlusterfsVolumeSource) string {
 	keys := []string{"Type", "EndpointsName", "Path", "ReadOnly"}
 	content := []string{"Glusterfs", v.EndpointsName, v.Path, value(v.ReadOnly)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printHostPath(v *corev1.HostPathVolumeSource) string {
 	keys := []string{"Type", "Path", "HostPathType"}
 	content := []string{"HostPath", v.Path, value(*v.Type)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printNFS(v *corev1.NFSVolumeSource) string {
 	keys := []string{"Type", "Server", "Path", "ReadOnly"}
 	content := []string{"NFS", v.Server, v.Path, value(v.ReadOnly)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printPersistentVolumeClaim(v *corev1.PersistentVolumeClaimVolumeSource) string {
 	keys := []string{"Type", "ClaimName", "ReadOnly"}
 	content := []string{"PersistentVolumeClaim", v.ClaimName, value(v.ReadOnly)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printPhotonPersistentDisk(v *corev1.PhotonPersistentDiskVolumeSource) string {
 	keys := []string{"Type", "PdID", "FSType"}
 	content := []string{"PhotonPersistentDisk", v.PdID, v.FSType}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printPortworxVolume(v *corev1.PortworxVolumeSource) string {
 	keys := []string{"Type", "VolumeID", "FSType", "ReadOnly"}
 	content := []string{"PortworxVolume", v.VolumeID, v.FSType, value(v.ReadOnly)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func extractVolumeProjection(item corev1.VolumeProjection, _ int) string {
 	if item.ConfigMap != nil {
 		subKeys := []string{"ConfigMapName", "ConfigMapOptionalName"}
 		subValues := []string{item.ConfigMap.Name, value(item.ConfigMap.Optional)}
-		return style.FormatSubTable(subKeys, subValues)
+		return theme.FormatSubTable(subKeys, subValues)
 
 	} else if item.DownwardAPI != nil {
 		subKeys := []string{"DownwardAPI"}
 		subValues := []string{"true"}
-		return style.FormatSubTable(subKeys, subValues)
+		return theme.FormatSubTable(subKeys, subValues)
 
 	} else if item.Secret != nil {
 		subKeys := []string{"DownwardAPI"}
 		subValues := []string{"true"}
-		return style.FormatSubTable(subKeys, subValues)
+		return theme.FormatSubTable(subKeys, subValues)
 
 	} else if item.ServiceAccountToken != nil {
 		subKeys := []string{"TokenExpirationSeconds", "TokenPath"}
@@ -237,12 +238,12 @@ func extractVolumeProjection(item corev1.VolumeProjection, _ int) string {
 			value(*item.ServiceAccountToken.ExpirationSeconds),
 			item.ServiceAccountToken.Path,
 		}
-		return style.FormatSubTable(subKeys, subValues)
+		return theme.FormatSubTable(subKeys, subValues)
 
 	} else if item.ClusterTrustBundle != nil {
 		subKeys := []string{"Cluster"}
 		subValues := []string{*item.ClusterTrustBundle.Name}
-		return style.FormatSubTable(subKeys, subValues)
+		return theme.FormatSubTable(subKeys, subValues)
 	}
 	logging.Log.Error("Unknown projected source")
 	return ""
@@ -254,7 +255,7 @@ func printProjected(v *corev1.ProjectedVolumeSource) string {
 	sources := lo.Map(v.Sources, extractVolumeProjection)
 	content := []string{"Projected", strings.Join(sources, "\n"), value(*v.DefaultMode)}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printQuobyte(v *corev1.QuobyteVolumeSource) string {
@@ -267,7 +268,7 @@ func printQuobyte(v *corev1.QuobyteVolumeSource) string {
 		value(v.ReadOnly), v.User, v.Group, v.Tenant,
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printRBD(v *corev1.RBDVolumeSource) string {
@@ -282,7 +283,7 @@ func printRBD(v *corev1.RBDVolumeSource) string {
 		v.RadosUser, v.Keyring, v.SecretRef.Name, value(v.ReadOnly),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printScaleIO(v *corev1.ScaleIOVolumeSource) string {
@@ -297,7 +298,7 @@ func printScaleIO(v *corev1.ScaleIOVolumeSource) string {
 		v.StoragePool, v.VolumeName, v.FSType, value(v.ReadOnly),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printSecret(v *corev1.SecretVolumeSource) string {
@@ -307,7 +308,7 @@ func printSecret(v *corev1.SecretVolumeSource) string {
 		"Secret", v.SecretName, strings.Join(secrets, " | "), value(*v.DefaultMode), value(v.Optional),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printStorageOS(v *corev1.StorageOSVolumeSource) string {
@@ -320,7 +321,7 @@ func printStorageOS(v *corev1.StorageOSVolumeSource) string {
 		v.FSType, value(v.ReadOnly), v.SecretRef.Name, v.SecretRef.Name,
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printVsphereVolume(v *corev1.VsphereVirtualDiskVolumeSource) string {
@@ -332,7 +333,7 @@ func printVsphereVolume(v *corev1.VsphereVirtualDiskVolumeSource) string {
 		"VsphereVolume", v.VolumePath, v.FSType, v.StoragePolicyName, v.StoragePolicyID,
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func printVolumeSource(v corev1.VolumeSource) string {

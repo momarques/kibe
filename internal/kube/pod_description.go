@@ -9,6 +9,7 @@ import (
 
 	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
+	"github.com/momarques/kibe/internal/ui/style/theme"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -115,7 +116,7 @@ func (po PodOverview) TabContent() string {
 		po.Name, po.Namespace, po.ServiceAccount,
 		po.IP.String(), strings.Join(ips, ","), po.ControlledBy, po.QoSClass,
 	}
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 // PodStatus provides historic status information from the pod
@@ -153,7 +154,7 @@ func (ps PodStatus) TabContent() string {
 	conditionsValue := strings.Join(ps.Conditions, " -> ")
 	content := []string{ps.Start.String(), ps.Status, conditionsValue}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 type PodNodeSelector map[string]string
@@ -162,7 +163,7 @@ func (pn PodNodeSelector) TabContent() string {
 	keys := lo.Keys(pn)
 	content := lo.Values(pn)
 
-	return style.FormatSubTable(keys, content)
+	return theme.FormatSubTable(keys, content)
 }
 
 type PodTolerations []corev1.Toleration
@@ -193,7 +194,7 @@ func (pt PodTolerations) TabContent() string {
 		})
 	content := lo.Map(pt, prettyPrintTolerations)
 
-	return style.FormatSubTable(keys, content)
+	return theme.FormatSubTable(keys, content)
 }
 
 type PodNodeScheduling struct {
@@ -216,7 +217,7 @@ func (pn PodNodeScheduling) TabContent() string {
 		pn.NodeName, pn.NodeSelectors.TabContent(), pn.Tolerations.TabContent(),
 	}
 
-	return style.FormatTable(keys, content)
+	return theme.FormatTable(keys, content)
 }
 
 func (pd PodDescription) SubContent(subContentIndex int) []string {

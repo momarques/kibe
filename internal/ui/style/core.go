@@ -2,6 +2,7 @@ package style
 
 import (
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/ui/style/theme"
 )
 
 var (
@@ -12,15 +13,15 @@ var (
 
 func CoreHeaderTitleStyle() lipgloss.Style {
 	return ViewTitleStyle.
-		Foreground(GetColor(ThemeConfig.MainHeader.Title.TXT)).
-		Background(GetColor(ThemeConfig.MainHeader.Title.BG)).
+		Foreground(theme.GetColor(theme.Selected.MainHeader.Title.TXT)).
+		Background(theme.GetColor(theme.Selected.MainHeader.Title.BG)).
 		MarginTop(1).
 		MarginLeft(2)
 }
 
 func CoreHeaderItemCountStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Foreground(GetColor(ThemeConfig.MainHeader.ItemCount.TXT)).
+		Foreground(theme.GetColor(theme.Selected.MainHeader.ItemCount.TXT)).
 		MarginTop(1).
 		MarginLeft(2).
 		MarginBottom(1)
@@ -28,7 +29,7 @@ func CoreHeaderItemCountStyle() lipgloss.Style {
 
 func HelpStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		Foreground(GetColor(ThemeConfig.Help.ShortcutName.TXT)).
-		Background(GetColor(ThemeConfig.Help.ShortcutName.BG)).
+		Foreground(theme.GetColor(theme.Selected.Help.ShortcutName.TXT)).
+		Background(theme.GetColor(theme.Selected.Help.ShortcutName.BG)).
 		Padding(0, 0, 1, 0)
 }

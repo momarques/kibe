@@ -1,4 +1,4 @@
-package style
+package theme
 
 import (
 	"fmt"
@@ -9,14 +9,6 @@ import (
 	"github.com/charmbracelet/lipgloss/table"
 	"github.com/samber/lo"
 )
-
-func ColorizeTable(row, col int) lipgloss.Style {
-	switch {
-	case col == 0:
-		return ColorizeTabKey()
-	}
-	return lipgloss.NewStyle()
-}
 
 func measureContentWidth(agg int, item string, index int) int {
 	itemSize := len(item)
@@ -67,7 +59,7 @@ func FormatSubTable(keys, content []string) string {
 func ColorizeTabKey() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Background(lipgloss.NoColor{}).
-		Foreground(GetColor(ThemeConfig.Tab.ActiveTabContentKeys)).
+		Foreground(GetColor(Selected.Tab.ActiveTabContentKeys)).
 		PaddingLeft(1).
 		Bold(true)
 }
@@ -94,30 +86,6 @@ func GetColor(c string) lipgloss.TerminalColor {
 func FormatCommand(cmds []string) string {
 	return lipgloss.NewStyle().
 		Italic(true).
-		Foreground(GetColor(ThemeConfig.Tab.ActiveTabContentKeys)).
+		Foreground(GetColor(Selected.Tab.ActiveTabContentKeys)).
 		Render(strings.Join(cmds, " "))
 }
-
-// func colorizeInt(string) string {
-// 	return ""
-// }
-
-// func colorizeIP(string) string {
-// 	return ""
-// }
-
-// func colorizeResourceType(string) string {
-// 	return ""
-// }
-
-// func colorizeStatus(string) string {
-// 	return ""
-// }
-
-// func colorizePort(string) string {
-// 	return ""
-// }
-
-// func colorizeBool(string) string {
-// 	return ""
-// }
