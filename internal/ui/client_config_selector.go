@@ -189,6 +189,7 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 				m.clientConfig.spinner.Tick)
 		}
 
+		m.clientConfig.ResetSelected()
 		m.clientConfig.spinnerState = hideSpinner
 		return m, m.clientConfig.SetItems(msg.Contexts)
 
@@ -200,6 +201,7 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 
 	case kube.SelectNamespace:
 		m.clientConfig.Title = "Choose a namespace"
+		m.clientConfig.ResetSelected()
 		m.clientConfig.spinnerState = hideSpinner
 
 		return m, m.clientConfig.SetItems(msg)
@@ -212,6 +214,7 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 
 	case kube.SelectResource:
 		m.clientConfig.Title = "Choose a resource type"
+		m.clientConfig.ResetSelected()
 		m.clientConfig.spinnerState = hideSpinner
 
 		return m, m.clientConfig.SetItems(msg.Resources)
