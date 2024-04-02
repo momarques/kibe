@@ -141,12 +141,16 @@ var defaultThemeConfig = &Theme{
 			BG:  "#a4c847",
 			TXT: "#ffffff",
 		},
-		UnsyncedState: TextColorSet{
+		NotSyncedState: TextColorSet{
 			BG:  "#d83f24",
 			TXT: "#ffffff",
 		},
 		StartingState: TextColorSet{
 			BG:  "#4b3e3b",
+			TXT: "#ffffff",
+		},
+		PausedState: TextColorSet{
+			BG:  "#b39038",
 			TXT: "#ffffff",
 		},
 	},

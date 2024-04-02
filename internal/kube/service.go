@@ -26,7 +26,7 @@ func (s Service) SetID(id string) Resource {
 	return s
 }
 
-func (s Service) List(c *ClientReady) (Resource, error) {
+func (s Service) List(c ClientReady) (Resource, error) {
 	services, err := c.
 		CoreV1().
 		Services(c.NamespaceSelected.String()).

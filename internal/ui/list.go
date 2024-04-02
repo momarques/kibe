@@ -37,6 +37,13 @@ func newListModel() listModel {
 	}
 }
 
+func (m CoreUI) startingTable(c kube.ClientReady) (CoreUI, tea.Cmd) {
+	m.viewState = showTable
+	m.table.syncState = starting
+	m.client = c
+	return m, nil
+}
+
 func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
@@ -65,12 +72,12 @@ func (m CoreUI) updateList(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.header.text = msg
 		return m, nil
 
-	case *kube.ClientReady:
-		m.viewState = showTable
-		m.client = msg
-		return m, nil
+	case kube.ClientReady:
+		return m.startingTable(msg)
 	}
 
+	m, cmd = m.updateListSelector(msg)
+	cmds = append(cmds, cmd)
 	m.list.Model, cmd = m.list.Update(msg)
 	cmds = append(cmds, cmd)
 

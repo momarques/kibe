@@ -8,17 +8,20 @@ func InSyncColor() lipgloss.Color {
 	return lipgloss.Color(ThemeConfig.SyncBar.InSyncState.BG)
 }
 
-func UnsyncedColor() lipgloss.Color {
-	return lipgloss.Color(ThemeConfig.SyncBar.UnsyncedState.BG)
+func NotSyncedColor() lipgloss.Color {
+	return lipgloss.Color(ThemeConfig.SyncBar.NotSyncedState.BG)
 }
 
 func StartingColor() lipgloss.Color {
 	return lipgloss.Color(ThemeConfig.SyncBar.StartingState.BG)
 }
 
+func PausedColor() lipgloss.Color {
+	return lipgloss.Color(ThemeConfig.SyncBar.PausedState.BG)
+}
+
 func SyncBarStatusStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		PaddingLeft(1).
-		PaddingRight(0).
-		Width(10)
+		Align(lipgloss.Center).
+		Width(12)
 }

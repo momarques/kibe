@@ -2,7 +2,7 @@ package kube
 
 type ServiceDescription struct{}
 
-func (s Service) Describe(c *ClientReady) ResourceDescription {
+func (s Service) Describe(c ClientReady) ResourceDescription {
 	return ServiceDescription{}
 }
 

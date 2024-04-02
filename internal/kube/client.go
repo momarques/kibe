@@ -1,6 +1,7 @@
 package kube
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"time"
@@ -77,17 +78,29 @@ type ClientReady struct {
 	NamespaceSelected
 	ResourceSelected
 
+	Ctx    context.Context
+	Cancel context.CancelFunc
 	TableResponse
 }
 
-func NewClientReady(context string) *ClientReady {
-	return &ClientReady{
-		Clientset:       NewKubeClient(context),
-		ContextSelected: ContextSelected(context),
-	}
+func NewClientReady(ctx context.Context) ClientReady {
+	client := ClientReady{}
+	client.Ctx, client.Cancel = context.WithCancel(ctx)
+	return client
 }
 
-func (c *ClientReady) WithNamespace(namespace string) *ClientReady {
+func (c ClientReady) WithContext(ctx context.Context) ClientReady {
+	c.Ctx, c.Cancel = context.WithCancel(ctx)
+	return c
+}
+
+func (c ClientReady) WithClusterContext(clusterContext string) ClientReady {
+	c.Clientset = NewKubeClient(clusterContext)
+	c.ContextSelected = ContextSelected(clusterContext)
+	return c
+}
+
+func (c ClientReady) WithNamespace(namespace string) ClientReady {
 	if namespace == "" {
 		namespace = "default"
 	}
@@ -95,12 +108,17 @@ func (c *ClientReady) WithNamespace(namespace string) *ClientReady {
 	return c
 }
 
-func (c *ClientReady) WithResource(r Resource) *ClientReady {
+func (c ClientReady) WithResource(r Resource) ClientReady {
 	c.ResourceSelected = r
 	return c
 }
 
-func (c *ClientReady) FetchTableView() TableResponse {
+func (c ClientReady) FetchTableView() TableResponse {
+	logging.Log.
+		WithField("context", c.ContextSelected).
+		WithField("namespace", c.NamespaceSelected).
+		WithField("resource", c.ResourceSelected).
+		Debug("fetching table view synchronously")
 	var now = time.Now()
 
 	resource, err := c.ResourceSelected.List(c)
@@ -113,7 +131,13 @@ func (c *ClientReady) FetchTableView() TableResponse {
 	}
 }
 
-func (c *ClientReady) FetchTableViewAsync(responseCh chan TableResponse) {
+func (c ClientReady) FetchTableViewAsync(responseCh chan TableResponse) {
+	logging.Log.
+		WithField("context", c.ContextSelected).
+		WithField("namespace", c.NamespaceSelected).
+		WithField("resource", c.ResourceSelected).
+		WithField("channel", responseCh).
+		Debug("will fetch table view asynchronously")
 	var now = time.Now()
 
 	resource, err := c.ResourceSelected.List(c)
