@@ -231,6 +231,7 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 		return m.clientConfigSelected(msg)
 
 	}
+
 	return m, tea.Batch(
 		m.updateClientState(),
 		m.clientConfig.spinner.Tick)
