@@ -3,6 +3,7 @@ package kube
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
@@ -80,7 +81,7 @@ func (p Pod) Rows() (podRows []table.Row) {
 				string(pod.Status.Phase),
 				checkRestartedContainers(pod.Status.ContainerStatuses),
 				pod.Spec.NodeName,
-				DeltaTime(pod.GetCreationTimestamp().Time),
+				DeltaTime(pod.GetCreationTimestamp().Time, time.Now()),
 			},
 		)
 	}
