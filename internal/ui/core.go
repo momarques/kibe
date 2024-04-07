@@ -33,10 +33,9 @@ type CoreUI struct {
 	tab          tabModel
 	table        tableModel
 
-	log statusLoggerModel
-
 	header    headerModel
 	help      help.Model
+	log       statusLoggerModel
 	statusBar statusbar.Model
 	syncBar   syncBarModel
 }
