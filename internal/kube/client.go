@@ -1,13 +1,12 @@
 package kube
 
 import (
-	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
-	"github.com/momarques/kibe/internal/logging"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -27,7 +26,8 @@ func RetrieveKubeConfigFilePath() string {
 func FetchKubeConfig() *api.Config {
 	config, err := clientcmd.LoadFromFile(RetrieveKubeConfigFilePath())
 	if err != nil {
-		logging.Log.Error(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 	return config
 }
@@ -46,7 +46,8 @@ func NewKubeRestConfig(context string) *rest.Config {
 		overrides,
 	).ClientConfig()
 	if err != nil {
-		logging.Log.Error(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 	return clientConfig
 }
@@ -57,7 +58,8 @@ func NewKubeClient(context string) *kubernetes.Clientset {
 	clientConfig.Timeout = ResquestTimeout
 	client, err := kubernetes.NewForConfig(clientConfig)
 	if err != nil {
-		logging.Log.Error(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 	return client
 }
@@ -68,88 +70,5 @@ type TableResponse struct {
 	Operation string
 
 	FetchDuration time.Duration
-	Err           error
-}
-
-type ClientReady struct {
-	*kubernetes.Clientset
-
-	ContextSelected
-	NamespaceSelected
-	ResourceSelected
-
-	Ctx    context.Context
-	Cancel context.CancelFunc
-	TableResponse
-}
-
-func NewClientReady(ctx context.Context) ClientReady {
-	client := ClientReady{}
-	client.Ctx, client.Cancel = context.WithCancel(ctx)
-	return client
-}
-
-func (c ClientReady) WithContext(ctx context.Context) ClientReady {
-	c.Ctx, c.Cancel = context.WithCancel(ctx)
-	return c
-}
-
-func (c ClientReady) WithClusterContext(clusterContext string) ClientReady {
-	c.Clientset = NewKubeClient(clusterContext)
-	c.ContextSelected = ContextSelected(clusterContext)
-	return c
-}
-
-func (c ClientReady) WithNamespace(namespace string) ClientReady {
-	if namespace == "" {
-		namespace = "default"
-	}
-	c.NamespaceSelected = NamespaceSelected(namespace)
-	return c
-}
-
-func (c ClientReady) WithResource(r Resource) ClientReady {
-	c.ResourceSelected = r
-	return c
-}
-
-func (c ClientReady) FetchTableView() TableResponse {
-	logging.Log.
-		WithField("context", c.ContextSelected).
-		WithField("namespace", c.NamespaceSelected).
-		WithField("resource", c.ResourceSelected).
-		Debug("fetching table view synchronously")
-	var now = time.Now()
-
-	resource, err := c.ResourceSelected.List(c)
-
-	return TableResponse{
-		Columns:       resource.Columns(),
-		Rows:          resource.Rows(),
-		FetchDuration: time.Since(now),
-		Err:           err,
-	}
-}
-
-func (c ClientReady) FetchTableViewAsync(responseCh chan TableResponse) {
-	logging.Log.
-		WithField("context", c.ContextSelected).
-		WithField("namespace", c.NamespaceSelected).
-		WithField("resource", c.ResourceSelected).
-		WithField("channel", responseCh).
-		Debug("will fetch table view asynchronously")
-	var now = time.Now()
-
-	resource, err := c.ResourceSelected.List(c)
-
-	responseCh <- TableResponse{
-		Columns:       resource.Columns(),
-		Rows:          resource.Rows(),
-		FetchDuration: time.Since(now),
-		Err:           err,
-	}
-}
-
-func (c *ClientReady) LogOperation() string {
-	return fmt.Sprintf("listing %ss", c.ResourceSelected.Kind())
+	FetchErr      error
 }

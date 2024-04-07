@@ -6,7 +6,6 @@ import (
 	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 )
 
@@ -19,6 +18,21 @@ const (
 	starting
 	paused
 )
+
+func (s syncState) String() string {
+	switch s {
+	case inSync:
+		return "in sync"
+	case notSynced:
+		return "not synced"
+	case starting:
+		return "starting"
+	case paused:
+		return "paused"
+	default:
+		return ""
+	}
+}
 
 type syncStarted time.Time
 
@@ -51,26 +65,26 @@ func newSyncBarModel() syncBarModel {
 }
 
 func (m CoreUI) changeSyncState(state syncState) CoreUI {
-	logging.Log.
-		WithField("state", state).
-		Debug("changing state")
+	m.log.WithDebugContext(m.client).
+		Str("state", m.table.syncState.String()).
+		Msg("changing table sync state")
 	m.table.syncState = state
 
 	switch m.table.syncState {
 	case inSync:
-		m.syncBar.text = "in sync"
+		m.syncBar.text = m.table.syncState.String()
 		m.syncBar.bgColor = style.InSyncColor()
 		m.syncBar.spinnerState = showSpinner
 	case notSynced:
-		m.syncBar.text = "not synced"
+		m.syncBar.text = m.table.syncState.String()
 		m.syncBar.bgColor = style.NotSyncedColor()
 		m.syncBar.spinnerState = hideSpinner
 	case starting:
-		m.syncBar.text = "starting"
+		m.syncBar.text = m.table.syncState.String()
 		m.syncBar.bgColor = style.StartingColor()
 		m.syncBar.spinnerState = showSpinner
 	case paused:
-		m.syncBar.text = "paused"
+		m.syncBar.text = m.table.syncState.String()
 		m.syncBar.bgColor = style.PausedColor()
 		m.syncBar.spinnerState = hideSpinner
 	}
@@ -78,14 +92,15 @@ func (m CoreUI) changeSyncState(state syncState) CoreUI {
 }
 
 func (m CoreUI) syncTable() (CoreUI, tea.Cmd) {
+	m.log.WithDebugContext(m.client).Msg("will fetch table view asynchronously")
 	go func() {
 		m.client.FetchTableViewAsync(m.table.response)
 	}()
 
 	m = m.changeSyncState(syncing)
+	m.log.WithDebugContext(m.client).Msg(m.client.LogOperation())
 
 	return m, tea.Batch(
-		m.logProcess(m.client.LogOperation()),
 		m.syncBar.spinner.Tick,
 		syncStarted(time.Now()).Cmd(),
 	)

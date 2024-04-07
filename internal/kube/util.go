@@ -26,10 +26,3 @@ func LookupStructFieldNames(t reflect.Type) []string {
 			return tabName
 		})
 }
-
-func mapToTableRows(m map[string]string) [][]string {
-	return lo.MapToSlice(m,
-		func(k, v string) []string {
-			return []string{k, v}
-		})
-}

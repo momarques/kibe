@@ -10,7 +10,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/momarques/kibe/internal/ui/style/window"
 )
@@ -63,7 +62,7 @@ func (m tableModel) applyTableItems(r kube.TableResponse) (tableModel, tea.Cmd) 
 	m.SetColumns(m.columns)
 
 	m.paginator.SetTotalPages(len(m.rows))
-	return m, m.updateHeader(len(m.rows))
+	return m, updateHeaderItemCount(len(m.rows))
 }
 
 func (m tableModel) applyPageChanges() tableModel {
@@ -99,17 +98,25 @@ func (m CoreUI) checkTableResponseAsync() (CoreUI, tea.Cmd) {
 func (m CoreUI) updateTableWithAsyncResponse(response kube.TableResponse) (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
 
-	if response.Err != nil {
+	if response.FetchErr != nil {
 		m = m.changeSyncState(notSynced)
-		return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
+		m.log.Info().
+			Str("status", response.Operation).
+			Dur("duration", response.FetchDuration).
+			Msg(response.FetchErr.Error())
+		return m, nil
 	}
 
 	m.table, cmd = m.table.applyTableItems(response)
 	m.table = m.table.applyPageChanges()
 
 	m = m.changeSyncState(inSync)
-	return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)),
-		cmd
+	m.log.Info().
+		Str("status", response.Operation).
+		Dur("duration", response.FetchDuration).
+		Msg(m.client.LogOperation())
+
+	return m, cmd
 }
 
 func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -161,17 +168,19 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, nil
 
 		case syncStarted:
-			logging.Log.
-				WithField("sync state", m.table.syncState).
-				Debug("syncStarted")
+			m.log.WithDebugContext(m.client).
+				Str("state", m.table.syncState.String()).
+				Msg("syncStarted")
+
 			return m, tea.Tick(kube.ResquestTimeout,
 				func(t time.Time) tea.Msg {
 					return syncFinished(time.Now())
 				})
 
 		case syncFinished:
-			logging.Log.
-				Debug("syncFinished")
+			m.log.WithDebugContext(m.client).
+				Str("state", m.table.syncState.String()).
+				Msg("syncFinished")
 
 			m, cmd = m.checkTableResponseAsync()
 			cmds = append(cmds, cmd)
@@ -186,21 +195,15 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	case notSynced:
-		logging.Log.
-			Debug("table not synced")
-
+		m.log.WithDebugContext(m.client).Msg("table not synced")
 		return m.syncTable()
 
 	case starting:
-		logging.Log.
-			Debug("starting table sync")
-
+		m.log.WithDebugContext(m.client).Msg("starting table sync")
 		return m.updateOnTableResponse()
 
 	case paused:
-		logging.Log.
-			Debug("table sync paused")
-
+		m.log.WithDebugContext(m.client).Msg("table sync paused")
 		return m, nil
 	}
 

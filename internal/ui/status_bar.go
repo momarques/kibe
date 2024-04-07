@@ -33,13 +33,7 @@ func newStatusBarModel() statusbar.Model {
 
 type statusBarUpdated struct{ resource, context, namespace string }
 
-func updateStatusBar(r, c, n string) func() tea.Msg {
-	return func() tea.Msg {
-		return statusBarUpdated{r, c, n}
-	}
-}
-
-func (m CoreUI) updateStatusBar(msg statusBarUpdated) (CoreUI, tea.Cmd) {
+func (m CoreUI) applyStatusBarChanges(msg statusBarUpdated) (CoreUI, tea.Cmd) {
 	var cmd tea.Cmd
 
 	m.statusBar.SetContent(
@@ -49,4 +43,10 @@ func (m CoreUI) updateStatusBar(msg statusBarUpdated) (CoreUI, tea.Cmd) {
 
 	m.statusBar, cmd = m.statusBar.Update(msg)
 	return m, cmd
+}
+
+func updateStatusBar(r, c, n string) func() tea.Msg {
+	return func() tea.Msg {
+		return statusBarUpdated{r, c, n}
+	}
 }

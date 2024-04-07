@@ -16,13 +16,13 @@ type headerModel struct {
 	itemCount headerItemCountUpdated
 }
 
-func (c tableContent) updateHeader(itemCount int) tea.Cmd {
+func updateHeaderItemCount(itemCount int) tea.Cmd {
 	return func() tea.Msg {
 		return headerItemCountUpdated(itemCount)
 	}
 }
 
-func (c clientConfigSelector) updateHeader(title string) tea.Cmd {
+func updateHeaderTitle(title string) tea.Cmd {
 	return func() tea.Msg {
 		return headerTitleUpdated(title)
 	}
