@@ -12,14 +12,6 @@ import (
 	"github.com/wesovilabs/koazee/stream"
 )
 
-type operationStatus int
-
-const (
-	None operationStatus = iota
-	NOK
-	OK
-)
-
 type logWriter struct {
 	stream.Stream
 }
@@ -31,10 +23,10 @@ func newlogWriter() *logWriter {
 	}
 }
 
-func (s *logWriter) Write(p []byte) (n int, err error) {
-	s.Stream = s.Add(string(p))
-	if total, _ := s.Count(); total > 10 {
-		_, s.Stream = s.Pop()
+func (l *logWriter) Write(p []byte) (n int, err error) {
+	l.Stream = l.Add(string(p))
+	if total, _ := l.Count(); total > 10 {
+		_, l.Stream = l.Pop()
 	}
 	return len(p), nil
 }

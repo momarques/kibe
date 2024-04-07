@@ -19,11 +19,11 @@ type Theme struct {
 	Table TableColors `yaml:"table,omitempty"`
 	Tab   TabColors   `yaml:"tab,omitempty"`
 
-	Paginator PaginatorColorSet `yaml:"paginator,omitempty"`
-	SyncBar   SyncBarColors     `yaml:"syncBar,omitempty"`
-	Help      HelpColorSet      `yaml:"help,omitempty"`
-	StatusLog StatusLogColors   `yaml:"statusLog,omitempty"`
-	StatusBar StatusBarColors   `yaml:"statusBar,omitempty"`
+	Paginator     PaginatorColorSet   `yaml:"paginator,omitempty"`
+	SyncBar       SyncBarColors       `yaml:"syncBar,omitempty"`
+	Help          HelpColorSet        `yaml:"help,omitempty"`
+	StatusBar     StatusBarColors     `yaml:"statusBar,omitempty"`
+	StatusMessage StatusMessageColors `yaml:"statusMessage,omitempty"`
 }
 
 type TextColorSet struct {
@@ -103,18 +103,10 @@ type SyncBarColors struct {
 	PausedState    TextColorSet `yaml:"pausedState,omitempty"`
 }
 
-type StatusLogColors struct {
-	Duration  TextColorSet `yaml:"duration,omitempty"`
-	Timestamp TextColorSet `yaml:"timestamp,omitempty"`
-
+type StatusMessageColors struct {
 	OKStatus   TextColorSet `yaml:"okStatus,omitempty"`
 	NOKStatus  TextColorSet `yaml:"nokStatus,omitempty"`
 	WarnStatus TextColorSet `yaml:"warnStatus,omitempty"`
-
-	InfoLevel  TextColorSet `yaml:"infoLevel,omitempty"`
-	WarnLevel  TextColorSet `yaml:"warnLevel,omitempty"`
-	ErrorLevel TextColorSet `yaml:"errorLevel,omitempty"`
-	DebugLevel TextColorSet `yaml:"debugLevel,omitempty"`
 }
 
 type StatusBarColors struct {

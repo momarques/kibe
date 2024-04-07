@@ -170,45 +170,6 @@ var defaultTheme = &Theme{
 		},
 	},
 
-	StatusLog: StatusLogColors{
-		Duration: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#595959",
-		},
-		Timestamp: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#ffffff",
-		},
-		OKStatus: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#a4c847",
-		},
-		NOKStatus: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#d65f50",
-		},
-		WarnStatus: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#ffde6e",
-		},
-		InfoLevel: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#498c69",
-		},
-		WarnLevel: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#e4d491",
-		},
-		ErrorLevel: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#d65f50",
-		},
-		DebugLevel: TextColorSet{
-			// BG:  "#ffffff",
-			TXT: "#d282c0",
-		},
-	},
-
 	StatusBar: StatusBarColors{
 		ResourceSection: TextColorSet{
 			BG:  "#ffffff",
@@ -225,6 +186,21 @@ var defaultTheme = &Theme{
 		NamespaceSection: TextColorSet{
 			BG:  "#ffffff",
 			TXT: "#ffffff",
+		},
+	},
+
+	StatusMessage: StatusMessageColors{
+		OKStatus: TextColorSet{
+			// BG:  "#ffffff",
+			TXT: "#a4c847",
+		},
+		NOKStatus: TextColorSet{
+			// BG:  "#ffffff",
+			TXT: "#d65f50",
+		},
+		WarnStatus: TextColorSet{
+			// BG:  "#ffffff",
+			TXT: "#ffde6e",
 		},
 	},
 }
