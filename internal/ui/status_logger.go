@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
+	"github.com/momarques/kibe/internal/kube"
 	"github.com/rs/zerolog"
 	"github.com/wesovilabs/koazee"
 	"github.com/wesovilabs/koazee/stream"
@@ -44,32 +45,32 @@ type statusLoggerModel struct {
 }
 
 func newStatusLogger() statusLoggerModel {
-	var loggers []io.Writer
+	var writers []io.Writer
 
 	if os.Getenv("DEBUG") == "1" {
 		file, err := os.OpenFile("debug.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			panic(err)
 		}
-		debugLogger := &zerolog.FilteredLevelWriter{
+		debugWriter := &zerolog.FilteredLevelWriter{
 			Writer: zerolog.LevelWriterAdapter{
 				Writer: file,
 			},
 			Level: zerolog.DebugLevel,
 		}
-		loggers = append(loggers, debugLogger)
+		writers = append(writers, debugWriter)
 	}
 
 	w := newlogWriter()
-	consoleLogger := &zerolog.FilteredLevelWriter{
+	consoleWriter := &zerolog.FilteredLevelWriter{
 		Writer: zerolog.LevelWriterAdapter{
 			Writer: zerolog.ConsoleWriter{Out: w},
 		},
 		Level: zerolog.InfoLevel,
 	}
-	loggers = append(loggers, consoleLogger)
+	writers = append(writers, consoleWriter)
 
-	multiWriter := zerolog.MultiLevelWriter(loggers...)
+	multiWriter := zerolog.MultiLevelWriter(writers...)
 
 	return statusLoggerModel{
 		writer: w,
@@ -90,4 +91,14 @@ func (m CoreUI) statusLogView() string {
 		MarginBottom(1).
 		MarginLeft(2).
 		Render(m.log.String())
+}
+
+func (s statusLoggerModel) WithDebugContext(client kube.ClientReady) *zerolog.Event {
+	return s.Logger.Debug().
+		Caller().
+		Dict("client",
+			zerolog.Dict().
+				Str("context", client.ContextSelected.String()).
+				Str("namespace", client.NamespaceSelected.String()).
+				Str("resource", client.ResourceSelected.Kind()))
 }

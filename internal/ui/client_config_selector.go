@@ -1,7 +1,6 @@
 package ui
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/charmbracelet/bubbles/key"
@@ -66,15 +65,15 @@ func newItemDelegate(c clientConfigSelector) list.DefaultDelegate {
 	return d
 }
 
-func (c clientConfigSelector) contextSelected(context string) func() tea.Msg {
+func contextSelected(context string) func() tea.Msg {
 	return func() tea.Msg { return kube.ContextSelected(context) }
 }
 
-func (c clientConfigSelector) namespaceSelected(namespace string) func() tea.Msg {
+func namespaceSelected(namespace string) func() tea.Msg {
 	return func() tea.Msg { return kube.NamespaceSelected(namespace) }
 }
 
-func (c clientConfigSelector) resourceSelected() func() tea.Msg {
+func resourceSelected() func() tea.Msg {
 	r, _ := lo.Find(kube.SupportedResources,
 		func(item kube.Resource) bool {
 			switch item.Kind() {
@@ -87,7 +86,7 @@ func (c clientConfigSelector) resourceSelected() func() tea.Msg {
 }
 
 func (m CoreUI) clientReady() func() tea.Msg {
-	return func() tea.Msg { return m.client.WithContext(context.Background()) }
+	return func() tea.Msg { return m.client.WithContext() }
 }
 
 func (m CoreUI) updateClientState() tea.Cmd {
@@ -97,11 +96,6 @@ func (m CoreUI) updateClientState() tea.Cmd {
 
 	switch m.clientConfig.clientState {
 	case ready:
-		m.log.Debug().
-			Str("context", m.client.ContextSelected.String()).
-			Str("namespace", m.client.NamespaceSelected.String()).
-			Str("resource", m.client.ResourceSelected.Kind()).
-			Msg("client is ready")
 		return m.clientReady()
 
 	case notReady:
@@ -130,9 +124,9 @@ func (m CoreUI) clientConfigSelected(msg tea.KeyMsg) (CoreUI, tea.Cmd) {
 			m.clientConfig.spinnerState = showSpinner
 
 			return m, tea.Batch(
-				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Context", m.clientConfig.context, "set")),
-				m.clientConfig.contextSelected(m.clientConfig.context),
+				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().
+					Render("Context", m.clientConfig.context, "set")),
+				contextSelected(m.clientConfig.context),
 				m.clientConfig.spinner.Tick)
 
 		case kube.NamespaceItem:
@@ -140,9 +134,9 @@ func (m CoreUI) clientConfigSelected(msg tea.KeyMsg) (CoreUI, tea.Cmd) {
 			m.clientConfig.spinnerState = showSpinner
 
 			return m, tea.Batch(
-				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Namespace", m.clientConfig.namespace, "selected")),
-				m.clientConfig.namespaceSelected(m.clientConfig.namespace),
+				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().
+					Render("Namespace", m.clientConfig.namespace, "selected")),
+				namespaceSelected(m.clientConfig.namespace),
 				m.clientConfig.spinner.Tick)
 
 		case kube.ResourceItem:
@@ -150,9 +144,9 @@ func (m CoreUI) clientConfigSelected(msg tea.KeyMsg) (CoreUI, tea.Cmd) {
 			m.clientConfig.spinnerState = showSpinner
 
 			return m, tea.Batch(
-				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Showing", m.clientConfig.resource+"s")),
-				m.clientConfig.resourceSelected(),
+				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().
+					Render("Showing", m.clientConfig.resource+"s")),
+				resourceSelected(),
 				m.clientConfig.spinner.Tick)
 		}
 	}
@@ -171,9 +165,9 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 			m.clientConfig.spinnerState = showSpinner
 
 			return m, tea.Batch(
-				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Using current context", m.clientConfig.context)),
-				m.clientConfig.contextSelected(m.clientConfig.context),
+				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().
+					Render("Using current context", m.clientConfig.context)),
+				contextSelected(m.clientConfig.context),
 				m.clientConfig.spinner.Tick)
 		}
 
@@ -182,9 +176,9 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 			m.clientConfig.spinnerState = showSpinner
 
 			return m, tea.Batch(
-				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().Render(
-					"Using single existing context", m.clientConfig.context)),
-				m.clientConfig.contextSelected(m.clientConfig.context),
+				m.clientConfig.NewStatusMessage(style.StatusMessageStyle().
+					Render("Using single existing context", m.clientConfig.context)),
+				contextSelected(m.clientConfig.context),
 				m.clientConfig.spinner.Tick)
 		}
 
@@ -224,7 +218,7 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 
 		return m, tea.Batch(
 			updateStatusBar(m.clientConfig.resource, m.clientConfig.context, m.clientConfig.namespace),
-			m.clientConfig.updateHeader(fmt.Sprintf("%s interaction", msg.Kind())))
+			updateHeaderTitle(fmt.Sprintf("%s interaction", msg.Kind())))
 
 	case tea.KeyMsg:
 		return m.clientConfigSelected(msg)
@@ -237,11 +231,7 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 }
 
 func (m CoreUI) cancelTableSync() CoreUI {
-	m.log.Debug().
-		Str("context", m.client.ContextSelected.String()).
-		Str("namespace", m.client.NamespaceSelected.String()).
-		Str("resource", m.client.ResourceSelected.Kind()).
-		Msg("canceling table sync")
+	m.log.WithDebugContext(m.client).Msg("canceling table sync")
 
 	m.client.Cancel()
 	m.table.syncState = paused

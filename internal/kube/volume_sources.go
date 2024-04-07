@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/momarques/kibe/internal/ui/style/theme"
 	"github.com/samber/lo"
@@ -245,7 +244,6 @@ func extractVolumeProjection(item corev1.VolumeProjection, _ int) string {
 		subValues := []string{*item.ClusterTrustBundle.Name}
 		return theme.FormatSubTable(subKeys, subValues)
 	}
-	logging.Log.Error("Unknown projected source")
 	return ""
 }
 

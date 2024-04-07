@@ -7,5 +7,14 @@ run: build
 test-cmd: build
 	@go run main.go test
 
-clean_default_theme:
+reset-theme:
 	@rm -fr ${XDG_CONFIG_HOME}/kibe/theme.yaml
+
+debug-logs:
+	@jq debug.log
+
+reset-debug-logs:
+	@echo "" > debug.log
+
+stream-debug-logs: reset-debug-logs
+	@tail -f debug.log | jq .

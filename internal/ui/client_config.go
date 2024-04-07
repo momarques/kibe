@@ -73,6 +73,7 @@ func (m CoreUI) updateClientConfig(msg tea.Msg) (tea.Model, tea.Cmd) {
 		return m, nil
 
 	case kube.ClientReady:
+		m.log.WithDebugContext(m.client).Msg("client is ready")
 		return m.startingTable(msg)
 	}
 

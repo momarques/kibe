@@ -1,8 +1,6 @@
 package ui
 
 import (
-	"context"
-
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
@@ -35,7 +33,8 @@ type CoreUI struct {
 	tab          tabModel
 	table        tableModel
 
-	log       statusLoggerModel
+	log statusLoggerModel
+
 	header    headerModel
 	help      help.Model
 	statusBar statusbar.Model
@@ -49,7 +48,7 @@ func NewUI() CoreUI {
 	return CoreUI{
 		viewState: showClientConfig,
 
-		client: kube.NewClientReady(context.Background()),
+		client: kube.ClientReady{},
 
 		globalKeys:   newGlobalKeyMap(),
 		keys:         setKeys(table.tableKeyMap, tab.tabKeyMap),
