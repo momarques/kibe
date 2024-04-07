@@ -10,10 +10,13 @@ func Test_PodDescriptionTabNames(t *testing.T) {
 	expected := []string{
 		"Overview",
 		"Status",
-		"Labels and Annotations",
-		"Mounts",
+		"Labels",
+		"Annotations",
+		"Volumes",
 		"Containers",
 		"Scheduling",
+		"Node Scheduling",
+		"Events",
 	}
 
 	podDesc := new(PodDescription)

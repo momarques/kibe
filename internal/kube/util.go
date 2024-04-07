@@ -9,14 +9,14 @@ import (
 	"github.com/samber/lo"
 )
 
-func DeltaTime(t time.Time) string {
-	elapsedTime := time.Since(t)
+func DeltaTime(t1, t2 time.Time) string {
+	elapsedTime := t2.Sub(t1)
 	if elapsedTime.Hours() > 24 {
 		return fmt.Sprintf("%dd%dh", int(elapsedTime.Hours()/24), int(elapsedTime.Hours())%24)
 	}
 	elapsedTimeString := elapsedTime.String()
 	elapsed, _, _ := strings.Cut(elapsedTimeString, ".")
-	return elapsed + "s"
+	return elapsed
 }
 
 func LookupStructFieldNames(t reflect.Type) []string {

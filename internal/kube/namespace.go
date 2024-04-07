@@ -2,6 +2,7 @@ package kube
 
 import (
 	"context"
+	"time"
 
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
@@ -47,8 +48,7 @@ func (n Namespace) Rows() (namespaceRows []table.Row) {
 		namespaceRows = append(namespaceRows,
 			table.Row{
 				ns.Name,
-				DeltaTime(
-					ns.GetCreationTimestamp().Time),
+				DeltaTime(ns.GetCreationTimestamp().Time, time.Now()),
 			},
 		)
 	}

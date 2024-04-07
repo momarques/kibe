@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/bubbles/table"
 	"github.com/momarques/kibe/internal/logging"
@@ -61,8 +62,7 @@ func (s Service) Rows() (serviceRows []table.Row) {
 					svc.Spec.ExternalIPs, ", "),
 				servicePortsAsString(
 					svc.Spec.Ports),
-				DeltaTime(
-					svc.GetCreationTimestamp().Time),
+				DeltaTime(svc.GetCreationTimestamp().Time, time.Now()),
 			},
 		)
 	}
