@@ -10,7 +10,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/bindings"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/samber/lo"
 )
@@ -98,11 +97,11 @@ func (m CoreUI) updateClientState() tea.Cmd {
 
 	switch m.clientConfig.clientState {
 	case ready:
-		logging.Log.
-			WithField("context", m.client.ContextSelected).
-			WithField("namespace", m.client.NamespaceSelected).
-			WithField("resource", m.client.ResourceSelected).
-			Debug("client is ready")
+		m.log.Debug().
+			Str("context", m.client.ContextSelected.String()).
+			Str("namespace", m.client.NamespaceSelected.String()).
+			Str("resource", m.client.ResourceSelected.Kind()).
+			Msg("client is ready")
 		return m.clientReady()
 
 	case notReady:
@@ -238,11 +237,11 @@ func (m CoreUI) clientConfigSelection(msg tea.Msg) (CoreUI, tea.Cmd) {
 }
 
 func (m CoreUI) cancelTableSync() CoreUI {
-	logging.Log.
-		WithField("context", m.client.ContextSelected).
-		WithField("namespace", m.client.NamespaceSelected).
-		WithField("resource", m.client.ResourceSelected).
-		Debug("canceling table sync")
+	m.log.Debug().
+		Str("context", m.client.ContextSelected.String()).
+		Str("namespace", m.client.NamespaceSelected.String()).
+		Str("resource", m.client.ResourceSelected.Kind()).
+		Msg("canceling table sync")
 
 	m.client.Cancel()
 	m.table.syncState = paused

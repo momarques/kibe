@@ -84,8 +84,13 @@ func (m CoreUI) syncTable() (CoreUI, tea.Cmd) {
 
 	m = m.changeSyncState(syncing)
 
+	m.log.
+		Info().
+		// Str("status", ).
+		// Dur("duration", time.Since(m.table.lastSync)).
+		Msg(m.client.LogOperation())
+
 	return m, tea.Batch(
-		m.logProcess(m.client.LogOperation()),
 		m.syncBar.spinner.Tick,
 		syncStarted(time.Now()).Cmd(),
 	)

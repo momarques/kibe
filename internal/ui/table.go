@@ -101,15 +101,23 @@ func (m CoreUI) updateTableWithAsyncResponse(response kube.TableResponse) (CoreU
 
 	if response.Err != nil {
 		m = m.changeSyncState(notSynced)
-		return m.updateStatusLog(m.logProcessDuration(NOK, response.FetchDuration)), nil
+		m.log.Info().
+			Str("status", response.Operation).
+			Dur("duration", response.FetchDuration).
+			Msg(response.Err.Error())
+		return m, nil
 	}
 
 	m.table, cmd = m.table.applyTableItems(response)
 	m.table = m.table.applyPageChanges()
 
 	m = m.changeSyncState(inSync)
-	return m.updateStatusLog(m.logProcessDuration(OK, response.FetchDuration)),
-		cmd
+	m.log.Info().
+		Str("status", response.Operation).
+		Dur("duration", response.FetchDuration).
+		Msg(m.client.LogOperation())
+
+	return m, cmd
 }
 
 func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {

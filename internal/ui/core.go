@@ -35,10 +35,10 @@ type CoreUI struct {
 	tab          tabModel
 	table        tableModel
 
+	log       statusLoggerModel
 	header    headerModel
 	help      help.Model
 	statusBar statusbar.Model
-	statusLog statusLogModel
 	syncBar   syncBarModel
 }
 
@@ -59,8 +59,8 @@ func NewUI() CoreUI {
 
 		header:    headerModel{},
 		help:      help.New(),
+		log:       newStatusLogger(),
 		statusBar: newStatusBarModel(),
-		statusLog: newStatusLogModel(),
 		syncBar:   newSyncBarModel(),
 	}
 }
@@ -75,11 +75,11 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.QuitMsg:
 		return m, tea.Quit
 
-	case statusLogMessage:
-		return m.updateStatusLog(msg, -1), nil
+	// case statusLogMessage:
+	// 	return m.updateStatusLog(msg, -1), nil
 
 	case statusBarUpdated:
-		return m.updateStatusBar(msg)
+		return m.applyStatusBarChanges(msg)
 
 	case tea.KeyMsg:
 		switch {
