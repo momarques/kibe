@@ -1,9 +1,12 @@
 package ui
 
 import (
+	"encoding/json"
+	"fmt"
 	"io"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
@@ -31,6 +34,29 @@ func (l *logWriter) Write(p []byte) (n int, err error) {
 	return len(p), nil
 }
 
+func formatLogAttrValue(i interface{}) string {
+	var text string
+
+	switch value := i.(type) {
+	case string:
+		text = value
+	case int64, int:
+		text = fmt.Sprintf("%d", value)
+	case float32, float64:
+		text = fmt.Sprintf("%1.f", value)
+	case json.Number:
+		v, _ := value.Float64()
+		text = fmt.Sprintf("%1.fms", v)
+
+	case time.Duration:
+		text = fmt.Sprintf("%vms", value.Round(time.Millisecond))
+	}
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#be80cb")).
+		// Foreground(lipgloss.Color("#ffffff")).
+		Render(fmt.Sprintf("=%v", text))
+}
+
 type statusLoggerModel struct {
 	zerolog.Logger
 	writer *logWriter
@@ -56,7 +82,16 @@ func newStatusLogger() statusLoggerModel {
 	w := newlogWriter()
 	consoleWriter := &zerolog.FilteredLevelWriter{
 		Writer: zerolog.LevelWriterAdapter{
-			Writer: zerolog.ConsoleWriter{Out: w},
+			Writer: zerolog.ConsoleWriter{
+				Out:        w,
+				TimeFormat: time.TimeOnly,
+				FormatFieldName: func(i interface{}) string {
+					return lipgloss.NewStyle().
+						Foreground(lipgloss.Color("#be80cb")).
+						Render(i.(string))
+				},
+				FormatFieldValue: formatLogAttrValue,
+			},
 		},
 		Level: zerolog.InfoLevel,
 	}

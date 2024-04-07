@@ -77,5 +77,5 @@ func (c ClientReady) FetchTableViewAsync(responseCh chan TableResponse) {
 }
 
 func (c *ClientReady) LogOperation() string {
-	return fmt.Sprintf("listing %ss", c.ResourceSelected.Kind())
+	return fmt.Sprintf("%ss listed", c.ResourceSelected.Kind())
 }

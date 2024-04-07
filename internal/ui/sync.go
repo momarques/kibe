@@ -29,6 +29,8 @@ func (s syncState) String() string {
 		return "starting"
 	case paused:
 		return "paused"
+	case syncing:
+		return "syncing"
 	default:
 		return ""
 	}

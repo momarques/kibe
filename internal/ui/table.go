@@ -101,7 +101,7 @@ func (m CoreUI) updateTableWithAsyncResponse(response kube.TableResponse) (CoreU
 	if response.FetchErr != nil {
 		m = m.changeSyncState(notSynced)
 		m.log.Info().
-			Str("status", response.Operation).
+			Str("status", "err").
 			Dur("duration", response.FetchDuration).
 			Msg(response.FetchErr.Error())
 		return m, nil
@@ -112,7 +112,7 @@ func (m CoreUI) updateTableWithAsyncResponse(response kube.TableResponse) (CoreU
 
 	m = m.changeSyncState(inSync)
 	m.log.Info().
-		Str("status", response.Operation).
+		Str("status", "ok").
 		Dur("duration", response.FetchDuration).
 		Msg(m.client.LogOperation())
 

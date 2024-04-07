@@ -2,7 +2,9 @@ package ui
 
 import (
 	"testing"
+	"time"
 
+	"github.com/samber/lo"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -43,5 +45,28 @@ func Test_logWriterShouldWriteLast10Items(t *testing.T) {
 	}
 
 	actual := w.Out().Val().([]string)
+	assert.Equal(t, expected, actual)
+}
+
+func Test_formatLogAttrValue(t *testing.T) {
+	duration := time.Date(2024, time.February, 29, 0, 0, 0, 0, time.Local).Sub(
+		time.Date(2024, time.February, 28, 0, 0, 0, 0, time.Local),
+	)
+	testCases := []interface{}{
+		"teste1",
+		duration,
+		1,
+	}
+	expected := []string{
+		"teste1",
+		"24h0m0sms",
+		"1",
+	}
+
+	actual := lo.Map(testCases,
+		func(item interface{}, _ int) string {
+			return formatLogAttrValue(item)
+		})
+
 	assert.Equal(t, expected, actual)
 }
