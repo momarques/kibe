@@ -4,8 +4,8 @@ var defaultTheme = &Theme{
 	ClientConfig: ClientConfigColors{
 		Header: HeaderColorSet{
 			Title: TextColorSet{
-				BG:  "#d65f50",
-				TXT: "#ffffff",
+				BG:  "#f7c768",
+				TXT: "#4f4156",
 			},
 			ItemCount: TextColorSet{
 				// BG:  "#ffffff",
@@ -27,11 +27,11 @@ var defaultTheme = &Theme{
 
 		ActiveSelectionTitle: TextColorSet{
 			// BG:  "#d28169",
-			TXT: "#f79980",
+			TXT: "#c28bfb",
 		},
 		NormalTitle: TextColorSet{
 			// BG:  "#ffffff",
-			TXT: "#a1a09c",
+			TXT: "#dbded9",
 		},
 		// DimmedTitle: TextColorSet{
 		// 	BG:  "#ffffff",
@@ -39,7 +39,7 @@ var defaultTheme = &Theme{
 		// },
 		ActiveSelectionDescription: TextColorSet{
 			// BG:  "#9f614f",
-			TXT: "#f79980",
+			TXT: "#d8b0f9",
 		},
 		NormalDescription: TextColorSet{
 			// BG:  "#ffffff",
@@ -47,14 +47,14 @@ var defaultTheme = &Theme{
 		},
 		DimmedDescription: TextColorSet{
 			// BG:  "transparent",
-			TXT: "#4b3a34",
+			TXT: "#665672",
 		},
 	},
 
 	MainHeader: HeaderColorSet{
 		Title: TextColorSet{
-			BG:  "#d65f50",
-			TXT: "#ffffff",
+			BG:  "#f7c768",
+			TXT: "#4f4156",
 		},
 		ItemCount: TextColorSet{
 			// BG:  "#ffffff",
@@ -71,43 +71,43 @@ var defaultTheme = &Theme{
 	},
 
 	Table: TableColors{
-		ActiveBorder: "#ffb8bc",
-		DimmedBorder: "#4b3e3b",
+		ActiveBorder: "#c28bfb",
+		DimmedBorder: "#40364a",
 
 		ActiveCell: TextColorSet{
-			BG:  "#ffffff",
+			// BG:  "#ffffff",
 			TXT: "#ffffff",
 		},
 		DimmedCell: TextColorSet{
 			BG:  "#4b3e3b",
-			TXT: "#ffffff",
+			TXT: "#616161",
 		},
 		ActiveHeader: TextColorSet{
-			BG:  "#c5636a",
+			BG:  "#986cbd",
 			TXT: "#ffffff",
 		},
 		DimmedHeader: TextColorSet{
-			BG:  "#4b3e3b",
+			BG:  "#43354a",
 			TXT: "#616161",
 		},
 		ActiveSelected: TextColorSet{
-			BG:  "#ffb1b5",
+			BG:  "#d8b0f9",
 			TXT: "#322223",
 		},
 		DimmedSelected: TextColorSet{
 			BG:  "#616161",
-			TXT: "#222222",
+			TXT: "#616161",
 		},
 	},
 
 	Tab: TabColors{
-		ActiveTabBorder:   "#ffb8bc",
-		InactiveTabBorder: "#ffb8bc",
+		ActiveTabBorder:   "#c28bfb",
+		InactiveTabBorder: "#c28bfb",
 		// DimmedActiveTabBorder:   "#ffffff",
-		DimmedInactiveTabBorder: "#4b3e3b",
+		DimmedInactiveTabBorder: "#40364a",
 
 		ActiveTab: TextColorSet{
-			BG:  "#ffb1b5",
+			BG:  "#d8b0f9",
 			TXT: "#322223",
 		},
 		InactiveTab: TextColorSet{
@@ -115,24 +115,24 @@ var defaultTheme = &Theme{
 			// TXT: "#ffffff",
 		},
 		DimmedActiveTab: TextColorSet{
-			BG:  "#4b3e3b",
-			TXT: "#aa9890",
+			BG:  "#40364a",
+			TXT: "#a193a9",
 		},
 		DimmedInactiveTab: TextColorSet{
 			// BG:  "#4b3e3b",
-			TXT: "#4b3e3b",
+			TXT: "#40364a",
 		},
 
-		ActiveTabContentKeys:         "#ff9184",
+		ActiveTabContentKeys:         "#f8c86a",
 		DimmedActiveTabContentKeys:   "#ffffff",
 		ActiveTabContentValues:       "#ffffff",
 		DimmedActiveTabContentValues: "#ffffff",
 	},
 
 	Paginator: PaginatorColorSet{
-		Active:   "#ffb1b5",
-		Inactive: "#624548",
-		Dimmed:   "#4b3e3b",
+		Active:   "#c28bfb",
+		Inactive: "#775497",
+		Dimmed:   "#483955",
 	},
 
 	SyncBar: SyncBarColors{
@@ -172,19 +172,19 @@ var defaultTheme = &Theme{
 
 	StatusBar: StatusBarColors{
 		ResourceSection: TextColorSet{
-			BG:  "#ffffff",
-			TXT: "#ffffff",
+			BG:  "#f8c86a",
+			TXT: "#4f4156",
 		},
 		ResourceDetailsSection: TextColorSet{
-			BG:  "#ffffff",
+			BG:  "#303040",
 			TXT: "#ffffff",
 		},
 		ContextSection: TextColorSet{
-			BG:  "#ffffff",
+			BG:  "#3195ef",
 			TXT: "#ffffff",
 		},
 		NamespaceSection: TextColorSet{
-			BG:  "#ffffff",
+			BG:  "#d06bcd",
 			TXT: "#ffffff",
 		},
 	},

@@ -52,7 +52,7 @@ func formatLogAttrValue(i interface{}) string {
 		text = fmt.Sprintf("%vms", value.Round(time.Millisecond))
 	}
 	return lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#be80cb")).
+		Foreground(lipgloss.Color("#d8b0f9")).
 		// Foreground(lipgloss.Color("#ffffff")).
 		Render(fmt.Sprintf("=%v", text))
 }
@@ -87,7 +87,7 @@ func newStatusLogger() statusLoggerModel {
 				TimeFormat: time.TimeOnly,
 				FormatFieldName: func(i interface{}) string {
 					return lipgloss.NewStyle().
-						Foreground(lipgloss.Color("#be80cb")).
+						Foreground(lipgloss.Color("#d8b0f9")).
 						Render(i.(string))
 				},
 				FormatFieldValue: formatLogAttrValue,

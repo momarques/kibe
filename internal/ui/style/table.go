@@ -38,8 +38,7 @@ func dimmedTableHeaderStyle() lipgloss.Style {
 }
 
 func dimmedTableCellStyle() lipgloss.Style {
-	return lipgloss.NewStyle().
-		Foreground(theme.GetColor(theme.Selected.Table.DimmedCell.TXT))
+	return lipgloss.NewStyle()
 }
 
 func dimmedTableSelectedStyle() lipgloss.Style {
