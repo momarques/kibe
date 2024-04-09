@@ -7,14 +7,9 @@ import (
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/momarques/kibe/internal/logging"
+	"github.com/samber/lo"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
-
-var SupportedResources = []Resource{
-	NewPodResource(),
-	NewNamespaceResource(),
-	NewServiceResource(),
-}
 
 type Resource interface {
 	Describe(ClientReady) ResourceDescription
@@ -25,6 +20,37 @@ type Resource interface {
 	List(ClientReady) (Resource, error)
 	Columns() []table.Column
 	Rows() []table.Row
+}
+
+func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {
+	for _, v := range apiList {
+		for _, r := range v.APIResources {
+			if r.Kind == kind {
+				return v.GroupVersion
+			}
+		}
+	}
+	return ""
+}
+
+var SupportedResources = []Resource{
+	NewPodResource(),
+	NewNamespaceResource(),
+	NewServiceResource(),
+}
+
+func ListAvailableResources(c ClientReady) []list.Item {
+	apiList, err := c.ServerPreferredResources()
+	if err != nil {
+		logging.Log.Error(err)
+	}
+	return lo.Map(SupportedResources,
+		func(item Resource, _ int) list.Item {
+			return ResourceItem{
+				kind:       item.Kind(),
+				apiVersion: LookupAPIVersion(item.Kind(), apiList),
+			}
+		})
 }
 
 type SelectResource struct{ Resources []list.Item }
@@ -44,35 +70,4 @@ func (r ResourceItem) Title() string       { return r.kind }
 func (r ResourceItem) FilterValue() string { return r.kind }
 func (r ResourceItem) Description() string {
 	return fmt.Sprintf("API Version: %s", r.apiVersion)
-}
-
-func newResourceList(apiList []*v1.APIResourceList) []list.Item {
-	resourceList := []list.Item{}
-
-	for _, v := range SupportedResources {
-		resourceList = append(resourceList, ResourceItem{
-			kind:       v.Kind(),
-			apiVersion: LookupAPIVersion(v.Kind(), apiList),
-		})
-	}
-	return resourceList
-}
-
-func ListAvailableResources(c ClientReady) []list.Item {
-	apiList, err := c.ServerPreferredResources()
-	if err != nil {
-		logging.Log.Error(err)
-	}
-	return newResourceList(apiList)
-}
-
-func LookupAPIVersion(kind string, apiList []*v1.APIResourceList) string {
-	for _, v := range apiList {
-		for _, r := range v.APIResources {
-			if r.Kind == kind {
-				return v.GroupVersion
-			}
-		}
-	}
-	return ""
 }

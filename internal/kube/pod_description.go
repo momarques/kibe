@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style"
 	"github.com/momarques/kibe/internal/ui/style/theme"
 	"github.com/samber/lo"
@@ -21,7 +20,7 @@ func DescribePod(c ClientReady) *corev1.Pod {
 		Pods(c.NamespaceSelected.String()).
 		Get(c.Ctx, c.ID(), v1.GetOptions{})
 	if err != nil {
-		logging.Log.Error(err)
+		c.Err <- err
 	}
 	return pod
 }
@@ -56,7 +55,7 @@ func (p Pod) Describe(c ClientReady) ResourceDescription {
 }
 
 func (pd PodDescription) TabNames() []string {
-	return LookupStructFieldNames(reflect.TypeOf(pd))
+	return LookupStructFieldNames(pd)
 }
 
 func (pd PodDescription) TabContent() []string {
@@ -109,7 +108,7 @@ func newPodOverview(pod *corev1.Pod) PodOverview {
 }
 
 func (po PodOverview) TabContent() string {
-	keys := LookupStructFieldNames(reflect.TypeOf(po))
+	keys := LookupStructFieldNames(po)
 
 	ips := lo.Map(po.IPs, func(item net.IP, _ int) string { return item.String() })
 	content := []string{
@@ -149,7 +148,7 @@ func newPodStatus(pod *corev1.Pod) PodStatus {
 }
 
 func (ps PodStatus) TabContent() string {
-	keys := LookupStructFieldNames(reflect.TypeOf(ps))
+	keys := LookupStructFieldNames(ps)
 
 	conditionsValue := strings.Join(ps.Conditions, "\n")
 	content := []string{ps.Start.String(), ps.Status, conditionsValue}

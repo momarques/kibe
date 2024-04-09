@@ -5,8 +5,18 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/samber/lo"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
+
+func CurrentContext() string { return FetchKubeConfig().CurrentContext }
+
+func ListContexts(config *api.Config) []list.Item {
+	return lo.Map(lo.Values(config.Contexts),
+		func(item *api.Context, _ int) list.Item {
+			return ContextItem(*item)
+		})
+}
 
 type SelectContext struct {
 	Contexts       []list.Item
@@ -14,10 +24,11 @@ type SelectContext struct {
 }
 
 func NewSelectContext() func() tea.Msg {
+	config := FetchKubeConfig()
 	return func() tea.Msg {
 		return SelectContext{
-			Contexts:       ListContexts(),
-			CurrentContext: CurrentContext(),
+			Contexts:       ListContexts(config),
+			CurrentContext: config.CurrentContext,
 		}
 	}
 }
@@ -39,15 +50,3 @@ func (c ContextItem) Description() string {
 	}
 	return user + namespace
 }
-
-func newContextList(config *api.Config) []list.Item {
-	contextList := []list.Item{}
-
-	for _, v := range config.Contexts {
-		contextList = append(contextList, ContextItem(*v))
-	}
-	return contextList
-}
-
-func ListContexts() []list.Item { return newContextList(FetchKubeConfig()) }
-func CurrentContext() string    { return FetchKubeConfig().CurrentContext }

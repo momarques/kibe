@@ -7,7 +7,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -36,9 +35,16 @@ func (n Namespace) List(c ClientReady) (Resource, error) {
 	return n, err
 }
 
+func namespaceFieldWidth(width int, ns corev1.Namespace, _ int) int {
+	if len(ns.Name) > width {
+		return len(ns.Name)
+	}
+	return width
+}
+
 func (n Namespace) Columns() (namespaceAttributes []table.Column) {
 	return append(namespaceAttributes,
-		table.Column{Title: "Name", Width: n.namespaceFieldWidth()},
+		table.Column{Title: "Name", Width: lo.Reduce(n.namespaces, namespaceFieldWidth, 0)},
 		table.Column{Title: "Age", Width: 20},
 	)
 }
@@ -55,28 +61,22 @@ func (n Namespace) Rows() (namespaceRows []table.Row) {
 	return namespaceRows
 }
 
-func (n Namespace) namespaceFieldWidth() int {
-	return lo.Reduce(n.namespaces,
-		func(width int, ns corev1.Namespace, _ int) int {
-			if len(ns.Name) > width {
-				return len(ns.Name)
-			}
-			return width
-		}, 0)
-}
-
-type SelectNamespace []list.Item
 type NamespaceSelected string
 
 func (n NamespaceSelected) String() string { return string(n) }
 
+type SelectNamespace []list.Item
+
 func NewSelectNamespace(c ClientReady) func() tea.Msg {
 	n, err := Namespace{}.List(c)
 	if err != nil {
-		logging.Log.Error(err)
+		c.Err <- err
 	}
 	return func() tea.Msg {
-		return SelectNamespace(n.(Namespace).newNamespaceList())
+		return lo.Map(n.(Namespace).namespaces,
+			func(item corev1.Namespace, _ int) list.Item {
+				return NamespaceItem(item.Name)
+			})
 	}
 }
 
@@ -85,12 +85,3 @@ type NamespaceItem string
 func (ni NamespaceItem) Title() string       { return "Namespace: " + string(ni) }
 func (ni NamespaceItem) FilterValue() string { return string(ni) }
 func (ni NamespaceItem) Description() string { return "" }
-
-func (n Namespace) newNamespaceList() []list.Item {
-	namespaceList := []list.Item{}
-
-	for _, ns := range n.namespaces {
-		namespaceList = append(namespaceList, NamespaceItem(ns.Name))
-	}
-	return namespaceList
-}

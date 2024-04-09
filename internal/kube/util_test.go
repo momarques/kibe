@@ -40,3 +40,21 @@ func Test_DeltaTime(t *testing.T) {
 		}
 	}
 }
+
+func Test_LookupStructFieldNames(t *testing.T) {
+	type S struct {
+		FullName   string `kibedescription:"Full Name"`
+		MotherName string `kibedescription:"Mother's Name"`
+		Age        int    `kibedescription:"Age"`
+	}
+
+	s := S{
+		FullName:   "John Doe",
+		MotherName: "Jane Doe",
+		Age:        30,
+	}
+
+	expected := []string{"Full Name", "Mother's Name", "Age"}
+	actual := LookupStructFieldNames(s)
+	assert.Equal(t, expected, actual)
+}

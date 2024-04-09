@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -33,40 +32,10 @@ func (s Service) List(c ClientReady) (Resource, error) {
 		Services(c.NamespaceSelected.String()).
 		List(context.Background(), v1.ListOptions{})
 	if err != nil {
-		logging.Log.Error(err)
+		c.Err <- err
 	}
 	s.services = services.Items
 	return s, err
-}
-func (s Service) Columns() (serviceAttributes []table.Column) {
-	return append(serviceAttributes,
-		table.Column{Title: "Name", Width: serviceFieldWidth("Name", s.services)},
-		table.Column{Title: "Type", Width: serviceFieldWidth("Type", s.services)},
-		table.Column{Title: "ClusterIP", Width: serviceFieldWidth("ClusterIP", s.services)},
-		table.Column{Title: "ExternalIP", Width: serviceFieldWidth("ExternalIP", s.services)},
-		table.Column{Title: "Ports", Width: serviceFieldWidth("Ports", s.services)},
-		table.Column{Title: "Age", Width: 20},
-	)
-}
-
-func (s Service) Rows() (serviceRows []table.Row) {
-	for _, svc := range s.services {
-
-		serviceRows = append(serviceRows,
-			table.Row{
-				svc.Name,
-				string(
-					svc.Spec.Type),
-				svc.Spec.ClusterIP,
-				strings.Join(
-					svc.Spec.ExternalIPs, ", "),
-				servicePortsAsString(
-					svc.Spec.Ports),
-				DeltaTime(svc.GetCreationTimestamp().Time, time.Now()),
-			},
-		)
-	}
-	return serviceRows
 }
 
 func serviceFieldWidth(fieldName string, services []corev1.Service) int {
@@ -101,6 +70,17 @@ func serviceFieldWidth(fieldName string, services []corev1.Service) int {
 		}, 0)
 }
 
+func (s Service) Columns() (serviceAttributes []table.Column) {
+	return append(serviceAttributes,
+		table.Column{Title: "Name", Width: serviceFieldWidth("Name", s.services)},
+		table.Column{Title: "Type", Width: serviceFieldWidth("Type", s.services)},
+		table.Column{Title: "ClusterIP", Width: serviceFieldWidth("ClusterIP", s.services)},
+		table.Column{Title: "ExternalIP", Width: serviceFieldWidth("ExternalIP", s.services)},
+		table.Column{Title: "Ports", Width: serviceFieldWidth("Ports", s.services)},
+		table.Column{Title: "Age", Width: 20},
+	)
+}
+
 func servicePortsAsString(services []corev1.ServicePort) string {
 	var ports []string
 
@@ -113,4 +93,24 @@ func servicePortsAsString(services []corev1.ServicePort) string {
 		ports = append(ports, portAsString)
 	}
 	return strings.Join(ports, ", ")
+}
+
+func (s Service) Rows() (serviceRows []table.Row) {
+	for _, svc := range s.services {
+
+		serviceRows = append(serviceRows,
+			table.Row{
+				svc.Name,
+				string(
+					svc.Spec.Type),
+				svc.Spec.ClusterIP,
+				strings.Join(
+					svc.Spec.ExternalIPs, ", "),
+				servicePortsAsString(
+					svc.Spec.Ports),
+				DeltaTime(svc.GetCreationTimestamp().Time, time.Now()),
+			},
+		)
+	}
+	return serviceRows
 }

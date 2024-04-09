@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/charmbracelet/bubbles/table"
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/momarques/kibe/internal/ui/style/window"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
@@ -42,7 +41,7 @@ func (p Pod) List(c ClientReady) (Resource, error) {
 		Pods(c.NamespaceSelected.String()).
 		List(c.Ctx, v1.ListOptions{})
 	if err != nil {
-		logging.Log.Error(err)
+		c.Err <- err
 	}
 	p.pods = pods.Items
 	return p, err
@@ -72,22 +71,6 @@ func (p Pod) Columns() (podAttributes []table.Column) {
 	)
 }
 
-func (p Pod) Rows() (podRows []table.Row) {
-	for _, pod := range p.pods {
-		podRows = append(podRows,
-			table.Row{
-				pod.Name,
-				checkReadyContainers(pod.Status.ContainerStatuses),
-				string(pod.Status.Phase),
-				checkRestartedContainers(pod.Status.ContainerStatuses),
-				pod.Spec.NodeName,
-				DeltaTime(pod.GetCreationTimestamp().Time, time.Now()),
-			},
-		)
-	}
-	return podRows
-}
-
 func checkReadyContainers(containers []corev1.ContainerStatus) string {
 	return fmt.Sprintf("%d/%d",
 		lo.CountBy(containers,
@@ -103,4 +86,20 @@ func checkRestartedContainers(containers []corev1.ContainerStatus) string {
 			func(restarts int, container corev1.ContainerStatus, _ int) int {
 				return restarts + int(container.RestartCount)
 			}, 0))
+}
+
+func (p Pod) Rows() (podRows []table.Row) {
+	for _, pod := range p.pods {
+		podRows = append(podRows,
+			table.Row{
+				pod.Name,
+				checkReadyContainers(pod.Status.ContainerStatuses),
+				string(pod.Status.Phase),
+				checkRestartedContainers(pod.Status.ContainerStatuses),
+				pod.Spec.NodeName,
+				DeltaTime(pod.GetCreationTimestamp().Time, time.Now()),
+			},
+		)
+	}
+	return podRows
 }

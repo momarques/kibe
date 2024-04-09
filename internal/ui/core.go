@@ -47,7 +47,7 @@ func NewUI() CoreUI {
 	return CoreUI{
 		viewState: showClientConfig,
 
-		client: kube.ClientReady{},
+		client: kube.NewClientReady(),
 
 		globalKeys:   newGlobalKeyMap(),
 		keys:         setKeys(table.tableKeyMap, tab.tabKeyMap),

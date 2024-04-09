@@ -17,8 +17,14 @@ type ClientReady struct {
 
 	Ctx    context.Context
 	Cancel context.CancelFunc
-	Err    error
+	Err    chan error
 	TableResponse
+}
+
+func NewClientReady() ClientReady {
+	return ClientReady{
+		Err: make(chan error),
+	}
 }
 
 func (c ClientReady) WithContext() ClientReady {
@@ -42,11 +48,6 @@ func (c ClientReady) WithNamespace(namespace string) ClientReady {
 
 func (c ClientReady) WithResource(r Resource) ClientReady {
 	c.ResourceSelected = r
-	return c
-}
-
-func (c ClientReady) WithErr(err error) ClientReady {
-	c.Err = c.TableResponse.FetchErr
 	return c
 }
 

@@ -11,7 +11,6 @@ type ResourceDescription interface {
 	SubContent(int) []string
 }
 
-// ResourceLabels provides a map of labels from the resource
 type ResourceLabels map[string]string
 
 func (rl ResourceLabels) TabContent() string {
@@ -21,7 +20,6 @@ func (rl ResourceLabels) TabContent() string {
 	return theme.FormatTable(keys, content)
 }
 
-// ResourceAnnotations provides a map of annotations from the resource
 type ResourceAnnotations map[string]string
 
 func (ra ResourceAnnotations) TabContent() string {

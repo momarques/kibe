@@ -19,7 +19,8 @@ func DeltaTime(t1, t2 time.Time) string {
 	return elapsed
 }
 
-func LookupStructFieldNames(t reflect.Type) []string {
+func LookupStructFieldNames(s any) []string {
+	t := reflect.TypeOf(s)
 	return lo.Times(t.NumField(),
 		func(index int) string {
 			tabName, _ := t.Field(index).Tag.Lookup("kibedescription")
