@@ -35,7 +35,7 @@ type clientConfigSelector struct {
 
 func newClientConfigSelector() clientConfigSelector {
 	sp := spinner.New(
-		spinner.WithStyle(style.OKStatusMessage()),
+		spinner.WithStyle(style.ClientConfigSpinnerStyle()),
 	)
 	sp.Spinner = spinner.Dot
 

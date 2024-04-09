@@ -55,3 +55,8 @@ func ClientConfigFilterCursorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Foreground(theme.GetColor(theme.Selected.ClientConfig.Header.FilterCursor.TXT))
 }
+
+func ClientConfigSpinnerStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Foreground(theme.GetColor(theme.Selected.ClientConfig.Spinner.TXT))
+}

@@ -11,8 +11,8 @@ import (
 	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
-const tabViewHiddenHeightPercentage int = 42
-const tabContentHeightPercentage int = 28
+const tabViewHiddenHeightPercentage int = 44
+const tabContentHeightPercentage int = 29
 
 type tabViewState int
 

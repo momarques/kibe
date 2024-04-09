@@ -60,7 +60,7 @@ func newSyncBarModel() syncBarModel {
 		fgColor: lipgloss.Color("#ffffff"),
 		spinner: spinner.New(
 			spinner.WithSpinner(spinner.Dot),
-			spinner.WithStyle(style.OKStatusMessage()),
+			spinner.WithStyle(style.ClientConfigSpinnerStyle()),
 		),
 		spinnerState: hideSpinner,
 	}

@@ -52,6 +52,7 @@ type PaginatorColorSet struct {
 
 type ClientConfigColors struct {
 	Header        HeaderColorSet `yaml:"header,omitempty"`
+	Spinner       TextColorSet   `yaml:"spinner,omitempty"`
 	StatusMessage TextColorSet   `yaml:"statusMessage,omitempty"`
 
 	ActiveSelectionTitle TextColorSet `yaml:"activeSelectionTitle,omitempty"`

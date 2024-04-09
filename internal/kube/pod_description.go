@@ -151,7 +151,7 @@ func newPodStatus(pod *corev1.Pod) PodStatus {
 func (ps PodStatus) TabContent() string {
 	keys := LookupStructFieldNames(reflect.TypeOf(ps))
 
-	conditionsValue := strings.Join(ps.Conditions, " -> ")
+	conditionsValue := strings.Join(ps.Conditions, "\n")
 	content := []string{ps.Start.String(), ps.Status, conditionsValue}
 
 	return theme.FormatTable(keys, content)

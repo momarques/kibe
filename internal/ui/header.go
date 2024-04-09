@@ -29,12 +29,9 @@ func updateHeaderTitle(title string) tea.Cmd {
 }
 
 func (m CoreUI) headerView() string {
-	titleStyle := style.CoreHeaderTitleStyle
-	itemCountStyle := style.CoreHeaderItemCountStyle
-
 	return lipgloss.JoinVertical(
 		lipgloss.Left,
-		titleStyle().Render(string(m.header.text)),
-		itemCountStyle().Render(fmt.Sprintf("%d items", m.header.itemCount)),
+		style.CoreHeaderTitleStyle().Render(string(m.header.text)),
+		style.CoreHeaderItemCountStyle().Render(fmt.Sprintf("%d items", m.header.itemCount)),
 	)
 }

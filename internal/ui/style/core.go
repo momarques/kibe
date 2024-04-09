@@ -15,7 +15,6 @@ func CoreHeaderTitleStyle() lipgloss.Style {
 	return ViewTitleStyle.
 		Foreground(theme.GetColor(theme.Selected.MainHeader.Title.TXT)).
 		Background(theme.GetColor(theme.Selected.MainHeader.Title.BG)).
-		MarginTop(1).
 		MarginLeft(2)
 }
 
