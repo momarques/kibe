@@ -73,10 +73,10 @@ func NewSelectNamespace(c ClientReady) func() tea.Msg {
 		c.Err <- err
 	}
 	return func() tea.Msg {
-		return lo.Map(n.(Namespace).namespaces,
+		return SelectNamespace(lo.Map(n.(Namespace).namespaces,
 			func(item corev1.Namespace, _ int) list.Item {
 				return NamespaceItem(item.Name)
-			})
+			}))
 	}
 }
 

@@ -5,7 +5,6 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kibe/internal/logging"
 	core "github.com/momarques/kibe/internal/ui"
 	"github.com/spf13/cobra"
 )
@@ -26,15 +25,6 @@ var runCmd = &cobra.Command{
 		program := tea.NewProgram(
 			core.NewUI(),
 			tea.WithAltScreen())
-
-		if len(os.Getenv("DEBUG")) > 0 {
-			f, err := tea.LogToFile(logging.LogFile, "debug")
-			if err != nil {
-				fmt.Println("failed to set log file:", err)
-				os.Exit(1)
-			}
-			defer f.Close()
-		}
 
 		if _, err := program.Run(); err != nil {
 			fmt.Println("failed to run program:", err)

@@ -6,7 +6,6 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/table"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/momarques/kibe/internal/logging"
 	"github.com/samber/lo"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -42,7 +41,7 @@ var SupportedResources = []Resource{
 func ListAvailableResources(c ClientReady) []list.Item {
 	apiList, err := c.ServerPreferredResources()
 	if err != nil {
-		logging.Log.Error(err)
+		c.Err <- err
 	}
 	return lo.Map(SupportedResources,
 		func(item Resource, _ int) list.Item {

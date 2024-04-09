@@ -32,11 +32,11 @@ func DescribePod(c ClientReady) *corev1.Pod {
 type PodDescription struct {
 	Overview       PodOverview         `kibedescription:"Overview"`
 	Status         PodStatus           `kibedescription:"Status"`
-	Labels         ResourceLabels      `kibedescription:"Labels"`
-	Annotations    ResourceAnnotations `kibedescription:"Annotations"`
+	Labels         ResourceLabels      `kibedescription:" Labels "`
+	Annotations    ResourceAnnotations `kibedescription:" Annotations "`
 	Volumes        PodVolumes          `kibedescription:"Volumes"`
 	Containers     PodContainers       `kibedescription:"Containers"`
-	NodeScheduling PodNodeScheduling   `kibedescription:"Node Scheduling"`
+	NodeScheduling PodNodeScheduling   `kibedescription:" Node Scheduling "`
 	Events         []string            `kibedescription:"Events"`
 }
 
