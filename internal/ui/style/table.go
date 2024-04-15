@@ -49,12 +49,7 @@ func dimmedTableSelectedStyle() lipgloss.Style {
 
 func PaginatorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		MarginLeft(2).
-		MarginBottom(1)
-}
-
-func DimmedPaginatorStyle() lipgloss.Style {
-	return PaginatorStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Dimmed))
+		MarginLeft(2)
 }
 
 func ActiveDotPaginatorStyle() lipgloss.Style {
@@ -65,7 +60,11 @@ func InactiveDotPaginatorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Inactive))
 }
 
-func DimmedDotaginatorStyle() lipgloss.Style {
+func DimmedPaginatorStyle() lipgloss.Style {
+	return PaginatorStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Dimmed))
+}
+
+func DimmedDotPaginatorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Dimmed))
 }
 

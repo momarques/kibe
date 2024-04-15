@@ -3,13 +3,11 @@ package style
 import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/ui/style/theme"
-	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
 var (
-	WindowWidth, WindowHeight = window.GetWindowSize()
-	inactiveTabBorder         = tabBorderWithBottom("┴", "─", "┴")
-	activeTabBorder           = tabBorderWithBottom("┘", " ", "└")
+	inactiveTabBorder = tabBorderWithBottom("┴", "─", "┴")
+	activeTabBorder   = tabBorderWithBottom("┘", " ", "└")
 )
 
 func inactiveTabStyle() lipgloss.Style {
@@ -41,7 +39,7 @@ func dimmedActiveTabStyle() lipgloss.Style {
 		Foreground(theme.GetColor(theme.Selected.Tab.DimmedActiveTab.TXT))
 }
 
-func DocStyle() lipgloss.Style {
+func TabWindowStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Padding(0).
 		MarginLeft(2)

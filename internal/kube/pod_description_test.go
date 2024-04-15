@@ -10,12 +10,11 @@ func Test_PodDescriptionTabNames(t *testing.T) {
 	expected := []string{
 		"Overview",
 		"Status",
-		"Labels",
-		"Annotations",
+		" Labels ",
+		" Annotations ",
 		"Volumes",
 		"Containers",
-		"Scheduling",
-		"Node Scheduling",
+		" Node Scheduling ",
 		"Events",
 	}
 

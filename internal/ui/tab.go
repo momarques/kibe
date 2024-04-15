@@ -11,9 +11,6 @@ import (
 	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
-const tabViewHiddenHeightPercentage int = 44
-const tabContentHeightPercentage int = 29
-
 type tabViewState int
 
 const (
@@ -43,6 +40,43 @@ func newTabModel() tabModel {
 
 		paginator: newPaginatorModel(1),
 	}
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func showedTabSize() int {
+	return headerSize + footerSize + tableHeaderSize +
+		tableBodySize + tableFooterSize + tabPaginatorSize
+}
+
+func hiddenTabSize() int {
+	return headerSize + footerSize + tableHeaderSize +
+		tableBodySize + tableFooterSize + tabHeaderSize +
+		tabPaginatorSize + tabFooterSize +
+		tabFooterBlankSpaceSize +
+		3 // 2 is the number of the content block vertical padding (1 top and 1 bottom)
+}
+
+func (t tabModel) fetchSubContent(msg tea.Msg) tabModel {
+	t.TabSubContent = t.ResourceDescription.SubContent(t.activeTab)
+	if len(t.TabSubContent) > 0 {
+		t.tabViewState = contentSelected
+		t.paginator.SetTotalPages(len(t.TabSubContent))
+		t.paginator.Model, _ = t.paginator.Update(msg)
+	}
+	return t
 }
 
 func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -109,6 +143,10 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func (t tabModel) getTabPositions(index int) (bool, bool, bool) {
+	return index == 0, index == len(t.Tabs)-1, index == t.activeTab
+}
+
 func (m CoreUI) formatTabs() []string {
 	var activeStyle, inactiveStyle lipgloss.Style = style.NewTabStyle(m.tab.dimm)
 	var renderedTabs []string
@@ -141,9 +179,11 @@ func (m CoreUI) formatTabs() []string {
 }
 
 func (m CoreUI) tabView() string {
+	_, h := window.GetWindowSize()
+
 	if m.tab.Tabs == nil {
 		return lipgloss.NewStyle().
-			Height(window.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
+			Height(h - showedTabSize()).
 			Width(103).
 			Render("")
 	}
@@ -155,7 +195,7 @@ func (m CoreUI) tabView() string {
 		m.tab.dimm = false
 	}
 
-	doc := strings.Builder{}
+	tabWindow := strings.Builder{}
 
 	tabs := lipgloss.JoinHorizontal(lipgloss.Top, m.formatTabs()...)
 	windowStyle := style.NewWindowStyle(m.tab.dimm)
@@ -165,9 +205,8 @@ func (m CoreUI) tabView() string {
 		Width((lipgloss.Width(tabs) - windowStyle.GetHorizontalFrameSize()))
 
 	var content string
-	var contentBlock lipgloss.Style = lipgloss.NewStyle().
-		Height(window.ComputeHeightPercentage(tabContentHeightPercentage))
-		// Width(100)
+	var contentBlockStyle lipgloss.Style = lipgloss.NewStyle().
+		Height(h - hiddenTabSize())
 	var paginatorView string = "\n"
 
 	switch m.tab.tabViewState {
@@ -175,37 +214,20 @@ func (m CoreUI) tabView() string {
 		content = m.tab.TabContent[m.tab.activeTab]
 	case contentSelected:
 		content = m.tab.TabSubContent[m.tab.activeSubContent]
-		paginatorView = m.tab.paginator.view(m.tab.dimm)
+		paginatorView = m.tab.paginator.view(m.tab.dimm) + "\n"
 	}
 
-	doc.WriteString(tabs)
-	doc.WriteString("\n")
-	doc.WriteString(contentStyle.Render(
-		lipgloss.JoinVertical(
+	tabWindow.WriteString(tabs)
+	tabWindow.WriteString("\n")
+	tabWindow.WriteString(contentStyle.
+		Render(lipgloss.JoinVertical(
 			lipgloss.Left,
-			contentBlock.Render(content),
+			contentBlockStyle.Render(content),
 			paginatorView,
 		)))
-	return style.DocStyle().
-		Render(doc.String())
-}
 
-func (t tabModel) getTabPositions(index int) (bool, bool, bool) {
-	return index == 0, index == len(t.Tabs)-1, index == t.activeTab
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	return style.TabWindowStyle().
+		Render(tabWindow.String())
 }
 
 type descriptionReady struct {
@@ -221,14 +243,4 @@ func (t tabModel) describeResource(c kube.ClientReady) (tabModel, tea.Cmd) {
 			t.ResourceDescription.TabContent(),
 		}
 	}
-}
-
-func (t tabModel) fetchSubContent(msg tea.Msg) tabModel {
-	t.TabSubContent = t.ResourceDescription.SubContent(t.activeTab)
-	if len(t.TabSubContent) > 0 {
-		t.tabViewState = contentSelected
-		t.paginator.SetTotalPages(len(t.TabSubContent))
-		t.paginator.Model, _ = t.paginator.Update(msg)
-	}
-	return t
 }

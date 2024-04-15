@@ -7,10 +7,19 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/mistakenelf/teacup/statusbar"
 	"github.com/momarques/kibe/internal/kube"
-	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
-const blankSpaceHeightPercentage int = 3
+const (
+	headerSize              = 4
+	footerSize              = 6
+	tableHeaderSize         = 2
+	tableBodySize           = 16
+	tableFooterSize         = 1
+	tabHeaderSize           = 3
+	tabPaginatorSize        = 1
+	tabFooterSize           = 1
+	tabFooterBlankSpaceSize = 1
+)
 
 type viewState int
 
@@ -73,9 +82,6 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.QuitMsg:
 		return m, tea.Quit
 
-	// case statusLogMessage:
-	// 	return m.updateStatusLog(msg, -1), nil
-
 	case statusBarUpdated:
 		return m.applyStatusBarChanges(msg)
 
@@ -93,7 +99,6 @@ func (m CoreUI) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(msg, m.globalKeys.SelectResource):
 			return m.clearResourceSelection(), nil
 		}
-
 	}
 
 	switch m.viewState {
@@ -124,7 +129,7 @@ func (m CoreUI) composedView() string {
 	var dimmMainPaginator bool
 
 	blankSpace := lipgloss.NewStyle().
-		Height(window.ComputeHeightPercentage(blankSpaceHeightPercentage)).
+		Height(tabFooterBlankSpaceSize).
 		Render("")
 
 	switch m.viewState {
@@ -158,6 +163,7 @@ func (m CoreUI) composedView() string {
 	leftUtilityPanel := lipgloss.JoinVertical(
 		lipgloss.Left,
 		m.table.paginator.view(dimmMainPaginator),
+		lipgloss.NewStyle().Render(""),
 		m.syncBarView(),
 	)
 

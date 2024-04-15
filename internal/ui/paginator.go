@@ -29,8 +29,8 @@ func newPaginatorModel(itemsPerPage int) paginatorModel {
 
 func (p paginatorModel) view(dimm bool) string {
 	if dimm {
-		p.ActiveDot = style.DimmedDotaginatorStyle().Render(paginatorDot)
-		p.InactiveDot = style.DimmedDotaginatorStyle().Render(paginatorDot)
+		p.ActiveDot = style.DimmedDotPaginatorStyle().Render(paginatorDot)
+		p.InactiveDot = style.DimmedDotPaginatorStyle().Render(paginatorDot)
 		return style.DimmedPaginatorStyle().
 			Render(p.View())
 	}
