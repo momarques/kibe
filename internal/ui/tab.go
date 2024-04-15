@@ -11,9 +11,6 @@ import (
 	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
-const tabViewHiddenHeightPercentage int = 44
-const tabContentHeightPercentage int = 30
-
 type tabViewState int
 
 const (
@@ -57,6 +54,29 @@ func min(a, b int) int {
 		return a
 	}
 	return b
+}
+
+func showedTabSize() int {
+	return headerSize + footerSize + tableHeaderSize +
+		tableBodySize + tableFooterSize + tabPaginatorSize
+}
+
+func hiddenTabSize() int {
+	return headerSize + footerSize + tableHeaderSize +
+		tableBodySize + tableFooterSize + tabHeaderSize +
+		tabPaginatorSize + tabFooterSize +
+		tabFooterBlankSpaceSize +
+		3 // 2 is the number of the content block vertical padding (1 top and 1 bottom)
+}
+
+func (t tabModel) fetchSubContent(msg tea.Msg) tabModel {
+	t.TabSubContent = t.ResourceDescription.SubContent(t.activeTab)
+	if len(t.TabSubContent) > 0 {
+		t.tabViewState = contentSelected
+		t.paginator.SetTotalPages(len(t.TabSubContent))
+		t.paginator.Model, _ = t.paginator.Update(msg)
+	}
+	return t
 }
 
 func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -162,10 +182,6 @@ func (m CoreUI) tabView() string {
 	_, h := window.GetWindowSize()
 
 	if m.tab.Tabs == nil {
-		m.log.Debug().
-			Int("height", h).
-			Int("tab hidden size", h-showedTabSize()).
-			Msg("tabView")
 		return lipgloss.NewStyle().
 			Height(h - showedTabSize()).
 			Width(103).
@@ -191,7 +207,6 @@ func (m CoreUI) tabView() string {
 	var content string
 	var contentBlockStyle lipgloss.Style = lipgloss.NewStyle().
 		Height(h - hiddenTabSize())
-		// Width(100)
 	var paginatorView string = "\n"
 
 	switch m.tab.tabViewState {
@@ -199,7 +214,7 @@ func (m CoreUI) tabView() string {
 		content = m.tab.TabContent[m.tab.activeTab]
 	case contentSelected:
 		content = m.tab.TabSubContent[m.tab.activeSubContent]
-		paginatorView = m.tab.paginator.view(m.tab.dimm)
+		paginatorView = m.tab.paginator.view(m.tab.dimm) + "\n"
 	}
 
 	tabWindow.WriteString(tabs)
@@ -211,10 +226,6 @@ func (m CoreUI) tabView() string {
 			paginatorView,
 		)))
 
-	m.log.Debug().
-		Int("height", h).
-		Int("tab showed size", h-hiddenTabSize()).
-		Msg("tabView")
 	return style.TabWindowStyle().
 		Render(tabWindow.String())
 }
@@ -232,14 +243,4 @@ func (t tabModel) describeResource(c kube.ClientReady) (tabModel, tea.Cmd) {
 			t.ResourceDescription.TabContent(),
 		}
 	}
-}
-
-func (t tabModel) fetchSubContent(msg tea.Msg) tabModel {
-	t.TabSubContent = t.ResourceDescription.SubContent(t.activeTab)
-	if len(t.TabSubContent) > 0 {
-		t.tabViewState = contentSelected
-		t.paginator.SetTotalPages(len(t.TabSubContent))
-		t.paginator.Model, _ = t.paginator.Update(msg)
-	}
-	return t
 }

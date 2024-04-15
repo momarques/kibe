@@ -53,7 +53,6 @@ func formatLogAttrValue(i interface{}) string {
 	}
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#d8b0f9")).
-		// Foreground(lipgloss.Color("#ffffff")).
 		Render(fmt.Sprintf("=%v", text))
 }
 

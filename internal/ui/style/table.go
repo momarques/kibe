@@ -52,10 +52,6 @@ func PaginatorStyle() lipgloss.Style {
 		MarginLeft(2)
 }
 
-func DimmedPaginatorStyle() lipgloss.Style {
-	return PaginatorStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Dimmed))
-}
-
 func ActiveDotPaginatorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Active))
 }
@@ -64,7 +60,11 @@ func InactiveDotPaginatorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Inactive))
 }
 
-func DimmedDotaginatorStyle() lipgloss.Style {
+func DimmedPaginatorStyle() lipgloss.Style {
+	return PaginatorStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Dimmed))
+}
+
+func DimmedDotPaginatorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().Foreground(theme.GetColor(theme.Selected.Paginator.Dimmed))
 }
 

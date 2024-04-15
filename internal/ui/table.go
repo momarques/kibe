@@ -13,8 +13,6 @@ import (
 	"github.com/momarques/kibe/internal/ui/style"
 )
 
-const tableViewHeightPercentage int = 32
-
 type tableContent struct {
 	syncState
 
@@ -209,6 +207,10 @@ func (m CoreUI) updateTable(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+func tableFullSize() int {
+	return tableHeaderSize + tableBodySize + tableFooterSize + 1
+}
+
 func (m CoreUI) tableView() string {
 	tableStyle := style.TableStyle
 	if m.viewState == showTab {
@@ -220,7 +222,7 @@ func (m CoreUI) tableView() string {
 
 	if m.table.columns == nil {
 		return lipgloss.NewStyle().
-			Height(tableBodySize).
+			Height(tableFullSize()).
 			Render("")
 	}
 	return tableStyle().Render(m.table.View())
