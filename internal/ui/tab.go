@@ -12,7 +12,7 @@ import (
 )
 
 const tabViewHiddenHeightPercentage int = 44
-const tabContentHeightPercentage int = 29
+const tabContentHeightPercentage int = 30
 
 type tabViewState int
 
@@ -43,6 +43,20 @@ func newTabModel() tabModel {
 
 		paginator: newPaginatorModel(1),
 	}
+}
+
+func max(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -109,6 +123,10 @@ func (m CoreUI) updateTab(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
+func (t tabModel) getTabPositions(index int) (bool, bool, bool) {
+	return index == 0, index == len(t.Tabs)-1, index == t.activeTab
+}
+
 func (m CoreUI) formatTabs() []string {
 	var activeStyle, inactiveStyle lipgloss.Style = style.NewTabStyle(m.tab.dimm)
 	var renderedTabs []string
@@ -141,9 +159,11 @@ func (m CoreUI) formatTabs() []string {
 }
 
 func (m CoreUI) tabView() string {
+	_, h := window.GetWindowSize()
+
 	if m.tab.Tabs == nil {
 		return lipgloss.NewStyle().
-			Height(window.ComputeHeightPercentage(tabViewHiddenHeightPercentage)).
+			Height(h - computeUsedScreenSpace()).
 			Width(103).
 			Render("")
 	}
@@ -155,7 +175,7 @@ func (m CoreUI) tabView() string {
 		m.tab.dimm = false
 	}
 
-	doc := strings.Builder{}
+	tabWindow := strings.Builder{}
 
 	tabs := lipgloss.JoinHorizontal(lipgloss.Top, m.formatTabs()...)
 	windowStyle := style.NewWindowStyle(m.tab.dimm)
@@ -165,8 +185,8 @@ func (m CoreUI) tabView() string {
 		Width((lipgloss.Width(tabs) - windowStyle.GetHorizontalFrameSize()))
 
 	var content string
-	var contentBlock lipgloss.Style = lipgloss.NewStyle().
-		Height(window.ComputeHeightPercentage(tabContentHeightPercentage))
+	var contentBlockStyle lipgloss.Style = lipgloss.NewStyle().
+		Height(15)
 		// Width(100)
 	var paginatorView string = "\n"
 
@@ -178,34 +198,17 @@ func (m CoreUI) tabView() string {
 		paginatorView = m.tab.paginator.view(m.tab.dimm)
 	}
 
-	doc.WriteString(tabs)
-	doc.WriteString("\n")
-	doc.WriteString(contentStyle.Render(
-		lipgloss.JoinVertical(
+	tabWindow.WriteString(tabs)
+	tabWindow.WriteString("\n")
+	tabWindow.WriteString(contentStyle.
+		Render(lipgloss.JoinVertical(
 			lipgloss.Left,
-			contentBlock.Render(content),
+			contentBlockStyle.Render(content),
 			paginatorView,
 		)))
-	return style.DocStyle().
-		Render(doc.String())
-}
 
-func (t tabModel) getTabPositions(index int) (bool, bool, bool) {
-	return index == 0, index == len(t.Tabs)-1, index == t.activeTab
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
-}
-
-func min(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	return style.TabWindowStyle().
+		Render(tabWindow.String())
 }
 
 type descriptionReady struct {

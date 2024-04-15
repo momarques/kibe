@@ -49,8 +49,7 @@ func dimmedTableSelectedStyle() lipgloss.Style {
 
 func PaginatorStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
-		MarginLeft(2).
-		MarginBottom(1)
+		MarginLeft(2)
 }
 
 func DimmedPaginatorStyle() lipgloss.Style {

@@ -12,6 +12,20 @@ import (
 
 const blankSpaceHeightPercentage int = 3
 
+const (
+	headerSize      = 4
+	footerSize      = 6
+	tableHeaderSize = 2
+	tableBodySize   = 16
+	tableFooterSize = 1
+	tabHeaderSize   = 3
+	tabFooterSize   = 1
+)
+
+func computeUsedScreenSpace() int {
+	return headerSize + footerSize + tableHeaderSize + tableBodySize + tableFooterSize + tabHeaderSize + tabFooterSize
+}
+
 type viewState int
 
 const (
@@ -158,6 +172,7 @@ func (m CoreUI) composedView() string {
 	leftUtilityPanel := lipgloss.JoinVertical(
 		lipgloss.Left,
 		m.table.paginator.view(dimmMainPaginator),
+		lipgloss.NewStyle().Render(""),
 		m.syncBarView(),
 	)
 

@@ -11,7 +11,6 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/momarques/kibe/internal/kube"
 	"github.com/momarques/kibe/internal/ui/style"
-	"github.com/momarques/kibe/internal/ui/style/window"
 )
 
 const tableViewHeightPercentage int = 32
@@ -26,7 +25,7 @@ type tableContent struct {
 
 func newTableContent() tableContent {
 	return tableContent{
-		paginator: newPaginatorModel((window.ComputeHeightPercentage(tableViewHeightPercentage))),
+		paginator: newPaginatorModel(tableBodySize),
 	}
 }
 
@@ -44,8 +43,7 @@ func newTableModel() tableModel {
 	)
 
 	t.SetStyles(style.NewTableStyle(false))
-	t.SetHeight(
-		window.ComputeHeightPercentage(tableViewHeightPercentage))
+	t.SetHeight(tableBodySize)
 
 	return tableModel{
 		Model: t,
@@ -222,7 +220,7 @@ func (m CoreUI) tableView() string {
 
 	if m.table.columns == nil {
 		return lipgloss.NewStyle().
-			Height((window.ComputeHeightPercentage(tableViewHeightPercentage) + 3)).
+			Height(tableBodySize).
 			Render("")
 	}
 	return tableStyle().Render(m.table.View())
