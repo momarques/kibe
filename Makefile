@@ -4,6 +4,9 @@ build:
 run: build
 	@go run main.go run
 
+test:
+	@go test -v ./...
+
 test-cmd: build
 	@go run main.go test
 
