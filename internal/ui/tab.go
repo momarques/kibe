@@ -162,8 +162,12 @@ func (m CoreUI) tabView() string {
 	_, h := window.GetWindowSize()
 
 	if m.tab.Tabs == nil {
+		m.log.Debug().
+			Int("height", h).
+			Int("tab hidden size", h-showedTabSize()).
+			Msg("tabView")
 		return lipgloss.NewStyle().
-			Height(h - computeUsedScreenSpace()).
+			Height(h - showedTabSize()).
 			Width(103).
 			Render("")
 	}
@@ -186,7 +190,7 @@ func (m CoreUI) tabView() string {
 
 	var content string
 	var contentBlockStyle lipgloss.Style = lipgloss.NewStyle().
-		Height(15)
+		Height(h - hiddenTabSize())
 		// Width(100)
 	var paginatorView string = "\n"
 
@@ -207,6 +211,10 @@ func (m CoreUI) tabView() string {
 			paginatorView,
 		)))
 
+	m.log.Debug().
+		Int("height", h).
+		Int("tab showed size", h-hiddenTabSize()).
+		Msg("tabView")
 	return style.TabWindowStyle().
 		Render(tabWindow.String())
 }

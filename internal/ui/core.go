@@ -13,17 +13,27 @@ import (
 const blankSpaceHeightPercentage int = 3
 
 const (
-	headerSize      = 4
-	footerSize      = 6
-	tableHeaderSize = 2
-	tableBodySize   = 16
-	tableFooterSize = 1
-	tabHeaderSize   = 3
-	tabFooterSize   = 1
+	headerSize       = 4
+	footerSize       = 6
+	tableHeaderSize  = 2
+	tableBodySize    = 16
+	tableFooterSize  = 1
+	tabHeaderSize    = 3
+	tabPaginatorSize = 1
+	tabFooterSize    = 1
 )
 
-func computeUsedScreenSpace() int {
-	return headerSize + footerSize + tableHeaderSize + tableBodySize + tableFooterSize + tabHeaderSize + tabFooterSize
+func showedTabSize() int {
+	return headerSize + footerSize + tableHeaderSize +
+		tableBodySize + tableFooterSize + tabPaginatorSize
+}
+
+func hiddenTabSize() int {
+	return headerSize + footerSize + tableHeaderSize +
+		tableBodySize + tableFooterSize + tabHeaderSize +
+		tabPaginatorSize + tabFooterSize +
+		2 + // 2 is the number of the content block vertical padding (1 top and 1 bottom)
+		2 // 3 is the number of the
 }
 
 type viewState int
