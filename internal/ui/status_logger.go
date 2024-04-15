@@ -53,7 +53,7 @@ func formatLogAttrValue(i interface{}) string {
 	}
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("#d8b0f9")).
-		Render(fmt.Sprintf("=%v", text))
+		Render(fmt.Sprintf("%v", text))
 }
 
 type statusLoggerModel struct {
@@ -87,7 +87,7 @@ func newStatusLogger() statusLoggerModel {
 				FormatFieldName: func(i interface{}) string {
 					return lipgloss.NewStyle().
 						Foreground(lipgloss.Color("#d8b0f9")).
-						Render(i.(string))
+						Render(i.(string) + "=")
 				},
 				FormatFieldValue: formatLogAttrValue,
 			},
